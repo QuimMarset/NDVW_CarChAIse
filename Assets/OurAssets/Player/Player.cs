@@ -61,8 +61,7 @@ public class Player : CarController
 
     protected virtual void Update()
 	{
-        float wheelsSpeed = GetWheelsSpeed();
-        SpeedText.text = (int)wheelsSpeed + "km/h ";
+        SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";
 	}
 
     protected override float GetSteeringAngle()

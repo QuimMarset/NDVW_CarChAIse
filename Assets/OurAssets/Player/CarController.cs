@@ -27,7 +27,7 @@ public abstract class CarController : MonoBehaviour
     [SerializeField] protected bool EnableABS = true;
     [SerializeField] protected float ABSThld = 0.75f;
     [SerializeField] protected float MaxSteeringAngle = 45;
-    [SerializeField] protected float MaxSpeed = 200;
+    [SerializeField] public float MaxSpeed = 200;
     [SerializeField] protected float BrakeTorque = 5000;
     [SerializeField] protected float MovementTorque = 1000;
     [SerializeField] protected bool LimitRpmAtCurve = true;
@@ -39,6 +39,8 @@ public abstract class CarController : MonoBehaviour
     protected const float RPM_PER_RADIUS_TO_KPH = 1f / 60f * 2f * Mathf.PI;
 
     // Auxiliar local variables
+    public float CurrentWheelsSpeed { get; protected set; }
+    public float CurrentForwardSpeed { get; protected set; }
     protected float LocalMaxSpeed;
     
 
@@ -50,6 +52,11 @@ public abstract class CarController : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
+        // Get speeds
+        CurrentWheelsSpeed = GetWheelsSpeed();
+        CurrentForwardSpeed = GetForwardSpeed();
+
+        // Control
         Steer();
         Move();
     }
@@ -128,8 +135,8 @@ public abstract class CarController : MonoBehaviour
         // Check difference between forward speed and wheels speed
         if (EnableABS && brakeRatio > 0)
 		{
-            float absWheelsSpeed = Mathf.Abs(GetWheelsSpeed());
-            float forwardSpeed = Vector3.Dot(CarRigidBody.velocity, transform.forward);
+            float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
+            float forwardSpeed = Vector3.Dot(CarRigidBody.velocity, transform.forward); // TODO: Check why this is 3.6 times greater than expected
             float slipRatio = absWheelsSpeed / forwardSpeed;
             if (slipRatio > 0.1 && slipRatio <= ABSThld)
                 brakeRatio = 0;
@@ -169,11 +176,10 @@ public abstract class CarController : MonoBehaviour
             float movementDirection = GetMovementDirection();
 
             // Compute speed of wheels
-            float wheelsSpeed = GetWheelsSpeed();
-            float absWheelsSpeed = Mathf.Abs(wheelsSpeed);            
+            float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);            
 
             // If movement direction is different from wheels speed, brake
-            if ((movementDirection > 0 && wheelsSpeed < 0) || (movementDirection < 0 && wheelsSpeed > 0))
+            if ((movementDirection > 0 && CurrentWheelsSpeed < 0) || (movementDirection < 0 && CurrentWheelsSpeed > 0))
             {
                Brake(Mathf.Abs(movementDirection));    // Absolute braking (independently of the direction sign)
             }
