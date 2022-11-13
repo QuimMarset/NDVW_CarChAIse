@@ -178,11 +178,12 @@ public abstract class CarController : MonoBehaviour
             // Compute speed of wheels
             float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
 
-            // If movement direction is different from wheels speed or it's zero, brake
-            if (movementDirection == 0 || (movementDirection > 0 && CurrentWheelsSpeed < 0) || (movementDirection < 0 && CurrentWheelsSpeed > 0))
+            // If movement direction is different from wheels speed or it's -Inf, brake
+            if (float.IsNegativeInfinity(movementDirection) || (movementDirection > 0 && CurrentWheelsSpeed < 0) || (movementDirection < 0 && CurrentWheelsSpeed > 0))
             {
-                if (movementDirection == 0)
-                    movementDirection = 1;  // When want to stop, brake as much as possible
+                // When want to stop, brake as much as possible (1)
+                if (float.IsNegativeInfinity(movementDirection))
+                    movementDirection = 1;
 
                Brake(Mathf.Abs(movementDirection));    // Absolute braking (independently of the direction sign)
             }

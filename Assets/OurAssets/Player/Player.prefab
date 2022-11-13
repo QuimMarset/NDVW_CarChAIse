@@ -543,7 +543,7 @@ MonoBehaviour:
   LimitRpmAtCurve: 0
   CurveSteerAngleThld: 30
   MaxSpeedAtCurve: 100
-  EnableHandBrake: 0
+  EnableHandBrake: 1
   HardBrakeStifnessMultiplier: 0.5
   SpeedText: {fileID: 0}
 --- !u!65 &5079490290422193036
