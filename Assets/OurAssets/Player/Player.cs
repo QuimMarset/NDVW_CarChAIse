@@ -61,7 +61,10 @@ public class Player : CarController
 
     protected virtual void Update()
 	{
-        SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";
+        if (SpeedText)
+            SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";
+        else
+            Debug.LogWarning("Canvas speed text missing");
 	}
 
     protected override float GetSteeringAngle()

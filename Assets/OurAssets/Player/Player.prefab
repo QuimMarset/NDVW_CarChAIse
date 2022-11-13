@@ -538,8 +538,8 @@ MonoBehaviour:
   ABSThld: 0.95
   MaxSteeringAngle: 60
   MaxSpeed: 200
-  BrakeTorque: 5000
-  MovementTorque: 1500
+  BrakeTorque: 10000
+  MovementTorque: 2000
   LimitRpmAtCurve: 0
   CurveSteerAngleThld: 30
   MaxSpeedAtCurve: 100
@@ -588,7 +588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MinPitch: 0.5
-  MaxPitch: 10
+  MaxPitch: 4
 --- !u!82 &2411839545052561102
 AudioSource:
   m_ObjectHideFlags: 0
