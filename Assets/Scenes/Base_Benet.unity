@@ -1345,14 +1345,6 @@ PrefabInstance:
       propertyPath: SpeedText
       value: 
       objectReference: {fileID: 577963214}
-    - target: {fileID: 5079490290422193040, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
-      propertyPath: BrakeTorque
-      value: 10000
-      objectReference: {fileID: 0}
-    - target: {fileID: 5079490290422193040, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
-      propertyPath: MovementTorque
-      value: 2000
-      objectReference: {fileID: 0}
     - target: {fileID: 5079490290653795158, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
       propertyPath: m_ForwardFriction.m_Stiffness
       value: 6
