@@ -45,6 +45,9 @@ public class CarAI : MonoBehaviour
     private float LocalMaxSpeed;
     private int Fails;
     private float MovementTorque = 1;
+    private Vector3 direction;
+    private float nextActionTime = 0.0f;
+    private float period = 0.1f;
 
     void Awake()
     {
@@ -60,10 +63,10 @@ public class CarAI : MonoBehaviour
     }
 
     void FixedUpdate()
-    {
+    {   
         UpdateWheels();
         ApplySteering();
-        PathProgress();
+        PathProgress_v1();
     }
 
     private void CalculateNavMashLayerBite()
@@ -82,26 +85,59 @@ public class CarAI : MonoBehaviour
         }
     }
 
-    private void PathProgress() //Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
+    // private void PathProgress() //Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
+    // {
+    //     wayPointManager();
+    //     Movement();
+    //     ListOptimizer();
+
+    //     void wayPointManager()
+    //     {
+    //         if (currentWayPoint >= waypoints.Count)
+    //             allowMovement = false;
+    //         else
+    //         {
+    //             PostionToFollow = waypoints[currentWayPoint];
+    //             allowMovement = true;
+    //             if (Vector3.Distance(carFront.position, PostionToFollow) < 2)
+    //                 currentWayPoint++;
+    //         }
+
+    //         if (currentWayPoint >= waypoints.Count - 3)
+    //             CreatePath();
+    //     }
+
+    //     void CreatePath()
+    //     {
+    //         if (CustomDestination == null)
+    //         {
+    //             if (Patrol == true)
+    //                 RandomPath();
+    //             else
+    //             {
+    //                 debug("No custom destination assigned and Patrol is set to false", false);
+    //                 allowMovement = false;
+    //             }
+    //         }
+    //         else
+    //            CustomPath(CustomDestination);
+    // }
+
+    private void PathProgress_v1() //Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
     {
         wayPointManager();
         Movement();
-        ListOptimizer();
 
         void wayPointManager()
         {
-            if (currentWayPoint >= waypoints.Count)
-                allowMovement = false;
-            else
-            {
-                PostionToFollow = waypoints[currentWayPoint];
-                allowMovement = true;
-                if (Vector3.Distance(carFront.position, PostionToFollow) < 2)
-                    currentWayPoint++;
-            }
+            CreatePath();
 
-            if (currentWayPoint >= waypoints.Count - 3)
-                CreatePath();
+            PostionToFollow = waypoints[currentWayPoint];
+            allowMovement = true;
+            if (Vector3.Distance(carFront.position, PostionToFollow) < 2)
+                currentWayPoint++;
+
+            // Debug.Log(Vector3.Distance(carFront.position, CustomDestination.position));
         }
 
         void CreatePath()
@@ -117,17 +153,8 @@ public class CarAI : MonoBehaviour
                 }
             }
             else
-               CustomPath(CustomDestination);
+               CustomPath_v1(CustomDestination);
             
-        }
-
-        void ListOptimizer()
-        {
-            if (currentWayPoint > 1 && waypoints.Count > 30)
-            {
-                waypoints.RemoveAt(0);
-                currentWayPoint--;
-            }
         }
     }
 
@@ -206,7 +233,63 @@ public class CarAI : MonoBehaviour
             if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 150, NavMeshAreaBite) &&
                 NavMesh.CalculatePath(sourcePostion, hit.position, NavMeshAreaBite, path))
             {
-                if (path.corners.ToList().Count() > 1&& CheckForAngle(path.corners[1], sourcePostion, direction))
+                if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePostion, direction))
+                {
+                    waypoints.AddRange(path.corners.ToList());
+                    debug("Custom Path generated successfully", false);
+                }
+                else
+                {
+                    if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePostion, direction))
+                    {
+                        waypoints.AddRange(path.corners.ToList());
+                        debug("Custom Path generated successfully", false);
+                    }
+                    else
+                    {
+                        debug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
+                        Fails++;
+                    }
+                }
+            }
+            else
+            {
+                debug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
+                Fails++;
+            }
+        }
+    }
+
+    public void CustomPath_v1(Transform destination) //Creates a path to the Custom destination
+    {
+        NavMeshPath path = new NavMeshPath();
+        Vector3 sourcePostion;
+        if (Time.time > nextActionTime ) {
+            nextActionTime += period;
+            waypoints = new List<Vector3>();
+            currentWayPoint = 0;
+        }
+
+        if (waypoints.Count == 0)
+        {
+            sourcePostion = carFront.position;
+            if(direction == null) direction = carFront.forward;
+            // Calculate(destination.position, sourcePostion, carFront.forward, NavMeshLayerBite);
+            Calculate(destination.position, sourcePostion, direction, NavMeshLayerBite);
+        }
+        else
+        {
+            sourcePostion = waypoints[waypoints.Count - 1];
+            Vector3 direction = (waypoints[waypoints.Count - 1] - waypoints[waypoints.Count - 2]).normalized;
+            Calculate(destination.position, sourcePostion, direction, NavMeshLayerBite);
+        }
+
+        void Calculate(Vector3 destination, Vector3 sourcePostion, Vector3 direction, int NavMeshAreaBite)
+        {
+            if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 150, NavMeshAreaBite) &&
+                NavMesh.CalculatePath(sourcePostion, hit.position, NavMeshAreaBite, path))
+            {
+                if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePostion, direction))
                 {
                     waypoints.AddRange(path.corners.ToList());
                     debug("Custom Path generated successfully", false);
