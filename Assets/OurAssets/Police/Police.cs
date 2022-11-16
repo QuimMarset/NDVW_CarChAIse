@@ -25,6 +25,10 @@ public class Police : CarController
     private Vector3 direction;
     private float nextActionTime = 0.0f;
     private float period = 0.1f;
+    private bool Debugger = false;
+    private bool ShowGizmos = true;
+
+    private float waypointDistanceThreshold = 20;
 
 
 
@@ -75,12 +79,7 @@ public class Police : CarController
         void wayPointManager()
         {
             CreatePath();
-
             PostionToFollow = waypoints[currentWayPoint];
-            if (Vector3.Distance(CarFront.position, PostionToFollow) < 2)
-                currentWayPoint++;
-
-            // Debug.Log(Vector3.Distance(carFront.position, CustomDestination.position));
         }
 
         void CreatePath()
@@ -104,57 +103,47 @@ public class Police : CarController
 
     public void CustomPath_v1(Transform destination) //Creates a path to the Custom destination
     {
-        UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
-        Vector3 sourcePostion;
         if (Time.time > nextActionTime ) {
-            nextActionTime += period;
-            waypoints = new List<Vector3>();
-            currentWayPoint = 0;
-        }
+            UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
+            Vector3 sourcePostion;
 
-        if (waypoints.Count == 0)
-        {
+            nextActionTime += period;
+            waypoints.Clear();
+            currentWayPoint = 1;
+        
             sourcePostion = CarFront.position;
             if(direction == null) direction = CarFront.forward;
             // Calculate(destination.position, sourcePostion, CarFront.forward, NavMeshLayerBite);
             Calculate(destination.position, sourcePostion, direction, NavMeshLayerBite);
-        }
-        else
-        {
-            sourcePostion = waypoints[waypoints.Count - 1];
-            Vector3 direction = (waypoints[waypoints.Count - 1] - waypoints[waypoints.Count - 2]).normalized;
-            Calculate(destination.position, sourcePostion, direction, NavMeshLayerBite);
-        }
-
-        void Calculate(Vector3 destination, Vector3 sourcePostion, Vector3 direction, int NavMeshAreaBite)
-        {
-            Debug.Log(NavMeshAreaBite);
-            if (UnityEngine.AI.NavMesh.SamplePosition(destination, out UnityEngine.AI.NavMeshHit hit, 1000000, NavMeshAreaBite) &&
-                UnityEngine.AI.NavMesh.CalculatePath(sourcePostion, hit.position, NavMeshAreaBite, path))
+            void Calculate(Vector3 destination, Vector3 sourcePostion, Vector3 direction, int NavMeshAreaBite)
             {
-                if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePostion, direction))
+                if (UnityEngine.AI.NavMesh.SamplePosition(destination, out UnityEngine.AI.NavMeshHit hit, 1000000, NavMeshAreaBite) &&
+                    UnityEngine.AI.NavMesh.CalculatePath(sourcePostion, hit.position, NavMeshAreaBite, path))
                 {
-                    waypoints.AddRange(path.corners.ToList());
-                    debug("Custom Path generated successfully", false);
-                }
-                else
-                {
-                    if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePostion, direction))
+                    if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePostion, direction))
                     {
                         waypoints.AddRange(path.corners.ToList());
                         debug("Custom Path generated successfully", false);
                     }
                     else
                     {
-                        debug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
-                        Fails++;
+                        if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePostion, direction))
+                        {
+                            waypoints.AddRange(path.corners.ToList());
+                            debug("Custom Path generated successfully", false);
+                        }
+                        else
+                        {
+                            debug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
+                            Fails++;
+                        }
                     }
                 }
-            }
-            else
-            {
-                debug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
-                Fails++;
+                else
+                {
+                    debug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
+                    Fails++;
+                }
             }
         }
     }
@@ -181,14 +170,65 @@ public class Police : CarController
 
     protected override float GetMovementDirection()
 	{
-        return 1.0f;
+        float direction = 0;
+        if(waypoints.Count == 2) direction = 1.0f;
+        else if (waypoints.Count > 2) {
+            float distanceToWaypoint = Vector3.Distance(CarFront.position, waypoints[currentWayPoint]);
+            
+            if (distanceToWaypoint > waypointDistanceThreshold) direction = 1.0f;
+            else {
+                if (CurrentWheelsSpeed > MaxSpeedAtCurve) direction = -(waypointDistanceThreshold/distanceToWaypoint) * CurrentWheelsSpeed / MaxSpeedAtCurve;
+                else if (CurrentWheelsSpeed == MaxSpeedAtCurve) direction = 0;
+                else direction = 1.0f;
+            }
+            
+        }
+        else direction = 1.0f;
+        return direction;
     }
 
     void debug(string text, bool IsCritical)
     {
-        if (IsCritical)
-            Debug.LogError(text);
-        else
-            Debug.Log(text);
+        if (Debugger){
+            if (IsCritical)
+                Debug.LogError(text);
+            else
+                Debug.Log(text);
+        }
+    }
+
+    private void OnDrawGizmos() // shows a Gizmos representing the waypoints and AI FOV
+    {
+        if (ShowGizmos == true)
+        {
+            for (int i = 0; i < waypoints.Count; i++)
+            {
+                if (i == currentWayPoint)
+                    Gizmos.color = Color.blue;
+                else
+                {
+                    if (i > currentWayPoint)
+                        Gizmos.color = Color.red;
+                    else
+                        Gizmos.color = Color.green;
+                }
+                Gizmos.DrawWireSphere(waypoints[i], 2f);
+            }
+            CalculateFOV();
+        }
+
+        void CalculateFOV()
+        {
+            Gizmos.color = Color.white;
+            float totalFOV = AIFOV * 2;
+            float rayRange = 10.0f;
+            float halfFOV = totalFOV / 2.0f;
+            Quaternion leftRayRotation = Quaternion.AngleAxis(-halfFOV, Vector3.up);
+            Quaternion rightRayRotation = Quaternion.AngleAxis(halfFOV, Vector3.up);
+            Vector3 leftRayDirection = leftRayRotation * transform.forward;
+            Vector3 rightRayDirection = rightRayRotation * transform.forward;
+            Gizmos.DrawRay(CarFront.position, leftRayDirection * rayRange);
+            Gizmos.DrawRay(CarFront.position, rightRayDirection * rayRange);
+        }
     }
 }
