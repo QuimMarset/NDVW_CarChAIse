@@ -1241,12 +1241,12 @@ MonoBehaviour:
   EnableABS: 1
   ABSThld: 0.95
   MaxSteeringAngle: 60
-  MaxSpeed: 20
+  MaxSpeed: 200
   BrakeTorque: 10000
   MovementTorque: 2000
   LimitRpmAtCurve: 0
-  CurveSteerAngleThld: 10
-  MaxSpeedAtCurve: 50
+  CurveSteerAngleThld: 50
+  MaxSpeedAtCurve: 40
   NavMeshLayers:
   - Walkable
   MaxRPM: 150
@@ -1623,7 +1623,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5079490290422193039, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 54.5
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 5079490290422193039, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1631,7 +1631,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5079490290422193039, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9
+      value: 56.6
       objectReference: {fileID: 0}
     - target: {fileID: 5079490290422193039, guid: f5ad5192df7335e40ae5d2813d9b3f1c, type: 3}
       propertyPath: m_LocalRotation.w
