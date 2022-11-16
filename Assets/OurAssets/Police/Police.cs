@@ -16,7 +16,7 @@ public class Police : CarController
 
     [HideInInspector] public bool move;// Look at the documentation for a detailed explanation
 
-    private Vector3 PostionToFollow = Vector3.zero;
+    private Vector3 PositionToFollow = Vector3.zero;
     private int currentWayPoint;
     [SerializeField] private float AIFOV = 60;
     private int NavMeshLayerBite;
@@ -29,6 +29,13 @@ public class Police : CarController
     private bool ShowGizmos = true;
 
     private float waypointDistanceThreshold = 20;
+
+    private float backwardStartTime = Mathf.Infinity;
+    private float stopCheckStartTime = Mathf.Infinity;
+    private float stopCheckTime = 0.1f;
+    private float backwardTime = 1f;
+
+    private Vector3 lastCarPosition = Vector3.zero;
 
 
 
@@ -53,6 +60,7 @@ public class Police : CarController
 	{
         base.FixedUpdate();
         PathProgress_v1();
+        lastCarPosition = CarFront.position;
     }
 
     private void CalculateNavMashLayerBite()
@@ -79,7 +87,8 @@ public class Police : CarController
         void wayPointManager()
         {
             CreatePath();
-            PostionToFollow = waypoints[currentWayPoint];
+            if (waypoints.Count > 0) PositionToFollow = waypoints[currentWayPoint];
+            else PositionToFollow = Vector3.zero;
         }
 
         void CreatePath()
@@ -162,29 +171,47 @@ public class Police : CarController
 
     protected override float GetSteeringAngle()
 	{
-        Vector3 relativeVector = transform.InverseTransformPoint(PostionToFollow);
+        Vector3 relativeVector = transform.InverseTransformPoint(PositionToFollow);
         float SteeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
+
+        if(backwardStartTime!= Mathf.Infinity & Time.time < backwardStartTime + backwardTime) SteeringAngle = -SteeringAngle;
         return SteeringAngle;
     }
 
 
     protected override float GetMovementDirection()
 	{
-        float direction = 0;
-        if(waypoints.Count == 2) direction = 1.0f;
-        else if (waypoints.Count > 2) {
-            float distanceToWaypoint = Vector3.Distance(CarFront.position, waypoints[currentWayPoint]);
-            
-            if (distanceToWaypoint > waypointDistanceThreshold) direction = 1.0f;
-            else {
-                if (CurrentWheelsSpeed > MaxSpeedAtCurve) direction = -(waypointDistanceThreshold/distanceToWaypoint) * CurrentWheelsSpeed / MaxSpeedAtCurve;
-                else if (CurrentWheelsSpeed == MaxSpeedAtCurve) direction = 0;
-                else direction = 1.0f;
+        float movementDirection = 0;
+        if (stopCheckStartTime != Mathf.Infinity){
+            // Debug.Log("It was stopped");
+            // Debug.Log("current: " + Time.time + ", stopTime: " + stopCheckStartTime);
+            if (Time.time >= stopCheckStartTime + stopCheckTime & backwardStartTime == Mathf.Infinity) {backwardStartTime = Time.time;}
+
+            if (backwardStartTime != Mathf.Infinity){
+                if(Time.time < backwardStartTime + backwardTime) movementDirection = -1.0f;
+                else {
+                    stopCheckStartTime = Mathf.Infinity;
+                    backwardStartTime = Mathf.Infinity;
+                }
             }
-            
+        } else {
+            if (Vector3.Distance(CarFront.position, CustomDestination.position) > 5 & Vector3.Distance(lastCarPosition, CarFront.position) < 0.001f) stopCheckStartTime = Time.time;
+
+            if(waypoints.Count == 2) movementDirection = 1.0f;
+            else if (waypoints.Count > 2) {
+                float distanceToWaypoint = Vector3.Distance(CarFront.position, waypoints[currentWayPoint]);
+                
+                if (distanceToWaypoint > waypointDistanceThreshold) movementDirection = 1.0f;
+                else {
+                    if (CurrentWheelsSpeed > MaxSpeedAtCurve) movementDirection = -(waypointDistanceThreshold/distanceToWaypoint) * CurrentWheelsSpeed / MaxSpeedAtCurve;
+                    else if (CurrentWheelsSpeed == MaxSpeedAtCurve) movementDirection = 0;
+                    else movementDirection = 1.0f;
+                }
+                
+            }
+            else movementDirection = 1.0f;
         }
-        else direction = 1.0f;
-        return direction;
+        return movementDirection;
     }
 
     void debug(string text, bool IsCritical)
