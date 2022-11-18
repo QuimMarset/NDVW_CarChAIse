@@ -25,6 +25,10 @@ public class Player : CarController
         // Get info from backwheels for hand brake
         BackWheelsOriginalStiffness = BackLeftC.sidewaysFriction.stiffness;
         BackWheelsFrictionCurve = BackLeftC.sidewaysFriction;
+
+        // Check speed text existance
+        if(SpeedText == null)
+            Debug.LogWarning("Canvas speed text missing");
     }
 
 	protected override void FixedUpdate()
@@ -62,9 +66,7 @@ public class Player : CarController
     protected virtual void Update()
 	{
         if (SpeedText)
-            SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";
-        else
-            Debug.LogWarning("Canvas speed text missing");
+            SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";            
 	}
 
     protected override float GetSteeringAngle()

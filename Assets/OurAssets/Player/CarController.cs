@@ -173,13 +173,11 @@ public abstract class CarController : MonoBehaviour
             Accelerate(0);
 
             // Get movement magnitude
-            float movementDirection = GetMovementDirection();
-
-            // Compute speed of wheels
-            float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
+            float movementDirection = GetMovementDirection();            
 
             // If movement direction is different from wheels speed or it's -Inf, brake
-            if (float.IsNegativeInfinity(movementDirection) || (movementDirection > 0 && CurrentWheelsSpeed < 0) || (movementDirection < 0 && CurrentWheelsSpeed > 0))
+            if ((movementDirection > 0 && CurrentWheelsSpeed < 0) || (movementDirection < 0 && CurrentWheelsSpeed > 0) || 
+                float.IsNegativeInfinity(movementDirection))
             {
                 // When want to stop, brake as much as possible (1)
                 if (float.IsNegativeInfinity(movementDirection))
@@ -190,6 +188,9 @@ public abstract class CarController : MonoBehaviour
             // Otherwise, normal acceleration
             else
             {
+                // Compute speed of wheels
+                float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
+
                 // If speed below local maximum, accelerate
                 if (absWheelsSpeed < LocalMaxSpeed)
                     Accelerate(movementDirection);
