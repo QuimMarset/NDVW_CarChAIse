@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -16,7 +13,6 @@ public class Player2 : CarController2
     [SerializeField] protected TextMeshProUGUI SpeedText;
     [SerializeField] protected Image SpeedBar;
     [SerializeField] protected Image HealthBar;
-
 
     // Auxiliar variables
     protected float BackWheelsOriginalStiffness;
@@ -48,6 +44,15 @@ public class Player2 : CarController2
     {
         return Input.GetAxis("Vertical");
     }
+
+	#endregion
+
+	#region Health
+
+	protected override void Death()
+	{
+		base.Death();
+	}
 
 	#endregion
 
@@ -88,8 +93,10 @@ public class Player2 : CarController2
 
 	#region Visual
 
-	protected virtual void Update()
+	protected override void Update()
     {
+        base.Update();
+
         if (SpeedText)
             SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";
 

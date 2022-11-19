@@ -9,9 +9,6 @@ public abstract class CarController2 : MonoBehaviour
     [SerializeField] protected Transform WheelCollidersContainer;
     [SerializeField] protected Transform WheelTransformsContainer;
 
-    [Header("Car body")]    // Assign a Gameobject representing the front of the car
-    [SerializeField] protected Transform CarFront;    
-
     [Header("General Parameters")]
     [SerializeField] protected bool EnableMovement = true;
     [SerializeField] protected bool EnableABS = true;
@@ -25,6 +22,10 @@ public abstract class CarController2 : MonoBehaviour
     [SerializeField] [Range(0.001f, 1000)] protected float MaxHealth = 100;
     [SerializeField] [Range(0.001f, 100)] protected float DamagePerKph = 0;
 
+    [Header("Sound")]
+    [SerializeField] protected float MinPitch = 1;
+    [SerializeField] protected float MaxPitch = 4;
+
     // Constants    
     protected const float MPS_TO_KPH = 3600f / 1000f;
     protected const float RPM_PER_RADIUS_TO_KPH = 1f / 60f * 2f * Mathf.PI;
@@ -34,15 +35,16 @@ public abstract class CarController2 : MonoBehaviour
     public Vector3 CurrentVelocity { get; protected set; }
     protected WheelCollider[] WheelColliders;
     protected Transform[] WheelTransforms;
+    protected AudioSource SoundSource;
     public float CurrentHealth { get; protected set; }
-    protected CarController2 Car;
-
+    public bool IsDead { get; protected set; }
     public float CurrentWheelsSpeed { get; protected set; }
     public float CurrentForwardSpeed { get; protected set; }
+    
 
-	#region Intialization
+    #region Intialization
 
-	protected virtual void Start()
+    protected virtual void Start()
     {
         // Set center of mass to zero
         CarRigidBody = GetComponent<Rigidbody>();
@@ -54,6 +56,9 @@ public abstract class CarController2 : MonoBehaviour
 
         // Health
         CurrentHealth = MaxHealth;
+
+        // Sound
+        SoundSource = GetComponent<AudioSource>();
     }
 
 	#endregion
@@ -88,6 +93,16 @@ public abstract class CarController2 : MonoBehaviour
     protected virtual float GetForwardSpeed()
     {
         return Vector3.Dot(CarRigidBody.velocity, transform.forward) * MPS_TO_KPH;
+    }
+
+    protected virtual void Update()
+    {
+        // Sound
+        if (SoundSource)
+		{
+            float speedRatio = Mathf.Abs(CurrentWheelsSpeed) / MaxSpeed;
+            SoundSource.pitch = Mathf.LerpUnclamped(MinPitch, MaxPitch, speedRatio);
+        }        
     }
 
     #endregion
@@ -185,8 +200,6 @@ public abstract class CarController2 : MonoBehaviour
         }
     }
 
-
-
     protected abstract float GetMovementDirection();
 
     /// <summary>
@@ -251,7 +264,8 @@ public abstract class CarController2 : MonoBehaviour
     protected virtual void Death()
     {
         Debug.Log(gameObject + " has dead");
-        // TODO: Call to observers
+        IsDead = true;
+        EnableMovement = false; // Disable movement        
     }
 
     protected void OnCollisionEnter(Collision collision)
@@ -302,13 +316,6 @@ public abstract class CarController2 : MonoBehaviour
         // Compute damage
         float collisionSpeed = Mathf.Abs(Vector2.Dot(velocityDiff2D, collisionDir2D));
         float damage = DamagePerKph * collisionSpeed;
-
-        /* Simple method based on speed difference
-        // TODO: Probably remove
-        // Damage depends on the difference between the previous velocity and the current one
-        float lostSpeed = (CurrentVelocity - CarRigidBody.velocity).magnitude;
-        float damage = DamagePerKph * lostSpeed;
-        */
 
         // Take damage
         UpdateHealth(damage);
