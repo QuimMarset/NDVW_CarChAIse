@@ -57,6 +57,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4463885358860546772}
     m_Modifications:
+    - target: {fileID: 8038620410633132664, guid: b7217a79f591ce84595e6d0581f4a0aa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 3227069378662720040}
     - target: {fileID: 8038620411328188882, guid: b7217a79f591ce84595e6d0581f4a0aa, type: 3}
       propertyPath: m_Name
       value: GameOverCanvas (1)
