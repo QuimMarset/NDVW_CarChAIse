@@ -17,6 +17,7 @@ public abstract class CarController2 : MonoBehaviour
     [SerializeField] public float MaxSpeed = 200;
     [SerializeField] protected float BrakeTorque = 25000;
     [SerializeField] protected float MovementTorque = 2000;
+    [SerializeField] protected Transform CarFront;
 
     [Header("Health")]
     [SerializeField] [Range(0.001f, 1000)] protected float MaxHealth = 100;
