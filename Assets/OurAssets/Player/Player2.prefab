@@ -623,6 +623,7 @@ MonoBehaviour:
   MaxSpeed: 200
   BrakeTorque: 25000
   MovementTorque: 2000
+  CarFront: {fileID: 0}
   MaxHealth: 100
   DamagePerKph: 0.2
   MinPitch: 0.5
@@ -673,7 +674,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: bd405e3e6269d6a42abe0d32558944bf, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.25
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 1
   Mute: 0

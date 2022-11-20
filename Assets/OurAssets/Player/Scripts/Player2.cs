@@ -10,9 +10,10 @@ public class Player2 : CarController2
     [SerializeField] protected float HardBrakeStifnessMultiplier = 0.5f;
 
     [Header("Canvas")]
-    [SerializeField] protected TextMeshProUGUI SpeedText;
     [SerializeField] protected Image SpeedBar;
+    [SerializeField] protected TextMeshProUGUI SpeedText;
     [SerializeField] protected Image HealthBar;
+    [SerializeField] protected TextMeshProUGUI HealthText;    
 
     // Auxiliar variables
     protected float BackWheelsOriginalStiffness;
@@ -27,6 +28,10 @@ public class Player2 : CarController2
         // Get info from backwheels for hand brake        
         BackWheelsFrictionCurve = WheelColliders[2].sidewaysFriction;   // The 2 first wheels are the directional/steering ones
         BackWheelsOriginalStiffness = BackWheelsFrictionCurve.stiffness;
+
+        // Set health text if available
+        if (HealthText)
+            HealthText.text = ((int)CurrentHealth).ToString();
     }
 
 	#endregion
@@ -44,15 +49,6 @@ public class Player2 : CarController2
     {
         return Input.GetAxis("Vertical");
     }
-
-	#endregion
-
-	#region Health
-
-	protected override void Death()
-	{
-		base.Death();
-	}
 
 	#endregion
 
@@ -107,10 +103,12 @@ public class Player2 : CarController2
 	protected override void UpdateHealth(float healthModification)
 	{
 		base.UpdateHealth(healthModification);
-
-        // Update health bar if available
+        
         if (HealthBar)
             HealthBar.fillAmount = CurrentHealth / MaxHealth;
+
+        if (HealthText)
+            HealthText.text = ((int)CurrentHealth).ToString();
     }
 
 	#endregion
