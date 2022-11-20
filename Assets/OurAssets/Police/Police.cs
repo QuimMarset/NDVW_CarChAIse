@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Police : CarController
+public class Police : CarController2
 {
     [Header("General Parameters")]// Look at the documentation for a detailed explanation 
     public List<string> NavMeshLayers;
@@ -12,7 +12,7 @@ public class Police : CarController
 
     [Header("Destination Parameters")]// Look at the documentation for a detailed explanation
     public bool Patrol = false;
-    public Transform CustomDestination;
+    public Transform TargetObject;
 
     [HideInInspector] public bool move;// Look at the documentation for a detailed explanation
 
@@ -24,9 +24,11 @@ public class Police : CarController
     private int Fails;
     private Vector3 direction;
     private float nextActionTime = 0.0f;
-    private float period = 0.1f;
+    [SerializeField] private float reactionTime = 0.5f;
     private bool Debugger = false;
     private bool ShowGizmos = true;
+
+    private float MaxSpeedAtCurve = 30;
 
     private float waypointDistanceThreshold = 20;
 
@@ -36,12 +38,6 @@ public class Police : CarController
     private float backwardTime = 1f;
 
     private Vector3 lastCarPosition = Vector3.zero;
-
-
-
-    // private Vector3 direction;
-    // private float nextActionTime = 0.0f;
-    // private float period = 0.1f;
 
     void Awake()
     {
@@ -53,6 +49,7 @@ public class Police : CarController
     void Start()
     {
         base.Start();
+        TargetObject = FindObjectOfType<Player2>().transform;
         CalculateNavMashLayerBite();
     }
 
@@ -93,18 +90,18 @@ public class Police : CarController
 
         void CreatePath()
         {
-            if (CustomDestination == null)
+            if (TargetObject == null)
             {
                 if (Patrol == true)
                     // RandomPath();
-                    CustomPath_v1(CustomDestination);
+                    CustomPath_v1(TargetObject);
                 else
                 {
                     debug("No custom destination assigned and Patrol is set to false", false);
                 }
             }
             else
-               CustomPath_v1(CustomDestination);
+               CustomPath_v1(TargetObject);
             
         }
     }
@@ -116,7 +113,7 @@ public class Police : CarController
             UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
             Vector3 sourcePostion;
 
-            nextActionTime += period;
+            nextActionTime += reactionTime;
             waypoints.Clear();
             currentWayPoint = 1;
         
@@ -183,8 +180,6 @@ public class Police : CarController
 	{
         float movementDirection = 0;
         if (stopCheckStartTime != Mathf.Infinity){
-            // Debug.Log("It was stopped");
-            // Debug.Log("current: " + Time.time + ", stopTime: " + stopCheckStartTime);
             if (Time.time >= stopCheckStartTime + stopCheckTime & backwardStartTime == Mathf.Infinity) {backwardStartTime = Time.time;}
 
             if (backwardStartTime != Mathf.Infinity){
@@ -195,7 +190,7 @@ public class Police : CarController
                 }
             }
         } else {
-            if (Vector3.Distance(CarFront.position, CustomDestination.position) > 5 & Vector3.Distance(lastCarPosition, CarFront.position) < 0.001f) stopCheckStartTime = Time.time;
+            if (Vector3.Distance(CarFront.position, TargetObject.position) > 5 & Vector3.Distance(lastCarPosition, CarFront.position) < 0.001f) stopCheckStartTime = Time.time;
 
             if(waypoints.Count == 2) movementDirection = 1.0f;
             else if (waypoints.Count > 2) {
