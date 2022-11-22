@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 709a8cfa2f657b44990680bd1cd576f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridX: 1
-  gridZ: 1
+  gridX: 3
+  gridZ: 3
   prefabToSpawn: {fileID: 7599520894186034001, guid: eac31673b01b69a4a97ac3cfaca442f1, type: 3}
   gridOrigin: {x: 0, y: 0, z: 0}
-  gridOffset: 1
+  gridOffset: 10

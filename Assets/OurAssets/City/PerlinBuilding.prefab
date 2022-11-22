@@ -44,10 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10d73297bca7e2f40a268198b07bfc45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxPieces: 1
+  maxPieces: 6
   scaleFactor: 10
   randomVariationMin: 1
-  randomVariationMax: 1
+  randomVariationMax: 0
   baseParts:
   - {fileID: 100002, guid: a9d497b936cc31e44951e056ce36f4f6, type: 3}
   - {fileID: 100002, guid: 1cd7f3674ff21964f8cf0b9aa82a171d, type: 3}

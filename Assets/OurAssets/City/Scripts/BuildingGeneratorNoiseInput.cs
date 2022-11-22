@@ -45,16 +45,19 @@ public class BuildingGeneratorNoiseInput : MonoBehaviour
     float SpawnPieceLayer(GameObject[] pieceArray, float inputHeight)
     {
         Transform randomTransform = pieceArray[Random.Range(0, pieceArray.Length)].transform;
-        GameObject clone = Instantiate(randomTransform.gameObject, this.transform.position + new Vector3(0, inputHeight, 0), transform.rotation) as GameObject;
-        clone.transform.localScale *= scaleFactor;
+        
+        GameObject piece = Instantiate(randomTransform.gameObject, this.transform.position + new Vector3(0, inputHeight, 0), transform.rotation) as GameObject;
 
-        Mesh cloneMesh = clone.GetComponentInChildren<MeshFilter>().mesh;
+        piece.transform.localScale *= scaleFactor;
+        piece.AddComponent<BoxCollider>();
+
+        Mesh cloneMesh = piece.GetComponentInChildren<MeshFilter>().mesh;
         Bounds baseBounds = cloneMesh.bounds;
-        float heightOffset = baseBounds.size.y;
+        float heightOffset = baseBounds.size.y * scaleFactor;
 
-        clone.transform.SetParent(this.transform);
+        piece.transform.SetParent(this.transform);
 
-        GeneratedObjectControl.instance.AddObject(clone);
+        GeneratedObjectControl.instance.AddObject(piece);
 
         return heightOffset;
     }
