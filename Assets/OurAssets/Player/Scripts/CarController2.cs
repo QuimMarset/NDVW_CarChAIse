@@ -17,6 +17,7 @@ public abstract class CarController2 : MonoBehaviour
     [SerializeField] public float MaxSpeed = 200;
     [SerializeField] protected float BrakeTorque = 25000;
     [SerializeField] protected float MovementTorque = 2000;
+    [SerializeField] protected float DragCoefficient = 0.47f;
     [SerializeField] protected Transform CarFront;
 
     [Header("Health")]
@@ -30,6 +31,7 @@ public abstract class CarController2 : MonoBehaviour
     // Constants    
     protected const float MPS_TO_KPH = 3600f / 1000f;
     protected const float RPM_PER_RADIUS_TO_KPH = 1f / 60f * 2f * Mathf.PI;
+    protected const float FRICTION_COEF = 1.225f * 1f; // Density of air * Cross section area
 
     // Auxiliar variables
     public Rigidbody CarRigidBody { get; protected set; }
@@ -118,13 +120,23 @@ public abstract class CarController2 : MonoBehaviour
         // Get steering angle
         float steeringAngle = GetSteeringAngle();
 
+        // Check maximum steering values
+        steeringAngle =  Mathf.Clamp(steeringAngle, -MaxSteeringAngle, MaxSteeringAngle);
+
         // Set direction wheels angle
         for (int i = 0; i < WheelColliders.Length / 2; i++)
             WheelColliders[i].steerAngle = steeringAngle;
 
+        // Update wheels rotations
         UpdateWheels();
     }
 
+    /// <summary>
+    /// Obtaing the angle for rotating the steering wheels.
+    /// Positive values for turning right, negatives for turning left.
+    /// Maximum absolute values shoudt be lower than the MaxSteeringAngle
+    /// </summary>
+    /// <returns>Desired steering wheels rotation</returns>
     protected abstract float GetSteeringAngle();
 
     /// <summary>
@@ -228,8 +240,8 @@ public abstract class CarController2 : MonoBehaviour
 
                Brake(Mathf.Abs(movementDirection));    // Absolute braking (independently of the direction sign)
             }
-            // Otherwise, normal acceleration
-            else
+            // If there is a movement direction
+            else if (Mathf.Abs(movementDirection) > 0)
             {
                 // Compute speed of wheels
                 float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
@@ -241,6 +253,14 @@ public abstract class CarController2 : MonoBehaviour
                 else if (absWheelsSpeed > MaxSpeed + (MaxSpeed * 1 / 4))
                     Brake();
                 // Otherwise, do nothing
+            }
+            // If movementDirection == 0, apply air resistance/drag
+			else
+			{               
+                float currentSpeed = CarRigidBody.velocity.magnitude;                
+                float forceAmount = (FRICTION_COEF * DragCoefficient * Mathf.Pow(currentSpeed, 2)) / 2;
+                Vector3 resistanceDir = -CarRigidBody.velocity.normalized;
+                CarRigidBody.AddForce(resistanceDir * forceAmount);
             }
         }
         // If movement disabled, brake
