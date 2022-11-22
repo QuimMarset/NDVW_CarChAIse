@@ -9,15 +9,20 @@ public class Player2 : CarController2
     [SerializeField] protected bool EnableHandBrake = true;
     [SerializeField] protected float HardBrakeStifnessMultiplier = 0.5f;
 
+    [Header("Camera")]
+    [SerializeField] protected Camera MainCamera;
+    [SerializeField] protected float SecondsToRotate = 0.5f;
+
     [Header("Canvas")]
     [SerializeField] protected Image SpeedBar;
     [SerializeField] protected TextMeshProUGUI SpeedText;
     [SerializeField] protected Image HealthBar;
-    [SerializeField] protected TextMeshProUGUI HealthText;    
+    [SerializeField] protected TextMeshProUGUI HealthText;
 
     // Auxiliar variables
     protected float BackWheelsOriginalStiffness;
     protected WheelFrictionCurve BackWheelsFrictionCurve;
+    protected float IniCameraAngle;
 
 	#region Initialization
 
@@ -28,6 +33,9 @@ public class Player2 : CarController2
         // Get info from backwheels for hand brake        
         BackWheelsFrictionCurve = WheelColliders[2].sidewaysFriction;   // The 2 first wheels are the directional/steering ones
         BackWheelsOriginalStiffness = BackWheelsFrictionCurve.stiffness;
+
+        // Get initial camera angle
+        IniCameraAngle = MainCamera.transform.eulerAngles.y;
 
         // Set health text if available
         if (HealthText)
@@ -93,9 +101,17 @@ public class Player2 : CarController2
     {
         base.Update();
 
+        // Move camera according to car's velocity
+        if (CarRigidBody.velocity.magnitude > 1)
+		{
+            float angleDiff = Vector3.SignedAngle(MainCamera.transform.forward, CarRigidBody.velocity.normalized, axis:Vector3.up);
+            MainCamera.transform.RotateAround(transform.position, Vector3.up, angleDiff * Time.deltaTime / SecondsToRotate);
+        }
+        
+
+        // Canvas
         if (SpeedText)
             SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";
-
         if (SpeedBar)
             SpeedBar.fillAmount = Mathf.Abs(CurrentWheelsSpeed) / MaxSpeed;
     }
@@ -104,9 +120,9 @@ public class Player2 : CarController2
 	{
 		base.UpdateHealth(healthModification);
         
+        // Canvas
         if (HealthBar)
             HealthBar.fillAmount = CurrentHealth / MaxHealth;
-
         if (HealthText)
             HealthText.text = ((int)CurrentHealth).ToString();
     }

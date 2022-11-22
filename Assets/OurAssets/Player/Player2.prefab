@@ -630,9 +630,12 @@ MonoBehaviour:
   MaxPitch: 5
   EnableHandBrake: 1
   HardBrakeStifnessMultiplier: 0.5
-  SpeedText: {fileID: 0}
+  MainCamera: {fileID: 5993828293321323347}
+  SecondsToRotate: 0.5
   SpeedBar: {fileID: 0}
+  SpeedText: {fileID: 0}
   HealthBar: {fileID: 0}
+  HealthText: {fileID: 0}
 --- !u!65 &5993828292672005690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -929,7 +932,7 @@ GameObject:
   - component: {fileID: 5993828293321323347}
   - component: {fileID: 5993828293321323346}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
