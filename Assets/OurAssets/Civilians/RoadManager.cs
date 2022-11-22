@@ -72,6 +72,7 @@ public class RoadManager : MonoBehaviour
             GameObject civilianCar = carSpawner.InstantiateCarPrefab(spawnMarker.transform.position, spawnMarker.transform.rotation);
             CivilianAI civilianAI = civilianCar.GetComponent<CivilianAI>();
             civilianAI.SetTargetMarker(spawnMarker.GetNextAdjacentMarker());
+            civilianCar.name = "Civilian_" + currentlySpawned;
             
             currentlySpawned++;
             

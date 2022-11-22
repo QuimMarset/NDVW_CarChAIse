@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 /*
  * 
@@ -9,164 +10,84 @@ Canviar stifness (10 o 20 grip gran)
  * 
  * */
 
-public class CivilianController : MonoBehaviour
+public class CivilianController : CarController2
 {
-    [Header("Car Wheels (Wheel Collider)")]
-    public WheelCollider frontLeft;
-    public WheelCollider frontRight;
-    public WheelCollider backLeft;
-    public WheelCollider backRight;
-
-    [Header("Car Wheels (Transform)")]
-    public Transform wheelFL;
-    public Transform wheelFR;
-    public Transform wheelBL;
-    public Transform wheelBR;
-
-    public int MaxSteeringAngle = 45;
-    public int MaxRPM = 150;
-    private float LocalMaxSpeed;
-    private float MovementTorque = 1;
 
     [SerializeField]
-    private Vector3 targetPosition;
-    
-    [SerializeField]
-    private bool stopForCollision = false;
-    [SerializeField]
-    private bool stopForTrafficLight = false;
-    [SerializeField]
-    private Transform forward;
-    [SerializeField]
-    private float raycastLength;
+    protected Vector3 targetPosition;
 
-    public bool Stop
+    [SerializeField]
+    private float turnRadius = 6f;
+
+    private float MaxSpeedAtCurve;
+    private float MaxSpeedOriginal;
+
+    protected override void Start()
     {
-        get { return stopForCollision || stopForTrafficLight; }
+        base.Start();
+        MaxSpeedOriginal = MaxSpeed;
+        MaxSpeedAtCurve = MaxSpeed / 2.0f;
     }
 
-    public void GetTargetPosition(Vector3 targetPosition)
+
+    public void SetStopFlag(bool stop)
+    {
+        EnableMovement = !stop;
+    }
+
+    public void SetTargetPosition(Vector3 targetPosition)
     {
         this.targetPosition = targetPosition;
     }
 
-    public void GetStopForTrafficLight(bool stop)
+    protected override float GetMovementDirection()
     {
-        stopForTrafficLight = stop;
+        return 1.0f;
     }
 
-    private void Update()
-    {
-        CheckForCollisions();
-    }
-
-    private void FixedUpdate()
-    {
-        UpdateWheels();
-        ApplySteering();
-        Movement();
-    }
-
-    private void CheckForCollisions()
-    {
-        stopForCollision = Physics.Raycast(forward.transform.position, transform.forward, raycastLength, 1 << gameObject.layer);
-    }
-
-    private void ApplyRotationAndPostion(WheelCollider targetWheel, Transform wheel)
-    {
-        targetWheel.ConfigureVehicleSubsteps(5, 12, 15);
-        Vector3 pos;
-        Quaternion rot;
-        targetWheel.GetWorldPose(out pos, out rot);
-        wheel.position = pos;
-        wheel.rotation = rot;
-    }
-
-    private void UpdateWheels()
-    {
-        ApplyRotationAndPostion(frontLeft, wheelFL);
-        ApplyRotationAndPostion(frontRight, wheelFR);
-        ApplyRotationAndPostion(backLeft, wheelBL);
-        ApplyRotationAndPostion(backRight, wheelBR);
-    }
-
-    private void ApplyBrakes()
-    {
-        frontLeft.brakeTorque = 5000;
-        frontRight.brakeTorque = 5000;
-        backLeft.brakeTorque = 5000;
-        backRight.brakeTorque = 5000;
-    }
-
-    private void RemoveBrakes()
-    {
-        frontLeft.brakeTorque = 0;
-        frontRight.brakeTorque = 0;
-        backLeft.brakeTorque = 0;
-        backRight.brakeTorque = 0;
-    }
-
-    private int GetSpeedOfWheels()
-    {
-        return (int)((frontLeft.rpm + frontRight.rpm + backLeft.rpm + backRight.rpm) / 4);
-    }
-
-    private void ApplyMotorTorque()
-    {
-        backRight.motorTorque = 400 * MovementTorque;
-        backLeft.motorTorque = 400 * MovementTorque;
-        frontRight.motorTorque = 400 * MovementTorque;
-        frontLeft.motorTorque = 400 * MovementTorque;
-    }
-
-    private void RemoveMotorTorque()
-    {
-        backRight.motorTorque = 0;
-        backLeft.motorTorque = 0;
-        frontRight.motorTorque = 0;
-        frontLeft.motorTorque = 0;
-    }
-
-    void ApplySteering()
+    protected override float GetSteeringAngle()
     {
         Vector3 relativeVector = transform.InverseTransformPoint(targetPosition);
-        float SteeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
-        if (SteeringAngle > 15) LocalMaxSpeed = 100;
-        else LocalMaxSpeed = MaxRPM;
-
-        frontLeft.steerAngle = SteeringAngle;
-        frontRight.steerAngle = SteeringAngle;
+        relativeVector /= relativeVector.magnitude;
+        float steeringAngle = (relativeVector.x / relativeVector.magnitude) * 2;
+        return steeringAngle;
     }
 
-    void Movement()
+    protected override void Steer()
     {
-        if (Stop)
+        float steeringAngle = GetSteeringAngle();
+
+        if (steeringAngle > 0)
         {
-            RemoveMotorTorque();
-            ApplyBrakes();
+            WheelColliders[0].steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (turnRadius + (1.5f / 2))) * steeringAngle;
+            WheelColliders[1].steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (turnRadius - (1.5f / 2))) * steeringAngle;
+        }
+        else if (steeringAngle < 0)
+        {
+            WheelColliders[0].steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (turnRadius - (1.5f / 2))) * steeringAngle;
+            WheelColliders[1].steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (turnRadius + (1.5f / 2))) * steeringAngle;
         }
         else
         {
-            RemoveBrakes();
-            int speedOfWheels = GetSpeedOfWheels();
-            if (speedOfWheels < LocalMaxSpeed)
-            {
-                ApplyMotorTorque();
-            }
-            else if (speedOfWheels < LocalMaxSpeed + (LocalMaxSpeed * 1 / 4))
-            {
-                RemoveMotorTorque();
-            }
-            else
-            {
-                ApplyBrakes();
-            }
+            WheelColliders[0].steerAngle = 0;
+            WheelColliders[1].steerAngle = 0;
         }
+
+        UpdateWheels();
     }
 
-    private void OnDrawGizmos()
+    protected override void Move()
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(forward.position, forward.position + transform.forward * raycastLength);
+        float steeringAngle = GetSteeringAngle();
+        if (steeringAngle > 15f)
+        {
+            MaxSpeed = MaxSpeedAtCurve;
+        }
+        else
+        {
+            MaxSpeed = MaxSpeedOriginal;
+        }
+
+        base.Move();
     }
 }

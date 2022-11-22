@@ -58,8 +58,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5002761334727462420}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.6020808, y: -0.33400002, z: 0.34699988}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.602081, y: -0.33400002, z: 0.347}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -81,6 +81,7 @@ GameObject:
   - component: {fileID: 5002761334795833400}
   - component: {fileID: 5002761334795833378}
   - component: {fileID: 5002761334795833379}
+  - component: {fileID: 7751928545421678869}
   m_Layer: 10
   m_Name: Car 2
   m_TagString: Civilian
@@ -96,8 +97,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5002761334795833401}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -5.14, y: 0.83, z: -7.57}
-  m_LocalScale: {x: 1, y: 1, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5002761336008828358}
@@ -197,21 +198,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2ecbc142366ce548af38359756332bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frontLeft: {fileID: 5002761335961400441}
-  frontRight: {fileID: 5002761336272467613}
-  backLeft: {fileID: 5002761335761273207}
-  backRight: {fileID: 5002761336101178218}
-  wheelFL: {fileID: 5002761335085153858}
-  wheelFR: {fileID: 5002761334727462427}
-  wheelBL: {fileID: 5002761335132526096}
-  wheelBR: {fileID: 5002761336076072984}
-  MaxSteeringAngle: 45
-  MaxRPM: 150
+  WheelCollidersContainer: {fileID: 5002761334710905921}
+  WheelTransformsContainer: {fileID: 5002761336008828358}
+  EnableMovement: 1
+  EnableABS: 1
+  ABSThld: 0.9
+  MaxSteeringAngle: 60
+  MaxSpeed: 10
+  BrakeTorque: 25000
+  MovementTorque: 500
+  CarFront: {fileID: 0}
+  MaxHealth: 100
+  DamagePerKph: 0
+  MinPitch: 1
+  MaxPitch: 4
   targetPosition: {x: 0, y: 0, z: 0}
-  stopForCollision: 0
-  stopForTrafficLight: 0
-  forward: {fileID: 5002761335396469952}
-  raycastLength: 2.5
+  turnRadius: 6
 --- !u!114 &5002761334795833379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,38 +226,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a004966c2eb39442aa8d6872631617d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  carFront: {fileID: 5002761335396469952}
+  stopForCollision: 0
+  stopForTrafficLight: 0
+  stopForObstacle: 0
+  fovRadius: 3
+  fovAngle: 50
   targetMarker: {fileID: 0}
-  arriveDistance: 2
-  <OnDrive>k__BackingField:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5002761334795833378}
-        m_TargetAssemblyTypeName: CivilianController, Assembly-CSharp
-        m_MethodName: GetTargetPosition
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  <OnTrafficLightCollision>k__BackingField:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5002761334795833378}
-        m_TargetAssemblyTypeName: CivilianController, Assembly-CSharp
-        m_MethodName: GetStopForTrafficLight
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  arriveDistance: 0.5
+  targetPosition: {x: 0, y: 0, z: 0}
+  avoidPolice: 0
+--- !u!208 &7751928545421678869
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5002761334795833401}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 0
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &5002761335085153859
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,22 +390,22 @@ WheelCollider:
     spring: 35000
     damper: 4500
     targetPosition: 0.5
-  m_SuspensionDistance: 0.3
+  m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: 0
   m_Mass: 80
   m_WheelDampingRate: 0.25
   m_ForwardFriction:
-    m_ExtremumSlip: 0.4
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.8
-    m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 6
   m_SidewaysFriction:
-    m_ExtremumSlip: 0.2
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.5
-    m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 7
   m_Enabled: 1
 --- !u!1 &5002761335961400443
 GameObject:
@@ -456,22 +452,22 @@ WheelCollider:
     spring: 35000
     damper: 4500
     targetPosition: 0.5
-  m_SuspensionDistance: 0.3
+  m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: 0
   m_Mass: 80
   m_WheelDampingRate: 0.25
   m_ForwardFriction:
-    m_ExtremumSlip: 0.4
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.8
-    m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 6
   m_SidewaysFriction:
-    m_ExtremumSlip: 0.2
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.5
-    m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 7
   m_Enabled: 1
 --- !u!1 &5002761336008828359
 GameObject:
@@ -584,22 +580,22 @@ WheelCollider:
     spring: 35000
     damper: 4500
     targetPosition: 0.5
-  m_SuspensionDistance: 0.3
+  m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: 0
   m_Mass: 80
   m_WheelDampingRate: 0.25
   m_ForwardFriction:
-    m_ExtremumSlip: 0.4
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.8
-    m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 6
   m_SidewaysFriction:
-    m_ExtremumSlip: 0.2
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.5
-    m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 7
   m_Enabled: 1
 --- !u!1 &5002761336272467615
 GameObject:
@@ -646,20 +642,20 @@ WheelCollider:
     spring: 35000
     damper: 4500
     targetPosition: 0.5
-  m_SuspensionDistance: 0.3
+  m_SuspensionDistance: 0.5
   m_ForceAppPointDistance: 0
   m_Mass: 80
   m_WheelDampingRate: 0.25
   m_ForwardFriction:
-    m_ExtremumSlip: 0.4
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.8
-    m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 6
   m_SidewaysFriction:
-    m_ExtremumSlip: 0.2
+    m_ExtremumSlip: 0.001
     m_ExtremumValue: 1
-    m_AsymptoteSlip: 0.5
-    m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_AsymptoteSlip: 0.001
+    m_AsymptoteValue: 1
+    m_Stiffness: 7
   m_Enabled: 1

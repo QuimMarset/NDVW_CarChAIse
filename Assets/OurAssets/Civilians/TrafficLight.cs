@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 
 enum TrafficLightState
 {
@@ -25,6 +22,12 @@ public class TrafficLight : MonoBehaviour
     private Light greenLight;
     [SerializeField]
     private CivilianAI stoppedCar;
+
+    private void Start()
+    {
+        redLight.range *= transform.lossyScale.x;
+        greenLight.range *= transform.lossyScale.x;
+    }
 
     public bool IsRedState()
     {
@@ -74,6 +77,7 @@ public class TrafficLight : MonoBehaviour
         {
             stoppedCar = other.GetComponent<CivilianAI>();
             stoppedCar.StopToRedLight();
+            boxCollider.enabled = false;
         }
     }
 }

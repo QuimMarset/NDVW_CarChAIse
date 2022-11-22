@@ -72,13 +72,13 @@ Light:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029300305372114530}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 0.990566, g: 0.032707386, b: 0.032707386, a: 1}
-  m_Intensity: 6.28
-  m_Range: 0.1
+  m_Intensity: 10
+  m_Range: 0.11
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -109,7 +109,7 @@ Light:
       e33: 1
     m_UseCullingMatrixOverride: 0
   m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
+  m_DrawHalo: 1
   m_Flare: {fileID: 0}
   m_RenderMode: 0
   m_CullingMask:
@@ -171,8 +171,8 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 0.12667939, g: 0.99215686, b: 0.03137256, a: 1}
-  m_Intensity: 6.28
-  m_Range: 0.1
+  m_Intensity: 10
+  m_Range: 0.11
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -203,7 +203,7 @@ Light:
       e33: 1
     m_UseCullingMatrixOverride: 0
   m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
+  m_DrawHalo: 1
   m_Flare: {fileID: 0}
   m_RenderMode: 0
   m_CullingMask:
@@ -267,8 +267,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.7718029, y: 1.6606523, z: 2.3415155}
-  m_Center: {x: -1.6336031, y: 0.83, z: 1.9331529}
+  m_Size: {x: 1.9108992, y: 1.6606523, z: 2.3415155}
+  m_Center: {x: -2.026857, y: 0.83, z: 2.31}
 --- !u!114 &1029300306558720041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,13 +281,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cc20a7549596a1408fae86a67504a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  greenTime: 30
+  greenTime: 10
   lastGreenStart: 0
   boxCollider: {fileID: 1029300306558720040}
   state: 0
   redLight: {fileID: 1029300305372114528}
   greenLight: {fileID: 1029300305497054507}
-  stoppedCar: {fileID: 0}
+  trafficLightBehavior: {fileID: 0}
 --- !u!1 &5198755438096295428
 GameObject:
   m_ObjectHideFlags: 0

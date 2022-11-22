@@ -46,6 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carPrefabs:
   - {fileID: 5002761334795833401, guid: c649583487cf0584bb9ee07666858db1, type: 3}
-  - {fileID: 5002761334795833401, guid: dd349ee4fce8ddc4c9cc82a05fbbad11, type: 3}
-  - {fileID: 5002761334795833401, guid: 186685a52ba5b3c4fbe79c42d6959666, type: 3}
-  - {fileID: 5002761334795833401, guid: b5544d2f3b9f6cc4a816636f2936d614, type: 3}
+  - {fileID: 5002761334795833401, guid: 335ad7428b04e2c448ad8f45683c83b8, type: 3}
+  - {fileID: 5002761334795833401, guid: 49440166326db8340a874e81f76c78e3, type: 3}
+  - {fileID: 5002761334795833401, guid: 5be786289c71cbf4096a1a44fb5dab30, type: 3}

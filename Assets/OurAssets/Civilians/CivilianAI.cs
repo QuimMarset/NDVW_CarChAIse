@@ -1,25 +1,86 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 public class CivilianAI : MonoBehaviour
 {
-    public Marker targetMarker;
+    private CivilianController controller;
+    [SerializeField]
+    public Transform carFront;
+
+    [Header("Stop flags")]
 
     [SerializeField]
+    private bool stopForCollision = false;
+    [SerializeField]
+    private bool stopForTrafficLight = false;
+    [SerializeField]
+    private bool stopForObstacle = false;
+
+    [Header("FOV")]
+
+    [SerializeField]
+    public float fovRadius;
+    [SerializeField]
+    public float fovAngle;
+
+    [Header("Target position")]
+    
+    [SerializeField]
+    private Marker targetMarker;
+    [SerializeField]
     private float arriveDistance = .3f;
+    [SerializeField]
+    private Vector3 targetPosition;
 
-    [field: SerializeField]
-    public UnityEvent<Vector3> OnDrive { get; set; }
+    [Header("Police avoidance")]
 
-    [field: SerializeField]
-    public UnityEvent<bool> OnTrafficLightCollision { get; set; }
+    [SerializeField]
+    private bool avoidPolice = false;
+
+
+    private void Awake()
+    {
+        controller = gameObject.GetComponent<CivilianController>();
+    }
+
+    private void Start()
+    {
+        arriveDistance = 1.0f;
+        targetPosition = targetMarker.Position;
+        SetControllerTargetPosition();
+        SetControllerStopFlag();
+    }
 
     private void Update()
     {
-        CheckIfArrived();
-        SendPosition();
+
+        if (CheckForCollisions())
+        {
+            StopToAvoidCarCollision();
+        }
+        else
+        {
+            MoveWhenNoCollision();
+        }
+
+        if (avoidPolice)
+        {
+            if (CheckIfArrivedToTargetPosition())
+            {
+                stopForObstacle = true;
+            }
+        }
+        else if (CheckIfArrivedToTargetPosition())
+        {
+            AdvanceTargetMarker();
+            SetControllerTargetPosition();
+        }
     }
 
     public void SetTargetMarker(Marker targetMarker)
@@ -27,34 +88,120 @@ public class CivilianAI : MonoBehaviour
         this.targetMarker = targetMarker;
     }
 
-    private void SendPosition()
+    private void SetControllerTargetPosition()
     {
-        OnDrive?.Invoke(targetMarker.Position);
+        controller.SetTargetPosition(targetPosition);
     }
 
-    private void CheckIfArrived()
+    private void SetControllerStopFlag()
     {
-        Vector2 pos1 = new(targetMarker.Position.x, targetMarker.Position.z);
-        Vector2 pos2 = new(transform.position.x, transform.position.z);
-        float distance = Vector2.Distance(pos1, pos2);
-        if (distance < arriveDistance)
+        controller.SetStopFlag(stopForTrafficLight || stopForCollision || stopForObstacle);
+    }
+
+    private bool CheckIfArrivedToTargetPosition()
+    {
+        Vector2 subTargetPosition = new(targetPosition.x, targetPosition.z);
+        Vector2 subCurrentPosition = new(carFront.position.x, carFront.position.z);
+        float distance = Vector2.Distance(subTargetPosition, subCurrentPosition);
+
+        if (avoidPolice)
         {
-            SetNextTarget();
+            Debug.Log(name + " " + carFront.position + " " + distance);
         }
+        
+        return (distance < arriveDistance);
     }
 
-    private void SetNextTarget()
+    private void AdvanceTargetMarker()
     {
         targetMarker = targetMarker.GetNextAdjacentMarker();
+        targetPosition = targetMarker.Position;
     }
 
     public void StopToRedLight()
     {
-        OnTrafficLightCollision?.Invoke(true);
+        stopForTrafficLight = true;
+        SetControllerStopFlag();
     }
 
     public void MoveToGreenLight()
     {
-        OnTrafficLightCollision?.Invoke(false);
+        stopForTrafficLight = false;
+        SetControllerStopFlag();
     }
+
+    private void StopToAvoidCarCollision()
+    {
+        stopForCollision = true;
+        SetControllerStopFlag();
+    }
+
+    private void MoveWhenNoCollision()
+    {
+        stopForCollision = false;
+        SetControllerStopFlag();
+    }
+
+    private bool CheckForCollisions()
+    {
+        Collider[] colliders = Physics.OverlapSphere(carFront.position, fovRadius, 1 << gameObject.layer);
+
+        foreach (Collider collider in colliders)
+        {
+            if (GameObject.ReferenceEquals(gameObject, collider.gameObject))
+            {
+                continue;
+            }
+
+            Vector3 direction = (collider.transform.position - carFront.position).normalized;
+            if (Vector3.Angle(transform.forward, direction) < fovAngle / 2)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (Selection.activeObject == gameObject)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(targetPosition, 0.5f);
+            
+        }
+    }
+
+    public void StartDetectingPolice()
+    {
+        avoidPolice = true;
+        targetPosition = carFront.position + transform.forward * 3.0f + transform.right * 3.0f;
+        SetControllerTargetPosition();
+    }
+
+    public void StopDetectingPolice()
+    {
+        avoidPolice = false;
+        stopForObstacle = false;
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(name + " Trigger enter");
+        if (other.CompareTag("Police"))
+        {
+            StartDetectingPolice();
+        }
+
+    }
+
+    public void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Police"))
+        {
+            StopDetectingPolice();
+        }
+    }
+
 }
