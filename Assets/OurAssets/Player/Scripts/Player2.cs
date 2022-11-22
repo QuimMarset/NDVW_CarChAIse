@@ -11,7 +11,7 @@ public class Player2 : CarController2
 
     [Header("Camera")]
     [SerializeField] protected Camera MainCamera;
-    [SerializeField] protected float SecondsToRotate = 0.5f;
+    [SerializeField] protected float SecondsToRotate = 0.25f;
 
     [Header("Canvas")]
     [SerializeField] protected Image SpeedBar;
@@ -22,7 +22,6 @@ public class Player2 : CarController2
     // Auxiliar variables
     protected float BackWheelsOriginalStiffness;
     protected WheelFrictionCurve BackWheelsFrictionCurve;
-    protected float IniCameraAngle;
 
 	#region Initialization
 
@@ -34,8 +33,9 @@ public class Player2 : CarController2
         BackWheelsFrictionCurve = WheelColliders[2].sidewaysFriction;   // The 2 first wheels are the directional/steering ones
         BackWheelsOriginalStiffness = BackWheelsFrictionCurve.stiffness;
 
-        // Get initial camera angle
-        IniCameraAngle = MainCamera.transform.eulerAngles.y;
+        // Try to get camera if not available
+        if (MainCamera == null)
+            MainCamera = GetComponentInChildren<Camera>();        
 
         // Set health text if available
         if (HealthText)
@@ -102,7 +102,7 @@ public class Player2 : CarController2
         base.Update();
 
         // Move camera according to car's velocity
-        if (CarRigidBody.velocity.magnitude > 1)
+        if (MainCamera && CarRigidBody.velocity.magnitude > 0.5f)
 		{
             float angleDiff = Vector3.SignedAngle(MainCamera.transform.forward, CarRigidBody.velocity.normalized, axis:Vector3.up);
             MainCamera.transform.RotateAround(transform.position, Vector3.up, angleDiff * Time.deltaTime / SecondsToRotate);
