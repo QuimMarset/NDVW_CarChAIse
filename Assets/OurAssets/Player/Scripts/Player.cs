@@ -1,35 +1,63 @@
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.AI;
+using UnityEngine.UI;
 using TMPro;
+
 
 public class Player : CarController
 {
+    [Header("Handbrake")]
     [SerializeField] protected bool EnableHandBrake = true;
-    [SerializeField] protected float HardBrakeStifnessMultiplier = 0.1f;
+    [SerializeField] protected float HardBrakeStifnessMultiplier = 0.5f;
 
-    [Header("Canvas")]
-    [SerializeField] protected TextMeshProUGUI SpeedText;
-    
+    [Header("Camera")]
+    [SerializeField] protected Camera MainCamera;
+    [SerializeField] protected float SecondsToRotate = 0.25f;
 
     // Auxiliar variables
+    protected PlayerHUD PlayerCanv;
     protected float BackWheelsOriginalStiffness;
     protected WheelFrictionCurve BackWheelsFrictionCurve;
+
+	#region Initialization
 
 	protected override void Start()
 	{
 		base.Start();
 
-        // Get info from backwheels for hand brake
-        BackWheelsOriginalStiffness = BackLeftC.sidewaysFriction.stiffness;
-        BackWheelsFrictionCurve = BackLeftC.sidewaysFriction;
+        // Get info from backwheels for hand brake        
+        BackWheelsFrictionCurve = WheelColliders[2].sidewaysFriction;   // The 2 first wheels are the directional/steering ones
+        BackWheelsOriginalStiffness = BackWheelsFrictionCurve.stiffness;
 
-        // Check speed text existance
-        if(SpeedText == null)
-            Debug.LogWarning("Canvas speed text missing");
+        // Try to get camera if not available
+        if (MainCamera == null)
+            MainCamera = GetComponentInChildren<Camera>();
+
+        // Get player canvas
+        PlayerCanv = FindObjectOfType<PlayerHUD>();
+
+        // Show initial health
+        UpdateHealth(0);
     }
+
+	#endregion
+
+	#region Controls
+
+	protected override float GetSteeringAngle()
+    {
+        float steeringValue = Input.GetAxis("Horizontal");
+        float steeringAngle = steeringValue * MaxSteeringAngle;
+        return steeringAngle;
+    }
+
+    protected override float GetMovementDirection()
+    {
+        return Input.GetAxis("Vertical");
+    }
+
+	#endregion
+
+	#region Handbrake
 
 	protected override void FixedUpdate()
 	{
@@ -48,36 +76,49 @@ public class Player : CarController
                 BackWheelsOriginalStiffness * HardBrakeStifnessMultiplier,
                 brakeRatio);
             BackWheelsFrictionCurve.stiffness = newStiffness;
-            BackLeftC.sidewaysFriction = BackWheelsFrictionCurve;
-            BackRightC.sidewaysFriction = BackWheelsFrictionCurve;
+            for (int i = 2; i < WheelColliders.Length; i++) // The 2 first wheels are the directional/steering ones
+                WheelColliders[i].sidewaysFriction = BackWheelsFrictionCurve;
 
             // Apply hand brake
             HandBrake(brakeRatio);
         }
     }
-        
-
+    
     protected virtual void HandBrake(float brakeRatio)
 	{
-        BackLeftC.brakeTorque = brakeRatio * BrakeTorque;
-        BackRightC.brakeTorque = brakeRatio * BrakeTorque;
+        for (int i = WheelColliders.Length / 2; i < WheelColliders.Length; i++)
+            WheelColliders[i].brakeTorque = brakeRatio * BrakeTorque;
     }
 
-    protected virtual void Update()
-	{
-        if (SpeedText)
-            SpeedText.text = (int)CurrentWheelsSpeed + "km/h ";            
-	}
+	#endregion
 
-    protected override float GetSteeringAngle()
-	{
-        float steeringValue = Input.GetAxis("Horizontal");
-        float steeringAngle = steeringValue * MaxSteeringAngle;
-        return steeringAngle;
+	#region Visual
+
+	protected override void Update()
+    {
+        base.Update();
+
+        // Move camera according to car's velocity
+        if (MainCamera && CarRigidBody.velocity.magnitude > 1f)
+		{
+            float angleDiff = Vector3.SignedAngle(MainCamera.transform.forward, CarRigidBody.velocity.normalized, axis:Vector3.up);
+
+            // If angle difference is not too low
+            if (Mathf.Abs(angleDiff) > 1f)
+                MainCamera.transform.RotateAround(transform.position, Vector3.up, angleDiff * Time.deltaTime / SecondsToRotate);
+        }
+
+        // Show new speed
+        PlayerCanv.SetSpeed(CurrentWheelsSpeed, MaxSpeed);
     }
 
-    protected override float GetMovementDirection()
+	protected override void UpdateHealth(float healthDecrement)
 	{
-        return Input.GetAxis("Vertical");
+		base.UpdateHealth(healthDecrement);
+
+        // Show new health
+        PlayerCanv.SetHealth(CurrentHealth, MaxHealth);
     }
+
+	#endregion
 }

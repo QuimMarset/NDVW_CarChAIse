@@ -10,7 +10,7 @@ Canviar stifness (10 o 20 grip gran)
  * 
  * */
 
-public class CivilianController : CarController2
+public class CivilianController : CarController
 {
 
     [SerializeField]

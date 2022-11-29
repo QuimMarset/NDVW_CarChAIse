@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Police : CarController2
+public class Police : CarController
 {
     [Header("General Parameters")]// Look at the documentation for a detailed explanation 
     public List<string> NavMeshLayers;
@@ -42,18 +42,19 @@ public class Police : CarController2
     private Vector3 lastCarPosition = Vector3.zero;
 
 
-    void Awake()
-    {
-        currentWayPoint = 0;
-        move = true;
-    }
-
-    // Start is called before the first frame update
-    void Start()
+	// Start is called before the first frame update
+	protected override void Start()
     {
         base.Start();
-        TargetObject = FindObjectOfType<Player2>().transform;
+
+        // Initialization of path settings
+        currentWayPoint = 0;
+        move = true;
+        TargetObject = FindObjectOfType<Player>().transform;
         CalculateNavMashLayerBite();
+
+        // Add itself to the GameManager police list
+        FindObjectOfType<GameManager>()?.PoliceObjects.Add(this);
     }
 
     protected override void FixedUpdate()

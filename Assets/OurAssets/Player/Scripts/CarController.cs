@@ -1,58 +1,77 @@
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.AI;
-using TMPro;
+using UnityEngine.UI;
 using System;
 
+[RequireComponent(typeof(Rigidbody))]
 public abstract class CarController : MonoBehaviour
 {
     [Header("Car wheels")]  // Assign wheel Colliders and transform through the inspector
-    [SerializeField] protected WheelCollider FrontLeftC;
-    [SerializeField] protected Transform FrontLeftT;
-    [SerializeField] protected WheelCollider FrontRightC;
-    [SerializeField] protected Transform FrontRightT;
-    [SerializeField] protected WheelCollider BackLeftC;
-    [SerializeField] protected Transform BackLeftT;
-    [SerializeField] protected WheelCollider BackRightC;
-    [SerializeField] protected Transform BackRightT;
-
-    [Header("Car body")]    // Assign a Gameobject representing the front of the car
-    [SerializeField] protected Rigidbody CarRigidBody;
-    [SerializeField] protected Transform CarFront;
+    [SerializeField] protected Transform WheelCollidersContainer;
+    [SerializeField] protected Transform WheelTransformsContainer;
 
     [Header("General Parameters")]
     [SerializeField] protected bool EnableMovement = true;
     [SerializeField] protected bool EnableABS = true;
-    [SerializeField] protected float ABSThld = 0.75f;
-    [SerializeField] protected float MaxSteeringAngle = 45;
+    [SerializeField] protected float ABSThld = 0.9f;
+    [SerializeField] protected float MaxSteeringAngle = 60;
     [SerializeField] public float MaxSpeed = 200;
-    [SerializeField] protected float BrakeTorque = 5000;
-    [SerializeField] protected float MovementTorque = 1000;
-    [SerializeField] protected bool LimitRpmAtCurve = true;
-    [SerializeField] protected float CurveSteerAngleThld = 30;
-    [SerializeField] protected float MaxSpeedAtCurve = 100;
+    [SerializeField] protected float BrakeTorque = 25000;
+    [SerializeField] protected float MovementTorque = 2000;
+    [SerializeField] protected float DragCoefficient = 0.47f;
+    [SerializeField] protected Transform CarFront;
+
+    [Header("Health")]
+    [SerializeField] [Range(0.001f, 1000)] protected float MaxHealth = 100;
+    [SerializeField] [Range(0.001f, 100)] protected float DamagePerKph = 0;
+
+    [Header("Sound")]
+    [SerializeField] protected float MinPitch = 1;
+    [SerializeField] protected float MaxPitch = 4;
 
     // Constants    
     protected const float MPS_TO_KPH = 3600f / 1000f;
     protected const float RPM_PER_RADIUS_TO_KPH = 1f / 60f * 2f * Mathf.PI;
+    protected const float FRICTION_COEF = 1.225f * 1f; // Density of air * Cross section area
 
-    // Auxiliar local variables
+    // Auxiliar variables
+    public Rigidbody CarRigidBody { get; protected set; }
+    public Vector3 CurrentVelocity { get; protected set; }
+    protected WheelCollider[] WheelColliders;
+    protected Transform[] WheelTransforms;
+    protected AudioSource SoundSource;
+    public float CurrentHealth { get; protected set; }
+    public bool IsDead { get; protected set; }
     public float CurrentWheelsSpeed { get; protected set; }
     public float CurrentForwardSpeed { get; protected set; }
-    protected float LocalMaxSpeed;
     
+
+    #region Intialization
 
     protected virtual void Start()
     {
         // Set center of mass to zero
+        CarRigidBody = GetComponent<Rigidbody>();
         CarRigidBody.centerOfMass = Vector3.zero;
+
+        // Get wheels colliders and transforms
+        WheelColliders = WheelCollidersContainer.GetComponentsInChildren<WheelCollider>();
+        WheelTransforms = WheelTransformsContainer.gameObject.GetComponentsInDirectChildren<Transform>();
+
+        // Health
+        CurrentHealth = MaxHealth;
+
+        // Sound
+        SoundSource = GetComponent<AudioSource>();
     }
 
-    protected virtual void FixedUpdate()
+	#endregion
+
+	#region Update
+
+	protected virtual void FixedUpdate()
     {
         // Get speeds
+        CurrentVelocity = CarRigidBody.velocity;
         CurrentWheelsSpeed = GetWheelsSpeed();
         CurrentForwardSpeed = GetForwardSpeed();
 
@@ -61,15 +80,80 @@ public abstract class CarController : MonoBehaviour
         Move();
     }
 
+	#region Compute wheels and forward speeds
+
+	protected virtual float GetWheelsSpeed()
+    {
+        float avgWheelsSpeed = 0;
+        for (int i = 0; i < WheelColliders.Length; i++)
+            avgWheelsSpeed += GetWheelSpeed(WheelColliders[i]) / WheelColliders.Length;
+        return avgWheelsSpeed;
+    }
+
+    protected virtual float GetWheelSpeed(WheelCollider wheel)
+    {
+        return wheel.rpm * wheel.radius * RPM_PER_RADIUS_TO_KPH;
+    }
+    
+    protected virtual float GetForwardSpeed()
+    {
+        return Vector3.Dot(CarRigidBody.velocity, transform.forward) * MPS_TO_KPH;
+    }
+
+	#endregion
+
+	#region Sound
+
+	protected virtual void Update()
+    {
+        // Sound
+        if (SoundSource)
+		{
+            float speedRatio = Mathf.Abs(CurrentWheelsSpeed) / MaxSpeed;
+            SoundSource.pitch = Mathf.LerpUnclamped(MinPitch, MaxPitch, speedRatio);
+        }        
+    }
+
+	#endregion
+
+	#endregion
+
+	#region Steering
+
+	/// <summary>
+	/// Applies steering to the Current waypoint
+	/// </summary>
+	protected virtual void Steer()
+    {
+        // Get steering angle
+        float steeringAngle = GetSteeringAngle();
+
+        // Check maximum steering values
+        steeringAngle =  Mathf.Clamp(steeringAngle, -MaxSteeringAngle, MaxSteeringAngle);
+
+        // Set direction wheels angle
+        for (int i = 0; i < WheelColliders.Length / 2; i++)
+            WheelColliders[i].steerAngle = steeringAngle;
+
+        // Update wheels rotations
+        UpdateWheels();
+    }
+
+    /// <summary>
+    /// Obtaing the angle for rotating the steering wheels.
+    /// Positive values for turning right, negatives for turning left.
+    /// Maximum absolute values shoudt be lower than the MaxSteeringAngle
+    /// </summary>
+    /// <returns>Desired steering wheels rotation</returns>
+    protected abstract float GetSteeringAngle();
+
     /// <summary>
     ///  Updates the wheel's postion and rotation
     /// </summary>
     protected virtual void UpdateWheels()
     {
-        ApplyRotationAndPostion(FrontLeftC, FrontLeftT);
-        ApplyRotationAndPostion(FrontRightC, FrontRightT);
-        ApplyRotationAndPostion(BackLeftC, BackLeftT);
-        ApplyRotationAndPostion(BackRightC, BackRightT);
+		for (int i = 0; i < WheelColliders.Length; i++)
+            ApplyRotationAndPostion(WheelColliders[i], WheelTransforms[i]);
     }
 
     /// <summary>
@@ -88,75 +172,54 @@ public abstract class CarController : MonoBehaviour
         wheel.rotation = rot;
     }
 
-    protected abstract float GetSteeringAngle();
+    #endregion
+
+    #region Movement
 
     /// <summary>
-    /// Applies steering to the Current waypoint
+    /// Apply acceleration torque depending on the ratio
     /// </summary>
-    protected virtual void Steer()
-    {
-        // Get steering angle
-        float steeringAngle = GetSteeringAngle();
-
-        // Set direction wheels angle
-        FrontLeftC.steerAngle = steeringAngle;
-        FrontRightC.steerAngle = steeringAngle;
-
-        // If desired, adapt local maximum speed depending of the steering angle
-        if (LimitRpmAtCurve)
-            LocalMaxSpeed = (Mathf.Abs(steeringAngle) <= CurveSteerAngleThld) ? MaxSpeed : MaxSpeedAtCurve;
-        else
-            LocalMaxSpeed = MaxSpeed;
-
-        UpdateWheels();
-    }
-
-    protected virtual float GetWheelsSpeed()
-    {
-        // Average wheels speed
-        return (GetWheelSpeed(FrontLeftC) + GetWheelSpeed(FrontRightC) + GetWheelSpeed(BackLeftC) + GetWheelSpeed(BackRightC)) / 4;
-    }
-
-    protected virtual float GetWheelSpeed(WheelCollider wheel)
-    {
-        return wheel.rpm * wheel.radius * RPM_PER_RADIUS_TO_KPH;
-    }
-
-    protected virtual float GetForwardSpeed()
-	{
-        return Vector3.Dot(CarRigidBody.velocity, transform.forward) * MPS_TO_KPH;
-    }
-
-    /// <summary>
-    /// Apply brake torque 
-    /// </summary>
-    protected virtual void Brake(float brakeRatio = 1)
-    {
-        // Check difference between forward speed and wheels speed
-        if (EnableABS && brakeRatio > 0)
-		{
-            float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
-            float forwardSpeed = Vector3.Dot(CarRigidBody.velocity, transform.forward); // TODO: Check why this is 3.6 times greater than expected
-            float slipRatio = absWheelsSpeed / forwardSpeed;
-            if (slipRatio > 0.1 && slipRatio <= ABSThld)
-                brakeRatio = 0;
-        }
-
-        FrontLeftC.brakeTorque = brakeRatio * BrakeTorque;
-        FrontRightC.brakeTorque = brakeRatio * BrakeTorque;
-        BackLeftC.brakeTorque = brakeRatio * BrakeTorque;
-        BackRightC.brakeTorque = brakeRatio * BrakeTorque;
-    }
-
+    /// <param name="accelRatio">Must be in the range [-1, 1]. Otherwise it would be clamped.</param>
     protected virtual void Accelerate(float accelRatio = 1)
     {
-        BackRightC.motorTorque = accelRatio * MovementTorque;
-        BackLeftC.motorTorque = accelRatio * MovementTorque;
-        FrontRightC.motorTorque = accelRatio * MovementTorque;
-        FrontLeftC.motorTorque = accelRatio * MovementTorque;
+        accelRatio = Mathf.Clamp(accelRatio, -1, 1);
+        for (int i = 0; i < WheelColliders.Length; i++)
+            WheelColliders[i].motorTorque = accelRatio * MovementTorque;
     }
 
 
+    /// <summary>
+    /// Apply brake torque depending on the ratio
+    /// </summary>
+    /// <param name="brakeRatio">Must be in the range [0, 1]. Otherwise it would be clamped.</param>
+    protected virtual void Brake(float brakeRatio = 1)
+    {
+        WheelCollider wheel;
+        float wheelBreakRatio;
+        float absWheelSpeed;
+        float absForwardSpeed;
+
+        brakeRatio = Mathf.Clamp(brakeRatio, 0, 1);
+
+        // For each wheel
+        for (int i = 0; i < WheelColliders.Length; i++)
+		{
+            wheel = WheelColliders[i];
+            wheelBreakRatio = brakeRatio;
+
+            // If ABS, check difference between forward speed and wheels speed
+            if (EnableABS && brakeRatio > 0)
+            {
+                absWheelSpeed = Mathf.Abs(GetWheelSpeed(wheel));
+                absForwardSpeed = Mathf.Abs(CurrentForwardSpeed / 3.6f);  // TODO: Check why this is 3.6 times greater than expected
+                if (absWheelSpeed > 1f && absWheelSpeed < absForwardSpeed * ABSThld)
+                    wheelBreakRatio = 0;                    
+            }
+
+            // Apply break
+            WheelColliders[i].brakeTorque = wheelBreakRatio * BrakeTorque;
+        }
+    }
 
     protected abstract float GetMovementDirection();
 
@@ -173,31 +236,39 @@ public abstract class CarController : MonoBehaviour
             Accelerate(0);
 
             // Get movement magnitude
-            float movementDirection = GetMovementDirection();            
+            float movementDirection = GetMovementDirection();
 
             // If movement direction is different from wheels speed or it's -Inf, brake
-            if ((movementDirection > 0 && CurrentWheelsSpeed < 0) || (movementDirection < 0 && CurrentWheelsSpeed > 0) || 
+            if ((movementDirection > 0 && CurrentWheelsSpeed < -0.1f) || (movementDirection < 0 && CurrentWheelsSpeed > 0.1f) || 
                 float.IsNegativeInfinity(movementDirection))
-            {
-                // When want to stop, brake as much as possible (1)
+            {                
+                // When want to stop (movementDir = -Inf), brake as much as possible (1)
                 if (float.IsNegativeInfinity(movementDirection))
                     movementDirection = 1;
 
                Brake(Mathf.Abs(movementDirection));    // Absolute braking (independently of the direction sign)
             }
-            // Otherwise, normal acceleration
-            else
+            // If there is a movement direction
+            else if (Mathf.Abs(movementDirection) > 0)
             {
                 // Compute speed of wheels
                 float absWheelsSpeed = Mathf.Abs(CurrentWheelsSpeed);
 
-                // If speed below local maximum, accelerate
-                if (absWheelsSpeed < LocalMaxSpeed)
+                // If speed below maximum, accelerate
+                if (absWheelsSpeed < MaxSpeed)
                     Accelerate(movementDirection);
                 // If speed is too high (with a 1/4 marging), brake
-                else if (absWheelsSpeed > LocalMaxSpeed + (LocalMaxSpeed * 1 / 4))
+                else if (absWheelsSpeed > MaxSpeed + (MaxSpeed * 1 / 4))
                     Brake();
                 // Otherwise, do nothing
+            }
+            // If movementDirection == 0, apply air resistance/drag
+			else
+			{               
+                float currentSpeed = CarRigidBody.velocity.magnitude;                
+                float forceAmount = (FRICTION_COEF * DragCoefficient * Mathf.Pow(currentSpeed, 2)) / 2;
+                Vector3 resistanceDir = -CarRigidBody.velocity.normalized;
+                CarRigidBody.AddForce(resistanceDir * forceAmount);
             }
         }
         // If movement disabled, brake
@@ -205,5 +276,79 @@ public abstract class CarController : MonoBehaviour
             Brake();
     }
 
+    #endregion
 
+    #region Health and crashing
+    protected void OnCollisionEnter(Collision collision)
+    {
+        // Get velocity difference
+        Vector3 otherVelocity = Vector3.zero;   // By default, other object is static
+        CarController otherCar = collision.gameObject.GetComponent<CarController>();
+        if (otherCar)   // Try with CarController
+            otherVelocity = otherCar.CurrentVelocity;
+        else // Otherwise, try rigidbody velocity, which is already updated by collision (not ideal)
+        {
+            Rigidbody otherRigidbody = collision.gameObject.GetComponent<Rigidbody>();
+            if (otherRigidbody)
+                otherVelocity = otherRigidbody.velocity;
+        }
+        Vector3 velocityDiff = CurrentVelocity - otherVelocity; // Using CurrentVelocity instead of CarRigidBody.velocity since it is already updated due to the collision
+        Vector2 velocityDiff2D = new Vector2(Mathf.Abs(velocityDiff.x), Mathf.Abs(velocityDiff.z)); // Transform to 2D
+
+        // Get contact direction
+        Vector3 collisionDir = Vector3.zero;
+        Vector3 diff;
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            diff = (transform.position - collision.GetContact(i).point).normalized;
+            diff = new Vector3(Vector3.Dot(transform.forward, diff), 0, Vector3.Dot(transform.right, diff));    // Align with car
+            collisionDir += diff;
+        }
+        collisionDir = collisionDir.normalized; // Normalize
+
+        // Discretize direction
+        Vector3[] possibleDirs = new Vector3[] { transform.forward, -transform.forward, transform.right, -transform.right };
+        Vector3 bestDir = Vector3.zero;
+        float dist;
+        float minDistance = float.PositiveInfinity;
+        foreach (Vector3 dir in possibleDirs)
+        {
+            dist = Vector3.Distance(collisionDir, dir);
+            if (dist < minDistance)
+            {
+                minDistance = dist;
+                bestDir = dir;
+            }
+        }
+
+        // Transform to 2D
+        Vector2 collisionDir2D = new Vector2(bestDir.x, bestDir.z);
+
+        // Compute damage
+        float collisionSpeed = Mathf.Abs(Vector2.Dot(velocityDiff2D, collisionDir2D));
+        float damage = DamagePerKph * collisionSpeed;
+
+        // Take damage
+        UpdateHealth(damage);
+    }
+
+    protected virtual void UpdateHealth(float healthDecrement)
+    {
+        // Update value with limits
+        CurrentHealth = Mathf.Clamp(CurrentHealth - healthDecrement, 0, MaxHealth);
+
+        // Check death
+        if (CurrentHealth == 0)
+            Death();
+    }
+
+    protected virtual void Death()
+    {
+        Debug.Log(gameObject + " has dead");
+        IsDead = true;
+        EnableMovement = false; // Disable movement
+        SoundSource.pitch = MinPitch;   // Stopped engine sound
+    }
+
+    #endregion
 }

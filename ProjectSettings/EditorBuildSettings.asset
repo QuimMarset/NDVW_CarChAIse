@@ -9,9 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: ff70413a226cedc418687ae9926ac9fc
   - enabled: 1
+    path: Assets/Scenes/Base_Demetre.unity
+    guid: 588a730ac18424f0eae778533b5afd47
+  - enabled: 1
     path: Assets/Scenes/Base_Benet.unity
     guid: 689adab6f1a630442b3d7c45307a5cb0
-  - enabled: 1
-    path: Assets/Scenes/Base_Demetre 1.unity
-    guid: c6c235b5c7a375b4cafbce966c31ae17
   m_configObjects: {}

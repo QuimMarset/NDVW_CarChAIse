@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -5,79 +6,107 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     // Editable parameters
-    [SerializeField] private Player2 PlayerCar;
-    [SerializeField] private Canvas PlayerCanvas;
-    [SerializeField] private Canvas GameOverCanvas;
-    [SerializeField] private Image ChaseBar;
-    [SerializeField] private GameObject ChaseBarContainer;
+    [Header("General")]
+    [SerializeField] private Player PlayerCar;
+    [SerializeField] private PlayerHUD PlayerCanv;
+    [SerializeField] private GameOverHUD GameOverCanv;
     [SerializeField] private int MainMenuBuildIdx = 0;
+
+    [Header("Chasing")]
     [SerializeField] private float MinSpeedToCatch = 10;
     [SerializeField] private float MinDistanceToCatch = 10;
     [SerializeField] private int CatchPointPerPolice = 5;
     [SerializeField] private int EscapePointPerSecond = 15;
+   
 
+    // Auxiliar variables
     private float CatchCounter = 0;
-    private Police[] PoliceObjects;
+    public List<Police> PoliceObjects { get; private set; }
 
-    private void Start()
+	#region Initialization
+
+	private void Awake()
     {
-        PlayerCar.enabled = true;
-        PlayerCanvas.enabled = true;
-        GameOverCanvas.enabled = false;
+        // Get Player if not assigned
+        if (PlayerCar == null)
+            PlayerCar = FindObjectOfType<Player>();
 
-        PoliceObjects = FindObjectsOfType<Police>();
+        // Create empty list of Police cars to be filled by police
+        PoliceObjects = new List<Police>();
+
+        // Starting state
+        PlayerCar.enabled = true;
+        PlayerCanv.gameObject.SetActive(true);
+        GameOverCanv.gameObject.SetActive(false);
         UpdateCatchCounter(0);
     }
 
-    private void Update()
-    {
-        // Check for game over
-		if (PlayerCar.IsDead)
-            GameOver();
+	#endregion
 
-        CheckChaseCondition();
+	#region End conditions control
+
+	private void Update()
+    {
+        // Update chasing state
+        CheckCatchCondition();
+
+        // Check for game over
+        if (PlayerCar.IsDead || CatchCounter == 100)
+            GameOver();        
     }
 
+	#region Catch
+
+	private void CheckCatchCondition()
+    {
+        // Get police cars close
+        int nClosePoliceCars = 0;
+        foreach (Police police in PoliceObjects)
+            if (Vector3.Distance(PlayerCar.transform.position, police.transform.position) < MinDistanceToCatch)
+                nClosePoliceCars++;
+
+        // If car going slow and police cars close, increment catch counter
+        if (Mathf.Abs(PlayerCar.CurrentForwardSpeed) < MinSpeedToCatch && nClosePoliceCars > 0)
+        {
+            UpdateCatchCounter(nClosePoliceCars * CatchPointPerPolice * Time.deltaTime);
+        }
+        // Otherwise, decrement it
+        else
+            UpdateCatchCounter(-Time.deltaTime * EscapePointPerSecond);
+    }
+
+    private void UpdateCatchCounter(float increment)
+    {
+        CatchCounter += increment;
+        CatchCounter = Mathf.Clamp(CatchCounter, 0, 100);
+
+        // Show it to player
+        PlayerCanv.SetCatch(CatchCounter, 100);
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Game over
+
     private void GameOver()
-	{
-        PlayerCanvas.enabled = false;
-        GameOverCanvas.enabled = true;
+    {
+        // Disable player car and canvas
         PlayerCar.enabled = false;
+        PlayerCanv.gameObject.SetActive(false);
+
+        // Show game over canvas
+        string gameOverMsg = PlayerCar.IsDead ? "The car is broken" : "The police caught you";
+        GameOverCanv.SetMessage(gameOverMsg + ", you failed.");
+        GameOverCanv.gameObject.SetActive(true);
     }
 
     public void ReturnToMainMenu()
-	{
-        SceneManager.LoadScene(MainMenuBuildIdx);
-	}
-
-    private void CheckChaseCondition()
     {
-        if (PlayerCar.CurrentForwardSpeed < MinSpeedToCatch)
-        {
-            int PoliceCount = 0;
-            foreach(Police police in PoliceObjects)
-            {
-                if (Vector3.Distance(PlayerCar.transform.position, police.transform.position) < MinDistanceToCatch)
-                {
-                    PoliceCount++;
-                }
-            }
-            UpdateCatchCounter(PoliceCount * CatchPointPerPolice * Time.deltaTime);
-        }
-        else 
-        {
-            UpdateCatchCounter(-Time.deltaTime * EscapePointPerSecond);
-        }
+        SceneManager.LoadScene(MainMenuBuildIdx);
     }
 
-    private void UpdateCatchCounter(float increment){
-        CatchCounter += increment;
-        CatchCounter = Mathf.Clamp(CatchCounter, 0, 100);
-         
-        ChaseBarContainer.SetActive(CatchCounter != 0);
-        ChaseBar.fillAmount = CatchCounter / 100;
-
-        if (CatchCounter == 100) GameOver();
-    }
+    #endregion
 }
 
