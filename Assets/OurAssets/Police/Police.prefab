@@ -1139,8 +1139,9 @@ MonoBehaviour:
   ABSThld: 0.95
   MaxSteeringAngle: 60
   MaxSpeed: 200
-  BrakeTorque: 10000
+  BrakeTorque: 25000
   MovementTorque: 2000
+  DragCoefficient: 0.47
   CarFront: {fileID: 8751094528434851700}
   MaxHealth: 100
   DamagePerKph: 0.001
@@ -1153,7 +1154,7 @@ MonoBehaviour:
   TargetObject: {fileID: 0}
   move: 0
   AIFOV: 180
-  reactionTime: 0.5
+  reactionTime: 0.1
 --- !u!65 &8751094529097843869
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1161,7 +1162,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8751094529097843864}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 8e6577f81e8c64e2bab1df725aa1bcbf, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -1177,7 +1178,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1000
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 2

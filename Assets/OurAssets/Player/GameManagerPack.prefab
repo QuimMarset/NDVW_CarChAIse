@@ -49,7 +49,13 @@ MonoBehaviour:
   PlayerCar: {fileID: 5733730444239174697}
   PlayerCanvas: {fileID: 8688999990550914254}
   GameOverCanvas: {fileID: 4111020538237968059}
+  ChaseBar: {fileID: 4456918004888488635}
+  ChaseBarContainer: {fileID: 2832128823726388853}
   MainMenuBuildIdx: 0
+  MinSpeedToCatch: 20
+  MinDistanceToCatch: 10
+  CatchPointPerPolice: 3
+  EscapePointPerSecond: 10
 --- !u!1001 &6234017390349881196
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -216,12 +222,44 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerPack
       objectReference: {fileID: 0}
+    - target: {fileID: 6265848680472681753, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 136
+      objectReference: {fileID: 0}
     - target: {fileID: 6320737866317034197, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 8343306904938133139, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+      propertyPath: m_Color.b
+      value: 0.18783374
+      objectReference: {fileID: 0}
+    - target: {fileID: 8343306904938133139, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+      propertyPath: m_Color.g
+      value: 0.18783374
+      objectReference: {fileID: 0}
+    - target: {fileID: 8343306904938133139, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+      propertyPath: m_Color.r
+      value: 0.1981132
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+--- !u!1 &2832128823726388853 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8200513829286172191, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+  m_PrefabInstance: {fileID: 6234017391670255722}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4456918004888488635 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7735366143392033489, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
+  m_PrefabInstance: {fileID: 6234017391670255722}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5733730444239174697 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1806472023689075779, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
