@@ -67,12 +67,12 @@ public class GameManager : MonoBehaviour
 
         // If car going slow and police cars close, increment catch counter
         if (Mathf.Abs(PlayerCar.CurrentForwardSpeed) < MinSpeedToCatch && nClosePoliceCars > 0)
-        {
             UpdateCatchCounter(nClosePoliceCars * CatchPointPerPolice * Time.deltaTime);
-        }
         // Otherwise, decrement it
         else
             UpdateCatchCounter(-Time.deltaTime * EscapePointPerSecond);
+
+        // TODO: If cops have no visual, catch counter is decremented faster
     }
 
     private void UpdateCatchCounter(float increment)
@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         // Disable player car and canvas
-        PlayerCar.enabled = false;
+        PlayerCar.EnableMovement = false;
         PlayerCanv.gameObject.SetActive(false);
 
         // Show game over canvas

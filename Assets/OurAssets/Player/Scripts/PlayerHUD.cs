@@ -15,11 +15,9 @@ public class PlayerHUD : MonoBehaviour
 
 	[Header("Catch bar")]
 	[SerializeField] protected GameObject CatchBarContainer;
-	[SerializeField] protected Image[] CatchBars;
-	[SerializeField] protected Color MinColorCatchBar = Color.blue;
-	[SerializeField] protected Color MaxColorCatchBar = Color.red;
-	[SerializeField] protected Image PoliceLights;
-	[SerializeField] protected float LightsUpdPerCatchCount = 0.01f;
+	[SerializeField] protected Image CatchBar;
+	[SerializeField] protected TextMeshProUGUI BeingChasedMsg;
+	[SerializeField] protected TextMeshProUGUI EscapingMsg;
 
 
 	public void SetSpeed(float speed, float maxSpeed)
@@ -36,17 +34,17 @@ public class PlayerHUD : MonoBehaviour
 
 	public void SetCatch(float catchCount, float maxCatchCount)
 	{
-		foreach (Image catchBar in CatchBars)
-		{
-			catchBar.fillAmount = catchCount / maxCatchCount;
-			catchBar.color = Color.Lerp(MinColorCatchBar, MaxColorCatchBar, catchCount / maxCatchCount);
-		}		
+		float newFillAmount = catchCount / maxCatchCount;
 
-		// Disable catch bar if no catch count
-		CatchBarContainer.SetActive(catchCount != 0);
+		// Message depending if incrementing or decrementing
+		BeingChasedMsg.enabled = newFillAmount > CatchBar.fillAmount;
+		EscapingMsg.enabled = newFillAmount < CatchBar.fillAmount;
 
-		// Make police lights blink
-		//PoliceLights.fillAmount = ((catchCount * Time.realtimeSinceStartup * LightsUpdPerCatchCount) % 100) / 100;
+		// Update chase bar
+		CatchBar.fillAmount = newFillAmount;
+
+		// Show only if CatchCount > 0
+		CatchBarContainer.SetActive(newFillAmount > 0);
 	}
 
 }

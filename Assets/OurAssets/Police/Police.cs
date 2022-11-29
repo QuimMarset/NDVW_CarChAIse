@@ -36,7 +36,7 @@ public class Police : CarController
 
     private float backwardStartTime = Mathf.Infinity;
     private float stopCheckStartTime = Mathf.Infinity;
-    private float stopCheckTime = 0.1f;
+    private float stopCheckTime = 0.5f;
     private float backwardTime = 1f;
 
     private Vector3 lastCarPosition = Vector3.zero;
@@ -242,20 +242,33 @@ public class Police : CarController
     protected override float GetMovementDirection()
 	{
         float movementDirection = 0;
-        if (stopCheckStartTime != Mathf.Infinity){
-            if (Time.time >= stopCheckStartTime + stopCheckTime & backwardStartTime == Mathf.Infinity) {backwardStartTime = Time.time;}
 
+        // Check if go backwards for avoid blocking
+        if (stopCheckStartTime != Mathf.Infinity)
+        {
+            // If too many time stopped (ergo blocked) and no backward time started
+            if (Time.time >= (stopCheckStartTime + stopCheckTime) && backwardStartTime == Mathf.Infinity)
+                backwardStartTime = Time.time;
+
+            // If backward time started
             if (backwardStartTime != Mathf.Infinity){
-                if(Time.time < backwardStartTime + backwardTime) movementDirection = -1.0f;
+                if(Time.time < (backwardStartTime + backwardTime))
+                    movementDirection = -1.0f;
                 else {
                     stopCheckStartTime = Mathf.Infinity;
                     backwardStartTime = Mathf.Infinity;
                 }
             }
-        } else {
-            if (Vector3.Distance(CarFront.position, TargetObject.position) > 5 & Vector3.Distance(lastCarPosition, CarFront.position) < 0.001f) stopCheckStartTime = Time.time;
+        } 
+        else {
+            // If car don't move and target is far, start the stop timer (consider the car blocked)
+            if (Mathf.Abs(CurrentForwardSpeed) < 0.1f && Vector3.Distance(CarFront.position, TargetObject.position) > 5)
+                stopCheckStartTime = Time.time;
+            else
+                stopCheckStartTime = Mathf.Infinity;
 
-            if(waypoints.Count == 2) movementDirection = 1.0f;
+            // Move to waypoints
+            if (waypoints.Count == 2) movementDirection = 1.0f;
             else if (waypoints.Count > 2) 
             {
                 float distanceToWaypoint = Vector3.Distance(CarFront.position, waypoints[currentWayPoint]);

@@ -5,12 +5,14 @@ using System;
 [RequireComponent(typeof(Rigidbody))]
 public abstract class CarController : MonoBehaviour
 {
+    // Editable parameters
     [Header("Car wheels")]  // Assign wheel Colliders and transform through the inspector
     [SerializeField] protected Transform WheelCollidersContainer;
     [SerializeField] protected Transform WheelTransformsContainer;
 
     [Header("General Parameters")]
-    [SerializeField] protected bool EnableMovement = true;
+    public bool EnableMovement = true;
+    public bool EnableSteering = true;
     [SerializeField] protected bool EnableABS = true;
     [SerializeField] protected float ABSThld = 0.9f;
     [SerializeField] protected float MaxSteeringAngle = 60;
@@ -22,7 +24,7 @@ public abstract class CarController : MonoBehaviour
 
     [Header("Health")]
     [SerializeField] [Range(0.001f, 1000)] protected float MaxHealth = 100;
-    [SerializeField] [Range(0.001f, 100)] protected float DamagePerKph = 0;
+    [SerializeField] [Range(0, 100)] protected float DamagePerKph = 0;
 
     [Header("Sound")]
     [SerializeField] protected float MinPitch = 1;
@@ -125,18 +127,21 @@ public abstract class CarController : MonoBehaviour
 	/// </summary>
 	protected virtual void Steer()
     {
-        // Get steering angle
-        float steeringAngle = GetSteeringAngle();
+		if (EnableSteering)
+		{
+            // Get steering angle
+            float steeringAngle = GetSteeringAngle();
 
-        // Check maximum steering values
-        steeringAngle =  Mathf.Clamp(steeringAngle, -MaxSteeringAngle, MaxSteeringAngle);
+            // Check maximum steering values
+            steeringAngle = Mathf.Clamp(steeringAngle, -MaxSteeringAngle, MaxSteeringAngle);
 
-        // Set direction wheels angle
-        for (int i = 0; i < WheelColliders.Length / 2; i++)
-            WheelColliders[i].steerAngle = steeringAngle;
+            // Set direction wheels angle
+            for (int i = 0; i < WheelColliders.Length / 2; i++)
+                WheelColliders[i].steerAngle = steeringAngle;
 
-        // Update wheels rotations
-        UpdateWheels();
+            // Update wheels rotations
+            UpdateWheels();
+        }        
     }
 
     /// <summary>
@@ -347,6 +352,7 @@ public abstract class CarController : MonoBehaviour
         Debug.Log(gameObject + " has dead");
         IsDead = true;
         EnableMovement = false; // Disable movement
+        EnableSteering = false; // Disable steering
         SoundSource.pitch = MinPitch;   // Stopped engine sound
     }
 
