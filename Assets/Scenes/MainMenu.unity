@@ -922,12 +922,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7026590645494197945, guid: 2cea047439413a24b873bd7383b366db, type: 2}
     - target: {fileID: 1500183222353876449, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
+      propertyPath: m_fontSize
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500183222353876449, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
+      propertyPath: m_margin.y
+      value: -57.958237
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500183222353876449, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: 2cea047439413a24b873bd7383b366db, type: 2}
     - target: {fileID: 1500183222353876449, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
       propertyPath: m_fontStyle
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500183222353876449, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 1500183222353876449, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
       propertyPath: m_sharedMaterial
@@ -942,12 +954,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7026590645494197945, guid: 2cea047439413a24b873bd7383b366db, type: 2}
     - target: {fileID: 1500183222788745396, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
+      propertyPath: m_fontSize
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500183222788745396, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: 2cea047439413a24b873bd7383b366db, type: 2}
     - target: {fileID: 1500183222788745396, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
       propertyPath: m_fontStyle
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500183222788745396, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 1500183222788745396, guid: c9b58834c43e15d42be06dd27af975aa, type: 3}
       propertyPath: m_sharedMaterial
@@ -3350,23 +3370,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WheelCollidersContainer: {fileID: 8764549289900632462}
   WheelTransformsContainer: {fileID: 8764549291513430963}
-  CarFront: {fileID: 0}
   EnableMovement: 0
+  EnableSteering: 1
   EnableABS: 1
   ABSThld: 0.9
   MaxSteeringAngle: 60
   MaxSpeed: 200
   BrakeTorque: 25000
   MovementTorque: 2000
+  DragCoefficient: 0.47
+  CarFront: {fileID: 0}
   MaxHealth: 100
   DamagePerKph: 0.2
   MinPitch: 0.5
   MaxPitch: 5
   EnableHandBrake: 1
   HardBrakeStifnessMultiplier: 0.5
-  SpeedText: {fileID: 0}
-  SpeedBar: {fileID: 0}
-  HealthBar: {fileID: 0}
+  MainCamera: {fileID: 0}
+  SecondsToRotate: 0.25
 --- !u!4 &8764549290117267840
 Transform:
   m_ObjectHideFlags: 0

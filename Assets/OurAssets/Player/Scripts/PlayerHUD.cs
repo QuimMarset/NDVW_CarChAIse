@@ -29,7 +29,7 @@ public class PlayerHUD : MonoBehaviour
 	public void SetHealth(float health, float maxHealth)
 	{
 		HealthBar.fillAmount = health / maxHealth;
-		HealthText.text = (int)health + " HP";
+		HealthText.text = (int)health + "%";
 	}
 
 	public void SetCatch(float catchCount, float maxCatchCount)

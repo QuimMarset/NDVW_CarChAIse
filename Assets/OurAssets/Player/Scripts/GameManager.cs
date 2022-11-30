@@ -22,11 +22,14 @@ public class GameManager : MonoBehaviour
     // Auxiliar variables
     private float CatchCounter = 0;
     public List<Police> PoliceObjects { get; private set; }
+    public bool IsGameOver { get; private set; }
 
-	#region Initialization
+    #region Initialization
 
-	private void Awake()
+    private void Awake()
     {
+        IsGameOver = false;
+
         // Get Player if not assigned
         if (PlayerCar == null)
             PlayerCar = FindObjectOfType<Player>();
@@ -51,7 +54,7 @@ public class GameManager : MonoBehaviour
         CheckCatchCondition();
 
         // Check for game over
-        if (PlayerCar.IsDead || CatchCounter == 100)
+        if (!IsGameOver && (PlayerCar.IsDead || CatchCounter == 100))
             GameOver();        
     }
 
@@ -93,11 +96,11 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         // Disable player car and canvas
-        PlayerCar.EnableMovement = false;
+        PlayerCar.Death();
         PlayerCanv.gameObject.SetActive(false);
 
         // Show game over canvas
-        string gameOverMsg = PlayerCar.IsDead ? "The car is broken" : "The police caught you";
+        string gameOverMsg = CatchCounter == 100? "The police caught you" : "The car is broken"; // Priorize catch message
         GameOverCanv.SetMessage(gameOverMsg + ", you failed.");
         GameOverCanv.gameObject.SetActive(true);
     }

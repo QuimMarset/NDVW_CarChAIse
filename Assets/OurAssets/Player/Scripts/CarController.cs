@@ -347,7 +347,7 @@ public abstract class CarController : MonoBehaviour
             Death();
     }
 
-    protected virtual void Death()
+    public virtual void Death()
     {
         Debug.Log(gameObject + " has dead");
         IsDead = true;
