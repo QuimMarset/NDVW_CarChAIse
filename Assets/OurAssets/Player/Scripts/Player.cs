@@ -109,7 +109,8 @@ public class Player : CarController
         }
 
         // Show new speed
-        PlayerCanv.SetSpeed(CurrentWheelsSpeed, MaxSpeed);
+        if(PlayerCanv)
+            PlayerCanv.SetSpeed(CurrentWheelsSpeed, MaxSpeed);
     }
 
 	protected override void UpdateHealth(float healthDecrement)
