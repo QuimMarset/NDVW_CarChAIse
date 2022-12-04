@@ -23,8 +23,8 @@ public class Police : CarController
     private List<Vector3> waypoints = new List<Vector3>();
     private int Fails;
     private Vector3 direction;
-    private float nextActionTime = 0.0f;
-    [SerializeField] private float reactionTime = 0.5f;
+    private float actionTime = 0.0f;
+    [SerializeField] private float defaultReactionTime = 0.5f;
     private float patrolCheckTime = -Mathf.Infinity;
 
     private bool Debugger = false;
@@ -38,7 +38,7 @@ public class Police : CarController
     private float stopCheckStartTime = Mathf.Infinity;
     private float stopCheckTime = 0.5f;
     private float backwardTime = 1f;
-
+    private float reactionTime = 0f;
     private Vector3 lastCarPosition = Vector3.zero;
 
 
@@ -52,13 +52,13 @@ public class Police : CarController
         move = true;
         TargetObject = FindObjectOfType<Player>().transform;
         CalculateNavMashLayerBite();
-
         // Add itself to the GameManager police list
         FindObjectOfType<GameManager>()?.PoliceObjects.Add(this);
     }
 
     protected override void FixedUpdate()
 	{
+        actionTime += Time.deltaTime;
         base.FixedUpdate();
         PathProgress();
         lastCarPosition = CarFront.position;
@@ -84,15 +84,18 @@ public class Police : CarController
     {
         wayPointManager();
         Move();
-
         void wayPointManager()
         {
             CreatePath();
-            if (waypoints.Count > 0) {
+            if (waypoints.Count > 0 && currentWayPoint < waypoints.Count) {
+                // Debug.Log("Waypoints Count: " + waypoints.Count + ", currentWayPoint: " + currentWayPoint);
                 PositionToFollow = waypoints[currentWayPoint];
                 if (Vector3.Distance(CarFront.position, PositionToFollow) < 1) currentWayPoint++;
             }
             else PositionToFollow = Vector3.zero;
+
+            // if (waypoints.Count > 2) reactionTime += Time.deltaTime;
+            
         }
 
         void CreatePath()
@@ -111,47 +114,55 @@ public class Police : CarController
 
     public void CreateTargetPath(Transform destination) //Creates a path to the Custom destination
     {
-        if (Time.time > nextActionTime ) {
-            UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
-            Vector3 sourcePosition;
-
-            nextActionTime += reactionTime;
-            waypoints.Clear();
-            currentWayPoint = 1;
+        UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
+        Vector3 sourcePosition;
+        currentWayPoint = 1;
+    
+        sourcePosition = CarFront.position;
+        if(direction == null) direction = CarFront.forward;
+        List<Vector3> currentWaypointList = Calculate(destination.position, sourcePosition, direction, NavMeshLayerBite);
         
-            sourcePosition = CarFront.position;
-            if(direction == null) direction = CarFront.forward;
-            Calculate(destination.position, sourcePosition, direction, NavMeshLayerBite);
-            void Calculate(Vector3 destination, Vector3 sourcePosition, Vector3 direction, int NavMeshAreaBite)
+        if (actionTime > reactionTime || (actionTime > defaultReactionTime && currentWaypointList.Count == 2)){
+            waypoints = new List<Vector3>(currentWaypointList);
+            actionTime = 0.0f;
+            if (currentWaypointList.Count != 2) reactionTime += 0.25f;
+            else reactionTime = defaultReactionTime;
+        }
+
+        // List<Vector3> waypoints = new List<Vector3>();
+        List<Vector3> Calculate(Vector3 destination, Vector3 sourcePosition, Vector3 direction, int NavMeshAreaBite)
+        {
+            List<Vector3> waypointsList = new List<Vector3>();
+            if (UnityEngine.AI.NavMesh.SamplePosition(destination, out UnityEngine.AI.NavMeshHit hit, 1000000, NavMeshAreaBite) &&
+                UnityEngine.AI.NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaBite, path))
             {
-                if (UnityEngine.AI.NavMesh.SamplePosition(destination, out UnityEngine.AI.NavMeshHit hit, 1000000, NavMeshAreaBite) &&
-                    UnityEngine.AI.NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaBite, path))
+                
+                if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePosition, direction))
                 {
-                    if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePosition, direction))
+                    waypointsList.AddRange(path.corners.ToList());
+                    debug("Custom Path generated successfully", false);
+                }
+                else
+                {
+                    if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePosition, direction))
                     {
-                        waypoints.AddRange(path.corners.ToList());
+                        waypointsList.AddRange(path.corners.ToList());
                         debug("Custom Path generated successfully", false);
                     }
                     else
                     {
-                        if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePosition, direction))
-                        {
-                            waypoints.AddRange(path.corners.ToList());
-                            debug("Custom Path generated successfully", false);
-                        }
-                        else
-                        {
-                            debug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
-                            Fails++;
-                        }
+                        debug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
+                        Fails++;
                     }
                 }
-                else
-                {
-                    debug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
-                    Fails++;
-                }
             }
+            else
+            {
+                debug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
+                Fails++;
+            }
+
+            return waypointsList;
         }
     }
 
