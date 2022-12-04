@@ -32,7 +32,7 @@ public abstract class CarController : MonoBehaviour
 
     // Constants    
     protected const float MPS_TO_KPH = 3600f / 1000f;
-    protected const float RPM_PER_RADIUS_TO_KPH = 1f / 60f * 2f * Mathf.PI;
+    protected const float RPM_PER_RADIUS_TO_KPH = 1f / 60f * 2f * Mathf.PI; // TODO: Add * MPS_TO_KPH
     protected const float FRICTION_COEF = 1.225f * 1f; // Density of air * Cross section area
 
     // Auxiliar variables
@@ -45,7 +45,7 @@ public abstract class CarController : MonoBehaviour
     public bool IsDead { get; protected set; }
     public float CurrentWheelsSpeed { get; protected set; }
     public float CurrentForwardSpeed { get; protected set; }
-    
+
 
     #region Intialization
 
@@ -64,7 +64,7 @@ public abstract class CarController : MonoBehaviour
 
         // Sound
         SoundSource = GetComponent<AudioSource>();
-    }
+    }    
 
 	#endregion
 
@@ -216,7 +216,7 @@ public abstract class CarController : MonoBehaviour
             if (EnableABS && brakeRatio > 0)
             {
                 absWheelSpeed = Mathf.Abs(GetWheelSpeed(wheel));
-                absForwardSpeed = Mathf.Abs(CurrentForwardSpeed / 3.6f);  // TODO: Check why this is 3.6 times greater than expected
+                absForwardSpeed = Mathf.Abs(CurrentForwardSpeed / 3.6f);    // TODO: Remove /3.6f when speed constant is adjusted
                 if (absWheelSpeed > 1f && absWheelSpeed < absForwardSpeed * ABSThld)
                     wheelBreakRatio = 0;                    
             }
@@ -356,5 +356,24 @@ public abstract class CarController : MonoBehaviour
         SoundSource.pitch = MinPitch;   // Stopped engine sound
     }
 
-    #endregion
+	#endregion
+
+	#region Auxiliar
+
+	public virtual float EstimateBrakeDistance(float finalSpeed, float? startSpeed=null)
+    {
+        float currentSpeed = (startSpeed == null)? CarRigidBody.velocity.magnitude : (float)startSpeed;
+
+        // Estimate decceleration. Function approximated from tests of 100km/h to 0km/h, and the web https://mathcracker.com/es/calculadora-funcion-logaritmica
+        float esimatedBrakeAcceleration = -3.4516f * Mathf.Log(0.0465f * BrakeTorque);
+
+        // Compute brake distance using UARM equation
+        float speedToLoss = currentSpeed - finalSpeed;
+        float brakeTime = -speedToLoss / esimatedBrakeAcceleration;
+        float brakeDistance = currentSpeed * brakeTime + 0.5f * esimatedBrakeAcceleration * Mathf.Pow(brakeTime, 2);
+
+        return brakeDistance;
+    }
+
+	#endregion
 }
