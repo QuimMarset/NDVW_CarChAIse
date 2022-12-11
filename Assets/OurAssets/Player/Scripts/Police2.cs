@@ -12,9 +12,8 @@ public class Police2 : CarController
 	[SerializeField] protected bool Patrol = false;
 	[SerializeField] protected Transform TargetObject;
 	[SerializeField] protected float ReactionTime = 0.5f;
-	[SerializeField] protected float WaypointDistanceThreshold = 20;
-	[SerializeField] protected float MaxSpeedAtCurve = 30;
-	[SerializeField] protected bool Debugger = false;
+	[SerializeField] protected float CurveSpeedFactor = 1000;
+	[SerializeField] protected bool CustomDebugger = false;
 	[SerializeField] protected bool ShowGizmos = true;
 
 	// Auxiliar parameters
@@ -76,7 +75,10 @@ public class Police2 : CarController
 
 	#region Path
 
-	protected virtual void ProgessPath() //Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
+	/// <summary>
+	/// Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
+	/// </summary>
+	protected virtual void ProgessPath()
 	{
 		// Update path if necessary
 		if (Patrol == true)
@@ -104,10 +106,10 @@ public class Police2 : CarController
 		}
 
 		// If not PositionToFollow possible, go to the target
-		if (CurrentWayPoint < 0 || CurrentWayPoint >= Waypoints.Count)
+		if (CurrentWayPoint <= 0 || CurrentWayPoint >= Waypoints.Count)
 		{
-			CurrentWayPoint = Waypoints.Count - 1;
-			PositionToFollow = TargetObject.position;
+			CurrentWayPoint = Waypoints.Count; // Set to an impossible value, as sentinel
+			PositionToFollow = TargetObject.position;			
 		}
 
 		// Reset movement direction and steering (already defined in base.FixedUpdate)
@@ -234,30 +236,28 @@ public class Police2 : CarController
 			else
 				BlockCheckStartTime = Mathf.Infinity;
 
-			// Define the movement direction (accelerating or braking)
-			// Check angle to next waypoint	// TODO: Do this for each pair of CarVelocity and waypoint angle. Use each of the angles to check for braking.
-			float curveAngle = -1;
-			if (PositionToFollow == TargetObject.position) // If direct path to target
-				curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, TargetObject.position - transform.position);
-			else if (CurrentWayPoint == (Waypoints.Count - 2))    // If two waypoints ahead (one waypoint + target waypoint)
-				curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, Waypoints[CurrentWayPoint] - transform.position);
-			else if (CurrentWayPoint <= (Waypoints.Count - 3))   // If 3 or more waypoints ahead (one curve + target waypoint)
-				curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, Waypoints[CurrentWayPoint + 2] - Waypoints[CurrentWayPoint + 1]);
-
-			// If it's a curve
-			if (curveAngle > 40)   // TODO: Define a mapping from curve angle to expected speed
+			// Define the movement direction (accelerating or braking) depending on the curves
+			Vector3 prev, post, diff;
+			float curveAngle, requiredSpeed, brakeDistance, distanceToWaypoint;
+			// For each next waypoints in the path, get angle between them. End if already breaking
+			for (int i = CurrentWayPoint - 1; i < Waypoints.Count - 1 && movementDirection == 1; i++)
 			{
-				// If speed is too high
-				if (CurrentForwardSpeed > MaxSpeedAtCurve)
-				{
-					// Get distance required to achieve the required speed
-					float brakeDistance = EstimateBrakeDistance(MaxSpeedAtCurve);
-					float distanceToWaypoint = Vector3.Distance(CarFront.position, Waypoints[CurrentWayPoint]);
+				// First check is the trajectory to target
+				prev = (i < CurrentWayPoint)? CarFront.position : Waypoints[i];
+				post = (i < CurrentWayPoint)? PositionToFollow : Waypoints[i + 1];
+				diff = post - prev; // TODO: Consider the distance btw the waypoints and the distance to that path section
 
-					// If distance is close or lower to the brake distance
-					if ((distanceToWaypoint - brakeDistance) < 5)
-						movementDirection = -1;
-				}
+				// Get the angle of the curve
+				curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, diff);
+
+				// Get distance required to achieve the required speed				
+				requiredSpeed = CurveSpeedFactor / curveAngle;  // Example with 50 degrees: 1000/50 = 20 Km/h
+				brakeDistance = EstimateBrakeDistance(requiredSpeed);
+				distanceToWaypoint = Vector3.Distance(CarFront.position, post);
+
+				// If distance is close or lower to the brake distance
+				if ((distanceToWaypoint - brakeDistance) < 5)
+					movementDirection = -1;				
 			}
 		}
 
@@ -270,7 +270,7 @@ public class Police2 : CarController
 
 	protected virtual void CustomDebug(string text, bool isCritical = false)
 	{
-		if (Debugger)
+		if (CustomDebugger)
 		{
 			if (isCritical)
 				Debug.LogError(text);
