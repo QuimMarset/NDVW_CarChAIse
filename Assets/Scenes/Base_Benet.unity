@@ -220,6 +220,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 163868708}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &216323722 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5733730444239174697, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+  m_PrefabInstance: {fileID: 5991339839577621161}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa1bf908b859ca40b461a824f3cf976, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &324378202
 GameObject:
   m_ObjectHideFlags: 0
@@ -350,13 +361,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Police
       objectReference: {fileID: 0}
+    - target: {fileID: 8751094529097843864, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 151.4
+      value: 221
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -364,7 +379,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -609
+      value: -22
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -396,6 +411,40 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
+--- !u!1 &414536952
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 414536953}
+  m_Layer: 0
+  m_Name: PoliceSpanwersContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &414536953
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 414536952}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1980139924}
+  - {fileID: 1575396834}
+  - {fileID: 876494229}
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &517957725
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,6 +576,48 @@ Transform:
   - {fileID: 2017966929}
   m_Father: {fileID: 1555405203}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &785749333 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3103402931755586210, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+  m_PrefabInstance: {fileID: 5991339839577621161}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79eeea404820ebe4fac601fbf08e063d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &876494228
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 876494229}
+  m_Layer: 0
+  m_Name: PoliceSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &876494229
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876494228}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 374.3, y: 1.429306, z: -4.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 414536953}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1106918701
 GameObject:
@@ -719,6 +810,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &1330355971 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 287834489169895805, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+  m_PrefabInstance: {fileID: 5991339839577621161}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 587482ed03990424bb0a000aae8ee8e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1555405202
 GameObject:
   m_ObjectHideFlags: 0
@@ -760,6 +862,37 @@ Transform:
   - {fileID: 4947597576089888948}
   m_Father: {fileID: 0}
   m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1575396833
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1575396834}
+  m_Layer: 0
+  m_Name: PoliceSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1575396834
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1575396833}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 222, y: 1.429306, z: -3.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 414536953}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1821156239
 GameObject:
@@ -889,6 +1022,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1980139923
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1980139924}
+  m_Layer: 0
+  m_Name: PoliceSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1980139924
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1980139923}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 73, y: 1.429306, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 414536953}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2017966928
 GameObject:
@@ -2462,6 +2626,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3227069378662720040, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3227069378662720040, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: PoliceMang
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4463885358860546772, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -2552,67 +2724,50 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
---- !u!1001 &6089932972572880185
-PrefabInstance:
+--- !u!1 &5991339839577621162 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3227069378662720043, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+  m_PrefabInstance: {fileID: 5991339839577621161}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5991339839577621166
+MonoBehaviour:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 152.00073
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.429306
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -616.32623
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216360, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216366, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_Name
-      value: Police2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6789212193187216366, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5991339839577621162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3129e21f06553dd42b762d94e2c9c599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxPoliceCars: 3
+  PolicePrefab: {fileID: 4124534527192030888, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
+  SpawnersContainer: {fileID: 414536952}
+  MinSpeedToCatch: 10
+  MinDistanceToCatch: 10
+  CatchPointPerPolice: 5
+  EscapePointPerSecond: 5
+  EscapePointLostPlayerPerSecond: 20
+  TimeForLosingPlayer: 3
+  TimeForRelocatePolice: 10
+--- !u!114 &5991339839577621167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5991339839577621162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c688355d7b64bec4b9e16b527a384a96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerCar: {fileID: 216323722}
+  PlayerCanv: {fileID: 1330355971}
+  GameOverCanv: {fileID: 785749333}
+  PoliceMang: {fileID: 5991339839577621166}
+  MainMenuBuildIdx: 0
 --- !u!33 &7967719658721659885
 MeshFilter:
   m_ObjectHideFlags: 0
