@@ -451,7 +451,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The car is broken, you failed
+  m_text: 'The car is ???, you failed.
+
+    Score = ???'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2cea047439413a24b873bd7383b366db, type: 2}
   m_sharedMaterial: {fileID: 7026590645494197945, guid: 2cea047439413a24b873bd7383b366db, type: 2}

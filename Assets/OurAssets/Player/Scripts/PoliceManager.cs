@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -173,7 +172,7 @@ public class PoliceManager : MonoBehaviour
 				Vector3 iniPos = spawner.position;
 				Vector3 direction = (PlayerCar.transform.position - iniPos).normalized;
 				// If no hit or the hit is not with the player, spawner is available
-				if (!Physics.Raycast(iniPos, direction, out RaycastHit hit, Mathf.Infinity, 0xFFFF) ||
+				if (!Physics.Raycast(iniPos, direction, out RaycastHit hit, Mathf.Infinity, GameMang.NavMeshLayerBite) ||
 					hit.transform.gameObject != PlayerCar.gameObject)
 					AvailableSpawners.Add(spawner);
 			}

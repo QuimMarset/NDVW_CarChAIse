@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +19,10 @@ public class PlayerHUD : MonoBehaviour
 	[SerializeField] protected Image CatchBar;
 	[SerializeField] protected TextMeshProUGUI BeingChasedMsg;
 	[SerializeField] protected TextMeshProUGUI EscapingMsg;
+
+	[Header("Targets and Score")]
+	[SerializeField] protected Image TargetArrow;
+	[SerializeField] protected TextMeshProUGUI ScoreText;
 
 
 	public void SetSpeed(float speed, float maxSpeed)
@@ -47,4 +52,15 @@ public class PlayerHUD : MonoBehaviour
 		CatchBarContainer.SetActive(newFillAmount > 0);
 	}
 
+	public void SetScore(float playerScore)
+	{
+		ScoreText.text = ((int)playerScore).ToString();
+	}
+
+	public void SetTargetArrow(float angle)
+	{
+		TargetArrow.transform.rotation = Quaternion.Euler(TargetArrow.transform.rotation.eulerAngles.x,
+			TargetArrow.transform.rotation.eulerAngles.y,
+			angle + 180);	// Offset to counter the inverted sprite
+	}
 }

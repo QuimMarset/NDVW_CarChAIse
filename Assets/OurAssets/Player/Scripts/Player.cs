@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using System;
 
 public class Player : CarController
 {
@@ -11,9 +11,10 @@ public class Player : CarController
 
     [Header("Camera")]
     [SerializeField] protected Camera MainCamera;
-    [SerializeField] protected float SecondsToRotate = 0.25f;
+    [SerializeField] protected float CameraSecondsToRotate = 0.5f;
 
     // Auxiliar variables
+    protected GameManager2 GameMang;
     protected PlayerHUD PlayerCanv;
     protected float BackWheelsOriginalStiffness;
     protected WheelFrictionCurve BackWheelsFrictionCurve;
@@ -37,6 +38,11 @@ public class Player : CarController
 
         // Show initial health
         UpdateHealth(0);
+    }
+
+	public virtual void SetGameManager(GameManager2 gameMang)
+	{
+        GameMang = gameMang;
     }
 
 	#endregion
@@ -98,19 +104,39 @@ public class Player : CarController
     {
         base.Update();
 
+        UpdateCamera();
+
+        // Update speed and score
+        if (PlayerCanv)
+		{
+			PlayerCanv.SetSpeed(CurrentWheelsSpeed, MaxSpeed);
+			PlayerCanv.SetScore(GameMang.PlayerScore);
+			UpdateTargetArrow();
+		}
+	}
+
+	private void UpdateTargetArrow()
+	{
+        Vector3 origDir = MainCamera.transform.forward;
+        Vector2 origDir2D = new Vector2(origDir.x, origDir.z);
+        Vector3 targetDir = GameMang.PlayerTarget - transform.position;
+        Vector2 targetDir2D = new Vector2(targetDir.x, targetDir.z);
+        PlayerCanv.SetTargetArrow(Vector2.SignedAngle(origDir2D, targetDir2D));
+	}
+
+	protected virtual void UpdateCamera()
+	{
         // Move camera according to car's velocity
         if (MainCamera && CarRigidBody.velocity.magnitude > 1f)
-		{
-            float angleDiff = Vector3.SignedAngle(MainCamera.transform.forward, CarRigidBody.velocity.normalized, axis:Vector3.up);
+        {
+            float angleDiff = Vector3.SignedAngle(MainCamera.transform.forward, CarRigidBody.velocity.normalized, axis: Vector3.up);
 
             // If angle difference is not too low
             if (Mathf.Abs(angleDiff) > 1f)
-                MainCamera.transform.RotateAround(transform.position, Vector3.up, angleDiff * Time.deltaTime / SecondsToRotate);
+			{
+                MainCamera.transform.RotateAround(transform.position, Vector3.up, angleDiff * Time.deltaTime / CameraSecondsToRotate);
+            }                
         }
-
-        // Show new speed
-        if(PlayerCanv)
-            PlayerCanv.SetSpeed(CurrentWheelsSpeed, MaxSpeed);
     }
 
 	protected override void UpdateHealth(float healthDecrement)

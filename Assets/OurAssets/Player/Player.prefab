@@ -114,7 +114,7 @@ Transform:
   m_Children:
   - {fileID: 8763833581997194728}
   m_Father: {fileID: 5993828292672005689}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2952077336401373024
 GameObject:
@@ -594,8 +594,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8910851916862969199}
   - {fileID: 5993828293321323349}
+  - {fileID: 8910851916862969199}
   - {fileID: 5993828292690626285}
   - {fileID: 5993828292168281296}
   - {fileID: 1572257902798421475}
@@ -631,9 +631,9 @@ MonoBehaviour:
   MinPitch: 0.5
   MaxPitch: 5
   EnableHandBrake: 1
-  HardBrakeStifnessMultiplier: 0.5
+  HardBrakeStifnessMultiplier: 0.1
   MainCamera: {fileID: 5993828293321323347}
-  SecondsToRotate: 0.5
+  CameraSecondsToRotate: 0.5
 --- !u!65 &5993828292672005690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -949,7 +949,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5993828292672005689}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 5, y: 0, z: 0}
 --- !u!20 &5993828293321323347
 Camera:

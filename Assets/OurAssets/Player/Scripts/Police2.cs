@@ -187,7 +187,7 @@ public class Police2 : CarController
 			Calculate(destination, sourcePosition, CurrentDirection, NavMeshLayerBite);
 			void Calculate(Vector3 destination, Vector3 sourcePosition, Vector3 direction, int NavMeshAreaBite)
 			{
-				if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 1000000, NavMeshAreaBite) &&
+				if (NavMesh.SamplePosition(destination, out NavMeshHit hit, Mathf.Infinity, NavMeshAreaBite) &&
 					NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaBite, path))
 				{
 					if (path.corners.ToList().Count() > 1)
