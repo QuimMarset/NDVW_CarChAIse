@@ -9,9 +9,9 @@ public class Police2 : CarController
 	// Editable parameters
 	[Header("Police Parameters")]
 	[SerializeField] protected List<string> NavMeshLayers;
-	[SerializeField] private float AIFOV = 180;
-	[SerializeField] protected bool Patrol = false;
-	[SerializeField] protected float ReactionTime = 0.5f;
+	[SerializeField] protected float BackwardSeconds = 1f;
+	[SerializeField] protected float SecondsForBlocked = 0.5f;
+	[SerializeField] protected float ReactionSeconds = 0.5f;
 	[SerializeField] protected float CurveSpeedFactor = 1000;
 	[SerializeField] protected bool CustomDebugger = false;
 	[SerializeField] protected bool ShowGizmos = true;
@@ -19,18 +19,19 @@ public class Police2 : CarController
 	// Auxiliar parameters
 	protected PoliceManager PoliceMang;
 	protected int NavMeshLayerBite;
-	protected List<Vector3> Waypoints = new List<Vector3>();
+	protected List<Vector3> Waypoints;
 	protected int CurrentWayPoint;
 	protected Vector3 PositionToFollow;
 	protected Vector3 CurrentDirection;
-	protected float NextActionTime = 0.0f;
-	protected float PatrolCheckTime = -Mathf.Infinity;
-	protected float BackwardStartTime = Mathf.Infinity;
-	protected float BlockCheckStartTime = Mathf.Infinity;
-	protected float SecondsForBlocked = 0.5f;
-	protected float BackwardTime = 1f;
-	public Vector3 LastPlayerKnownPos { get; protected set; }
+	protected float NextActionTime;
+	protected float BackwardEndTime;
+	protected float BlockCheckStartTime;
+	
 	public float LastPlayerPosKnownTime { get; protected set; }
+	public Vector3 LastPlayerKnownPos { get; protected set; }
+	public bool IsBlocked { get => (Time.time - BlockCheckStartTime) > BackwardSeconds; }
+	public bool IsGoingBackwards { get => Time.time < BackwardEndTime; }
+	protected bool IsPatroling { get => LastPlayerPosKnownTime == Mathf.NegativeInfinity; }
 
 
 	#region Initialization
@@ -39,10 +40,16 @@ public class Police2 : CarController
 	{
 		base.Start();
 
-		// Initialize catch settings with an already reached position and invalid/minimum frame index
-		NotifyPlayerPos(transform.position, -1); // Any new notification will be accepted
+		// Blocked and backward settings
+		BackwardEndTime = Mathf.NegativeInfinity;
+		BlockCheckStartTime = Mathf.Infinity;
 
-		// Initialization of path settings
+		// Catch settings with an already reached position and invalid/minimum frame index
+		//NotifyPlayerPos(transform.position, 0); // This ensures that any new notification will be accepted
+
+		// Path settings
+		NextActionTime = 0;
+		Waypoints = new List<Vector3>();
 		CurrentWayPoint = 0;
 		CalculateNavMashLayerBite();
 	}
@@ -87,17 +94,17 @@ public class Police2 : CarController
 		{
 			//Debug.DrawRay(iniPos, direction * hit.distance, Color.red);
 			LastPlayerKnownPos = PoliceMang.PlayerCar.transform.position;
-			LastPlayerPosKnownTime = Time.realtimeSinceStartup;
+			LastPlayerPosKnownTime = Time.time;
 		}
 	}
 
 	/// <summary>
-	/// Called by the PoliceManager.
+	/// Called by the PoliceManager. Time == -Infinity is a sentinel for start patrolling
 	/// </summary>
 	public void NotifyPlayerPos(Vector3 lastPlayerKnownPos, float lastPlayerPosTime)
 	{
-		// If notification is more recent, update the parameters
-		if (lastPlayerPosTime > LastPlayerPosKnownTime)
+		// If notification is more recent or time == -Infinity, update the parameters | >= For time is required for correct initialization by PoliceManager
+		if (lastPlayerPosTime >= LastPlayerPosKnownTime || lastPlayerPosTime == Mathf.NegativeInfinity)
 		{
 			LastPlayerKnownPos = lastPlayerKnownPos;
 			LastPlayerPosKnownTime = lastPlayerPosTime;
@@ -122,42 +129,41 @@ public class Police2 : CarController
 	protected virtual void ProgessPath()
 	{
 		// Update path if necessary
-		if (Patrol == true)
+		if (IsPatroling)
 		{
+			Debug.Log(name + " police car patrolling");
 			// TODO: Follow the civilian routes
 		}
 		else
 		{
-			PatrolCheckTime = -Mathf.Infinity;
 			CreatePathToTarget(LastPlayerKnownPos);
-		}
 
-		// If possible, define PositionToFollow
-		if (CurrentWayPoint > 0 && CurrentWayPoint < Waypoints.Count)
-		{
-			PositionToFollow = Waypoints[CurrentWayPoint];
-
-			// While very close to current waypoint, go to the next one
-			while (Vector3.Distance(CarFront.position, PositionToFollow) < 1 && CurrentWayPoint < Waypoints.Count)
+			// If possible, define PositionToFollow
+			if (CurrentWayPoint > 0 && CurrentWayPoint < Waypoints.Count)
 			{
-				CurrentWayPoint++;
-				if (CurrentWayPoint < Waypoints.Count)
-					PositionToFollow = Waypoints[CurrentWayPoint];
+				PositionToFollow = Waypoints[CurrentWayPoint];
+
+				// While very close to current waypoint, go to the next one
+				while (Vector3.Distance(CarFront.position, PositionToFollow) < 1 && CurrentWayPoint < Waypoints.Count)
+				{
+					CurrentWayPoint++;
+					if (CurrentWayPoint < Waypoints.Count)
+						PositionToFollow = Waypoints[CurrentWayPoint];
+				}
 			}
-		}
 
-		// If not PositionToFollow possible, go to the target
-		if (CurrentWayPoint <= 0 || CurrentWayPoint >= Waypoints.Count)
-		{
-			CurrentWayPoint = Waypoints.Count; // Set to an impossible value, as sentinel
-			PositionToFollow = LastPlayerKnownPos;
-		}
+			// If not PositionToFollow possible, go to the target
+			if (CurrentWayPoint <= 0 || CurrentWayPoint >= Waypoints.Count)
+			{
+				CurrentWayPoint = Waypoints.Count; // Set to an impossible value, as sentinel
+				PositionToFollow = LastPlayerKnownPos;
+			}
 
-		// Reset movement direction and steering (already defined in base.FixedUpdate)
-		Steer();
-		Move();
+			// Reset movement direction and steering (already defined in base.FixedUpdate)
+			Steer();
+			Move();
+		}
 	}
-
 
 	/// <summary>
 	/// Creates a path to the Custom destination
@@ -165,12 +171,12 @@ public class Police2 : CarController
 	public virtual void CreatePathToTarget(Vector3 destination)
 	{
 		// If next action time, update path
-		if (Time.realtimeSinceStartup > NextActionTime)
+		if (Time.time > NextActionTime)
 		{
 			NavMeshPath path = new NavMeshPath();
 			Vector3 sourcePosition;
 
-			NextActionTime += ReactionTime;
+			NextActionTime += ReactionSeconds;
 			Waypoints.Clear();
 			CurrentWayPoint = 1;
 
@@ -184,14 +190,14 @@ public class Police2 : CarController
 				if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 1000000, NavMeshAreaBite) &&
 					NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaBite, path))
 				{
-					if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePosition, direction))
+					if (path.corners.ToList().Count() > 1)
 					{
 						Waypoints.AddRange(path.corners.ToList());
 						CustomDebug("Custom Path generated successfully", false);
 					}
 					else
 					{
-						if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePosition, direction))
+						if (path.corners.Length > 2)
 						{
 							Waypoints.AddRange(path.corners.ToList());
 							CustomDebug("Custom Path generated successfully", false);
@@ -210,21 +216,6 @@ public class Police2 : CarController
 		}
 	}
 
-	/// <summary>
-	/// Calculates the angle between the car and the waypoint
-	/// </summary>
-	protected virtual bool CheckForAngle(Vector3 pos, Vector3 source, Vector3 direction)
-	{
-		Vector3 distance = (pos - source).normalized;
-		float CosAngle = Vector3.Dot(distance, direction);
-		float Angle = Mathf.Acos(CosAngle) * Mathf.Rad2Deg;
-
-		if (Angle < AIFOV)
-			return true;
-		else
-			return false;
-	}
-
 	#endregion
 
 	#region Steering
@@ -236,7 +227,7 @@ public class Police2 : CarController
 		float steeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
 
 		// If going backwards, inverse steer
-		if (BackwardStartTime != Mathf.Infinity & Time.time < BackwardStartTime + BackwardTime)
+		if (IsGoingBackwards)
 			steeringAngle = -steeringAngle;
 
 		return steeringAngle;
@@ -250,31 +241,25 @@ public class Police2 : CarController
 	{
 		float movementDirection = 1;    // By default, accelerate
 
-		// Check if blocked. If true go backwards.
-		if (BlockCheckStartTime != Mathf.Infinity)
+		// If going backwards for avoiding blocking
+		if (IsGoingBackwards)
 		{
-			// If too many time stopped (i.e., blocked) and no backward time started
-			if (Time.time >= (BlockCheckStartTime + SecondsForBlocked) && BackwardStartTime == Mathf.Infinity)
-				BackwardStartTime = Time.time;
-
-			// If backward time started
-			if (BackwardStartTime != Mathf.Infinity)
-			{
-				if (Time.time < (BackwardStartTime + BackwardTime))
-					movementDirection = -1.0f;
-				else
-				{
-					BlockCheckStartTime = Mathf.Infinity;
-					BackwardStartTime = Mathf.Infinity;
-				}
-			}
+			movementDirection = -1;
 		}
-		// If not blocked
+		// If no backwards
 		else
 		{
 			// If car don't move and target is far, start the blocked timer (consider the car blocked)
-			if (Mathf.Abs(CurrentForwardSpeed) < 0.1f && Vector3.Distance(CarFront.position, LastPlayerKnownPos) > PoliceMang.MinDistanceToCatch/2)
-				BlockCheckStartTime = Time.time;
+			if (Mathf.Abs(CurrentForwardSpeed) < 0.1f && 
+				Vector3.Distance(CarFront.position, LastPlayerKnownPos) > PoliceMang.MinDistanceToCatch / 2)
+			{
+				// If first time blocked
+				if (BlockCheckStartTime == Mathf.Infinity)
+					BlockCheckStartTime = Time.time;
+				// Otherwise, check blocked time threshold
+				else if (IsBlocked)
+					BackwardEndTime = Time.time + BackwardSeconds;	// Set seconds for backwards
+			}				
 			else
 				BlockCheckStartTime = Mathf.Infinity;
 
@@ -349,21 +334,6 @@ public class Police2 : CarController
 				}
 				Gizmos.DrawWireSphere(Waypoints[i], 2f);
 			}
-			CalculateFOV();
-		}
-
-		void CalculateFOV()
-		{
-			Gizmos.color = Color.white;
-			float totalFOV = AIFOV * 2;
-			float rayRange = 10.0f;
-			float halfFOV = totalFOV / 2.0f;
-			Quaternion leftRayRotation = Quaternion.AngleAxis(-halfFOV, Vector3.up);
-			Quaternion rightRayRotation = Quaternion.AngleAxis(halfFOV, Vector3.up);
-			Vector3 leftRayDirection = leftRayRotation * transform.forward;
-			Vector3 rightRayDirection = rightRayRotation * transform.forward;
-			Gizmos.DrawRay(CarFront.position, leftRayDirection * rayRange);
-			Gizmos.DrawRay(CarFront.position, rightRayDirection * rayRange);
 		}
 	}
 

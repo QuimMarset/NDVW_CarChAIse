@@ -17,8 +17,8 @@ public class PoliceManager : MonoBehaviour
 	[SerializeField] private float CatchPointPerPolice = 5;
 	[SerializeField] private float EscapePointPerSecond = 5;
 	[SerializeField] private float EscapePointLostPlayerPerSecond = 20;
-	[SerializeField] private float TimeForLosingPlayer = 3;
-	[SerializeField] private float TimeForRelocatePolice = 10;
+	[SerializeField] private float TimeForLosingPlayer = 10;
+	[SerializeField] private float TimeForRelocatePolice = 30;
 
 	// Auxiliar parameters
 	private GameManager2 GameMang;
@@ -26,11 +26,10 @@ public class PoliceManager : MonoBehaviour
 	private Transform[] Spawners;
 	public float CatchCounter { get; protected set; }
 	public Player PlayerCar { get => GameMang.PlayerCar; }
+	public bool PlayerIsLost { get => (Time.time - LastPlayerPosTime) > TimeForLosingPlayer; }
 	private Vector3 LastPlayerKnownPos;
 	private float LastPlayerPosTime;
 	private float LastRelocateTime;
-
-
 
 	#region Initialization
 
@@ -41,11 +40,11 @@ public class PoliceManager : MonoBehaviour
 		PoliceCars = new List<Police2>();
 		Spawners = SpawnersContainer.GetComponentsInDirectChildren<Transform>();
 		CatchCounter = 0;
-		LastRelocateTime = Time.realtimeSinceStartup;
+		LastRelocateTime = Time.time;
 
 		// Initialize catch parameters
 		LastPlayerKnownPos = PlayerCar.transform.position;
-		LastPlayerPosTime = -1;
+		LastPlayerPosTime = Time.time;
 		UpdateCatchCounter(0);
 
 		// First spawn of police cars		
@@ -80,7 +79,7 @@ public class PoliceManager : MonoBehaviour
 		GameObject newPoliceObj = Instantiate(PolicePrefab.gameObject, spawnerPos, Quaternion.identity, this.transform);
 		Police2 police = newPoliceObj.GetComponent<Police2>();
 		police.SetPoliceManager(this);
-		police.NotifyPlayerPos(PlayerCar.transform.position, Time.realtimeSinceStartup); // TODO: Don't say player position at the start, start with patrol
+		police.NotifyPlayerPos(PlayerCar.transform.position, Time.time); // TODO: Don't say player position at the start, start with patrol
 
 		// Store police car
 		PoliceCars.Add(police);
@@ -114,8 +113,13 @@ public class PoliceManager : MonoBehaviour
 		}
 
 		// If new pos, communicate to police cars the new player position
-		if (posUpdated)
+		if (posUpdated || PlayerIsLost)
 		{
+			// If player is lost, use Time == -Infinity is a sentinel for patrolling
+			if (PlayerIsLost)
+				LastPlayerPosTime = Mathf.NegativeInfinity;
+
+			// Comunite information to police cars
 			foreach (Police2 police in PoliceCars)
 				police.NotifyPlayerPos(LastPlayerKnownPos, LastPlayerPosTime);
 		}
@@ -139,11 +143,10 @@ public class PoliceManager : MonoBehaviour
 		// Otherwise, decrement it
 		else
 		{
-			if (PlayerIsLost())
+			if (PlayerIsLost)
 				UpdateCatchCounter(-Time.deltaTime * EscapePointLostPlayerPerSecond);
 			else
 				UpdateCatchCounter(-Time.deltaTime * EscapePointPerSecond);
-
 		}
 	}
 
@@ -153,11 +156,6 @@ public class PoliceManager : MonoBehaviour
 		CatchCounter = Mathf.Clamp(CatchCounter, 0, 100);
 	}
 
-	private bool PlayerIsLost()
-	{
-		return (Time.realtimeSinceStartup - LastPlayerPosTime) > TimeForLosingPlayer;
-	}
-
 	#endregion
 
 	#region Police relocating
@@ -165,8 +163,8 @@ public class PoliceManager : MonoBehaviour
 	private void RelocatePolice()
 	{
 		// If too many time since player is lost and since last relocate
-		if ((Time.realtimeSinceStartup - LastPlayerPosTime) > TimeForRelocatePolice &&
-			(Time.realtimeSinceStartup - LastRelocateTime) > TimeForRelocatePolice)
+		if ((Time.time - LastPlayerPosTime) > TimeForRelocatePolice &&
+			(Time.time - LastRelocateTime) > TimeForRelocatePolice)
 		{
 			// Search spawners close to player but not visible from them
 			List<Transform> AvailableSpawners = new List<Transform>();
@@ -188,7 +186,7 @@ public class PoliceManager : MonoBehaviour
 				PoliceCars[i].gameObject.SetActive(true);
 			}
 
-			LastRelocateTime = Time.realtimeSinceStartup;
+			LastRelocateTime = Time.time;
 		}
 	}
 

@@ -363,7 +363,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843864, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_RootOrder
@@ -371,7 +371,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 221
+      value: 75.6
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -379,7 +379,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -22
+      value: -55.9
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -391,7 +391,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.7071068
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalRotation.z
@@ -403,7 +403,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 8751094529097843870, guid: ee8e2f90131a14d4db68c8a0c5698a4a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -612,7 +612,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 876494228}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 374.3, y: 1.429306, z: -4.7}
+  m_LocalPosition: {x: 374.3, y: 1.429306, z: -58}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -808,7 +808,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &1330355971 stripped
 MonoBehaviour:
@@ -887,7 +887,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1575396833}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 222, y: 1.429306, z: -3.2}
+  m_LocalPosition: {x: 222, y: 1.429306, z: -56.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -960,7 +960,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1831448031
 GameObject:
@@ -1021,7 +1021,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1980139923
 GameObject:
@@ -1047,7 +1047,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1980139923}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 73, y: 1.429306, z: 0}
+  m_LocalPosition: {x: 77.9, y: 1.429306, z: -57.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2628,7 +2628,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3227069378662720040, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3227069378662720040, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: PoliceMang
@@ -2636,6 +2636,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4463885358860546772, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733730444239174697, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733730444239174698, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5733730444239174700, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
@@ -2749,8 +2757,8 @@ MonoBehaviour:
   CatchPointPerPolice: 5
   EscapePointPerSecond: 5
   EscapePointLostPlayerPerSecond: 20
-  TimeForLosingPlayer: 3
-  TimeForRelocatePolice: 10
+  TimeForLosingPlayer: 10
+  TimeForRelocatePolice: 30
 --- !u!114 &5991339839577621167
 MonoBehaviour:
   m_ObjectHideFlags: 0
