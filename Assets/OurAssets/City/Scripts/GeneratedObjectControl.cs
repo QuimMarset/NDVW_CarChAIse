@@ -10,7 +10,8 @@ public class GeneratedObjectControl : MonoBehaviour
     public List<GameObject> generatedObjects = new List<GameObject>();
 
     public PerlinGenerator perlinGenerator;
-    public GridSpawner gridSpawner;
+    public CitySpawner citySpawner;
+
     public bool debugMode;
 
     void Awake()
@@ -48,7 +49,7 @@ public class GeneratedObjectControl : MonoBehaviour
     void Generate()
     {
         perlinGenerator.Generate();
-        gridSpawner.Generate();
+        citySpawner.Generate();
     }
 
 
@@ -57,6 +58,7 @@ public class GeneratedObjectControl : MonoBehaviour
         for (int i = generatedObjects.Count - 1; i >= 0; i--)
         {
             generatedObjects[i].SetActive(false);
+            Destroy(generatedObjects[i]);
             generatedObjects.RemoveAt(i);
         }
     }

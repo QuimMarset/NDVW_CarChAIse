@@ -45,11 +45,11 @@ public class BuildingGeneratorNoiseInput : MonoBehaviour
     float SpawnPieceLayer(GameObject[] pieceArray, float inputHeight)
     {
         Transform randomTransform = pieceArray[Random.Range(0, pieceArray.Length)].transform;
-        
+
         GameObject piece = Instantiate(randomTransform.gameObject, this.transform.position + new Vector3(0, inputHeight, 0), transform.rotation) as GameObject;
 
         piece.transform.localScale *= scaleFactor;
-        piece.AddComponent<BoxCollider>();
+        // piece.AddComponent<BoxCollider>();
 
         Mesh cloneMesh = piece.GetComponentInChildren<MeshFilter>().mesh;
         Bounds baseBounds = cloneMesh.bounds;
