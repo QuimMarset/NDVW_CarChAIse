@@ -49,11 +49,13 @@ public class BuildingGeneratorNoiseInput : MonoBehaviour
         GameObject piece = Instantiate(randomTransform.gameObject, this.transform.position + new Vector3(0, inputHeight, 0), transform.rotation) as GameObject;
 
         piece.transform.localScale *= scaleFactor;
-        // piece.AddComponent<BoxCollider>();
 
         Mesh cloneMesh = piece.GetComponentInChildren<MeshFilter>().mesh;
         Bounds baseBounds = cloneMesh.bounds;
         float heightOffset = baseBounds.size.y * scaleFactor;
+
+        BoxCollider collider = piece.AddComponent<BoxCollider>();
+        collider.center = baseBounds.center;
 
         piece.transform.SetParent(this.transform);
 
