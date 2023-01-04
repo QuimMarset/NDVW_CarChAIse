@@ -14,7 +14,7 @@ public class Player : CarController
     [SerializeField] protected float CameraSecondsToRotate = 0.5f;
 
     // Auxiliar variables
-    protected GameManager2 GameMang;
+    protected GameManager GameMang;
     protected PlayerHUD PlayerCanv;
     protected float BackWheelsOriginalStiffness;
     protected WheelFrictionCurve BackWheelsFrictionCurve;
@@ -40,7 +40,7 @@ public class Player : CarController
         UpdateHealth(0);
     }
 
-	public virtual void SetGameManager(GameManager2 gameMang)
+	public virtual void SetGameManager(GameManager gameMang)
 	{
         GameMang = gameMang;
     }
@@ -144,7 +144,8 @@ public class Player : CarController
 		base.UpdateHealth(healthDecrement);
 
         // Show new health
-        PlayerCanv.SetHealth(CurrentHealth, MaxHealth);
+        if(PlayerCanv)
+            PlayerCanv.SetHealth(CurrentHealth, MaxHealth);
     }
 
     #endregion

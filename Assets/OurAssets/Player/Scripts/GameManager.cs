@@ -1,28 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
+[RequireComponent(typeof(PoliceManager))]
 public class GameManager : MonoBehaviour
 {
 	// Editable parameters
 	[Header("General")]
-	[SerializeField] private Player PlayerCar;
+	public Player PlayerCar;
 	[SerializeField] private PlayerHUD PlayerCanv;
 	[SerializeField] private GameOverHUD GameOverCanv;
+	[SerializeField] private PoliceManager PoliceMang;
 	[SerializeField] private int MainMenuBuildIdx = 0;
-
-	[Header("Chasing")]
-	[SerializeField] private float MinSpeedToCatch = 10;
-	[SerializeField] private float MinDistanceToCatch = 10;
-	[SerializeField] private int CatchPointPerPolice = 5;
-	[SerializeField] private int EscapePointPerSecond = 15;
-
+	[SerializeField] protected List<string> NavMeshLayers;
+	[SerializeField] private GameObject PlayerTargetMark;
+	[SerializeField] public bool ForceResetPlayerTarget = false;
 
 	// Auxiliar variables
-	private float CatchCounter = 0;
-	public List<Police> PoliceObjects { get; private set; }
+	public int NavMeshLayerBite { get; private set; }
 	public bool IsGameOver { get; private set; }
+	public Vector3 PlayerTarget { get; private set; }
+	public float PlayerDistToTarget { get; private set; }
+	public float PlayerScore { get; private set; }
 
 
 	#region Initialization
@@ -30,76 +30,97 @@ public class GameManager : MonoBehaviour
 	private void Awake()
 	{
 		IsGameOver = false;
+		CalculateNavMashLayerBite();
 
-		// Get Player if not assigned
+		// Get Player (if not assigned)
 		if (PlayerCar == null)
 			PlayerCar = FindObjectOfType<Player>();
+		PlayerCar.SetGameManager(this);
 
-		// Create empty list of Police cars to be filled by police
-		PoliceObjects = new List<Police>();
+		// Check PoliceManager
+		if (PoliceMang == null)
+			PoliceMang = GetComponent<PoliceManager>();
 
-		// Starting state
-		PlayerCar.enabled = true;
+		// Canvas
 		PlayerCanv.gameObject.SetActive(true);
 		GameOverCanv.gameObject.SetActive(false);
-		UpdateCatchCounter(0);
+
+		// Player targets
+		PlayerDistToTarget = -1; // Sentinel
+		PlayerScore = 0;
+	}
+
+	private void CalculateNavMashLayerBite()
+	{
+		if (NavMeshLayers == null || NavMeshLayers[0] == "AllAreas")
+			NavMeshLayerBite = NavMesh.AllAreas;
+		else if (NavMeshLayers.Count == 1)
+			NavMeshLayerBite += 1 << NavMesh.GetAreaFromName(NavMeshLayers[0]);
+		else
+		{
+			foreach (string Layer in NavMeshLayers)
+			{
+				int i = 1 << NavMesh.GetAreaFromName(Layer);
+				NavMeshLayerBite += i;
+			}
+		}
 	}
 
 	#endregion
 
-	#region Police
-
-	public void AddPolice(Police police)
-	{
-		PoliceObjects.Add(police);
-	}
-
-	public void DelPolice(Police police)
-	{
-		PoliceObjects.Remove(police);
-	}
-
-	#endregion
-
-	#region End conditions control
+	#region Update		
 
 	private void Update()
 	{
-		// Update chasing state
-		CheckCatchCondition();
+		CheckEndConditions();
+
+		if (!IsGameOver)
+			UpdatePlayerTarget();
+	}
+
+	#region End conditions control
+
+	private void CheckEndConditions()
+	{
+		// Show catch state to playerit to player
+		PlayerCanv.SetCatch(PoliceMang.CatchCounter, 100);
 
 		// Check for game over
-		if (!IsGameOver && (PlayerCar.IsDead || CatchCounter == 100))
+		if (!IsGameOver && (PlayerCar.IsDead || PoliceMang.CatchCounter == 100))
 			GameOver();
 	}
 
-	#region Catch
+	#endregion
 
-	private void CheckCatchCondition()
+	#region Player destinations
+
+	private void UpdatePlayerTarget()
 	{
-		// Get police cars close
-		int nClosePoliceCars = 0;
-		foreach (Police police in PoliceObjects)
-			if (Vector3.Distance(PlayerCar.transform.position, police.transform.position) < MinDistanceToCatch)
-				nClosePoliceCars++;
+		bool noTarget = PlayerDistToTarget < 0;
+		bool targetReached = Vector3.Distance(PlayerCar.transform.position, PlayerTarget) < 5;
 
-		// If car going slow and police cars close, increment catch counter
-		if (Mathf.Abs(PlayerCar.CurrentForwardSpeed) < MinSpeedToCatch && nClosePoliceCars > 0)
-			UpdateCatchCounter(nClosePoliceCars * CatchPointPerPolice * Time.deltaTime);
-		// Otherwise, decrement it
-		else
-			UpdateCatchCounter(-Time.deltaTime * EscapePointPerSecond);
+		// New target is required
+		if (noTarget || targetReached || ForceResetPlayerTarget)
+		{
+			ForceResetPlayerTarget = false;
 
-		// TODO: If cops have no visual, catch counter is decremented faster
-	}
+			// If player reaches the target, add score
+			if (targetReached)
+				PlayerScore += PlayerDistToTarget;
 
-	private void UpdateCatchCounter(float increment)
-	{
-		CatchCounter += increment;
-		CatchCounter = Mathf.Clamp(CatchCounter, 0, 100);
+			// Generate a new accesible target
+			PlayerTarget = new Vector3(Random.Range(-500, 500), 0, Random.Range(-500, 500)); // TODO: Use street waypoints
+			NavMeshHit hit;
+			while (!NavMesh.SamplePosition(PlayerTarget, out hit, Mathf.Infinity, NavMeshLayerBite))
+				PlayerTarget = new Vector3(Random.Range(-500, 500), 0, Random.Range(-500, 500));
+			PlayerTarget = new Vector3(hit.position.x, 0, hit.position.z); // Use closest position to navmesh as target
 
-		// Show it to player
-		PlayerCanv.SetCatch(CatchCounter, 100);
+			// Set distance to target (potential score)
+			PlayerDistToTarget = Vector3.Distance(PlayerCar.transform.position, PlayerTarget);
+
+			// Place a mark on target
+			PlayerTargetMark.transform.position = PlayerTarget;
+		}
 	}
 
 	#endregion
@@ -115,9 +136,12 @@ public class GameManager : MonoBehaviour
 		PlayerCanv.gameObject.SetActive(false);
 
 		// Show game over canvas
-		string gameOverMsg = CatchCounter == 100 ? "The police caught you" : "The car is broken"; // Priorize catch message
-		GameOverCanv.SetMessage(gameOverMsg + ", you failed.");
+		string gameOverMsg = PoliceMang.CatchCounter == 100 ? "The police caught you" : "The car is broken"; // Priorize catch message
+		gameOverMsg += ", you failed.\nScore = " + (int)PlayerScore;
+		GameOverCanv.SetMessage(gameOverMsg);
 		GameOverCanv.gameObject.SetActive(true);
+
+		IsGameOver = true;
 	}
 
 	public void ReturnToMainMenu()

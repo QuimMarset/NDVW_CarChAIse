@@ -7,7 +7,7 @@ public class PoliceManager : MonoBehaviour
 	// Editable parameters
 	[Header("Spawning")]
 	[SerializeField] private uint MaxPoliceCars = 3;
-	[SerializeField] private Police2 PolicePrefab;
+	[SerializeField] private Police PolicePrefab;
 	[SerializeField] private GameObject SpawnersContainer;
 
 	[Header("Chasing")]
@@ -20,8 +20,8 @@ public class PoliceManager : MonoBehaviour
 	[SerializeField] private float TimeForRelocatePolice = 30;
 
 	// Auxiliar parameters
-	private GameManager2 GameMang;
-	private List<Police2> PoliceCars;
+	private GameManager GameMang;
+	private List<Police> PoliceCars;
 	private Transform[] Spawners;
 	public float CatchCounter { get; protected set; }
 	public Player PlayerCar { get => GameMang.PlayerCar; }
@@ -35,8 +35,8 @@ public class PoliceManager : MonoBehaviour
 	private void Start()
 	{
 		// Initialize main variables		
-		GameMang = GetComponent<GameManager2>();
-		PoliceCars = new List<Police2>();
+		GameMang = GetComponent<GameManager>();
+		PoliceCars = new List<Police>();
 		Spawners = SpawnersContainer.GetComponentsInDirectChildren<Transform>();
 		CatchCounter = 0;
 		LastRelocateTime = Time.time;
@@ -76,7 +76,7 @@ public class PoliceManager : MonoBehaviour
 
 		// Spawn a new car
 		GameObject newPoliceObj = Instantiate(PolicePrefab.gameObject, spawnerPos, Quaternion.identity, this.transform);
-		Police2 police = newPoliceObj.GetComponent<Police2>();
+		Police police = newPoliceObj.GetComponent<Police>();
 		police.SetPoliceManager(this);
 		police.NotifyPlayerPos(PlayerCar.transform.position, Time.time); // TODO: Don't say player position at the start, start with patrol
 
@@ -100,7 +100,7 @@ public class PoliceManager : MonoBehaviour
 	private void CheckPlayerVisual()
 	{
 		bool posUpdated = false;
-		foreach (Police2 police in PoliceCars)
+		foreach (Police police in PoliceCars)
 		{
 			// If update is more recent, use it for update
 			if (police.LastPlayerPosKnownTime > LastPlayerPosTime)
@@ -119,7 +119,7 @@ public class PoliceManager : MonoBehaviour
 				LastPlayerPosTime = Mathf.NegativeInfinity;
 
 			// Comunite information to police cars
-			foreach (Police2 police in PoliceCars)
+			foreach (Police police in PoliceCars)
 				police.NotifyPlayerPos(LastPlayerKnownPos, LastPlayerPosTime);
 		}
 	}
@@ -132,7 +132,7 @@ public class PoliceManager : MonoBehaviour
 	{
 		// Get police cars close
 		int nClosePoliceCars = 0;
-		foreach (Police2 police in PoliceCars)
+		foreach (Police police in PoliceCars)
 			if (Vector3.Distance(PlayerCar.transform.position, police.transform.position) < MinDistanceToCatch)
 				nClosePoliceCars++;
 

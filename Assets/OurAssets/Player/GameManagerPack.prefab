@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4463885358860546772}
   - component: {fileID: 3227069378662720040}
+  - component: {fileID: 6673527038755882817}
   m_Layer: 0
   m_Name: GameManagerPack
   m_TagString: Untagged
@@ -50,11 +51,34 @@ MonoBehaviour:
   PlayerCar: {fileID: 5733730444239174697}
   PlayerCanv: {fileID: 287834489169895805}
   GameOverCanv: {fileID: 3103402931755586210}
+  PoliceMang: {fileID: 6673527038755882817}
   MainMenuBuildIdx: 0
-  MinSpeedToCatch: 20
+  NavMeshLayers:
+  - Walkable
+  PlayerTargetMark: {fileID: 0}
+  ForceResetPlayerTarget: 0
+--- !u!114 &6673527038755882817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3227069378662720043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3129e21f06553dd42b762d94e2c9c599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxPoliceCars: 3
+  PolicePrefab: {fileID: 4124534527192030888, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
+  SpawnersContainer: {fileID: 0}
+  MinSpeedToCatch: 10
   MinDistanceToCatch: 10
-  CatchPointPerPolice: 3
-  EscapePointPerSecond: 10
+  CatchPointPerPolice: 5
+  EscapePointPerSecond: 5
+  EscapePointLostPlayerPerSecond: 20
+  TimeForLosingPlayer: 10
+  TimeForRelocatePolice: 30
 --- !u!1 &4433387576888310203
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,341 +6,336 @@ using UnityEngine.AI;
 
 public class Police : CarController
 {
-    [Header("General Parameters")]// Look at the documentation for a detailed explanation 
-    public List<string> NavMeshLayers;
-    public int MaxRPM = 150;
+	// Editable parameters
+	[Header("Police Parameters")]
+	[SerializeField] protected List<string> NavMeshLayers;
+	[SerializeField] protected float BackwardSeconds = 1f;
+	[SerializeField] protected float SecondsForBlocked = 0.5f;
+	[SerializeField] protected float ReactionSeconds = 0.5f;
+	[SerializeField] protected float CurveSpeedFactor = 1000;
+	[SerializeField] protected bool CustomDebugger = false;
+	[SerializeField] protected bool ShowGizmos = true;
 
-    [Header("Destination Parameters")]// Look at the documentation for a detailed explanation
-    public bool Patrol = false;
-    public Transform TargetObject;
-
-    [HideInInspector] public bool move;// Look at the documentation for a detailed explanation
-
-    private Vector3 PositionToFollow = Vector3.zero;
-    private int currentWayPoint;
-    [SerializeField] private float AIFOV = 60;
-    private int NavMeshLayerBite;
-    private List<Vector3> waypoints = new List<Vector3>();
-    private int Fails;
-    private Vector3 direction;
-    private float actionTime = 0.0f;
-    [SerializeField] private float defaultReactionTime = 0.5f;
-    private float patrolCheckTime = -Mathf.Infinity;
-
-    private bool Debugger = false;
-    private bool ShowGizmos = true;
-
-    private float MaxSpeedAtCurve = 30;
-
-    private float waypointDistanceThreshold = 20;
-
-    private float backwardStartTime = Mathf.Infinity;
-    private float stopCheckStartTime = Mathf.Infinity;
-    private float stopCheckTime = 0.5f;
-    private float backwardTime = 1f;
-    private float reactionTime = 0f;
-    private Vector3 lastCarPosition = Vector3.zero;
+	// Auxiliar parameters
+	protected PoliceManager PoliceMang;
+	protected int NavMeshLayerBite;
+	protected List<Vector3> Waypoints;
+	protected int CurrentWayPoint;
+	protected Vector3 PositionToFollow;
+	protected Vector3 CurrentDirection;
+	protected float NextActionTime;
+	protected float BackwardEndTime;
+	protected float BlockCheckStartTime;
+	
+	public float LastPlayerPosKnownTime { get; protected set; }
+	public Vector3 LastPlayerKnownPos { get; protected set; }
+	public bool IsBlocked { get => (Time.time - BlockCheckStartTime) > BackwardSeconds; }
+	public bool IsGoingBackwards { get => Time.time < BackwardEndTime; }
+	protected bool IsPatroling { get => LastPlayerPosKnownTime == Mathf.NegativeInfinity; }
 
 
-	// Start is called before the first frame update
+	#region Initialization
+
 	protected override void Start()
-    {
-        base.Start();
-
-        // Initialization of path settings
-        currentWayPoint = 0;
-        move = true;
-        TargetObject = FindObjectOfType<Player>().transform;
-        CalculateNavMashLayerBite();
-        // Add itself to the GameManager police list
-        FindObjectOfType<GameManager>()?.PoliceObjects.Add(this);
-    }
-
-    protected override void FixedUpdate()
 	{
-        actionTime += Time.deltaTime;
-        base.FixedUpdate();
-        PathProgress();
-        lastCarPosition = CarFront.position;
-    }
+		base.Start();
 
-    private void CalculateNavMashLayerBite()
-    {
-        if (NavMeshLayers == null || NavMeshLayers[0] == "AllAreas")
-            NavMeshLayerBite = UnityEngine.AI.NavMesh.AllAreas;
-        else if (NavMeshLayers.Count == 1)
-            NavMeshLayerBite += 1 << UnityEngine.AI.NavMesh.GetAreaFromName(NavMeshLayers[0]);
-        else
-        {
-            foreach (string Layer in NavMeshLayers)
-            {
-                int I = 1 << UnityEngine.AI.NavMesh.GetAreaFromName(Layer);
-                NavMeshLayerBite += I;
-            }
-        }
-    }
+		// Blocked and backward settings
+		BackwardEndTime = Mathf.NegativeInfinity;
+		BlockCheckStartTime = Mathf.Infinity;
 
-    private void PathProgress() //Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
-    {
-        wayPointManager();
-        Move();
-        void wayPointManager()
-        {
-            CreatePath();
-            if (waypoints.Count > 0 && currentWayPoint < waypoints.Count) {
-                // Debug.Log("Waypoints Count: " + waypoints.Count + ", currentWayPoint: " + currentWayPoint);
-                PositionToFollow = waypoints[currentWayPoint];
-                if (Vector3.Distance(CarFront.position, PositionToFollow) < 1) currentWayPoint++;
-            }
-            else PositionToFollow = Vector3.zero;
+		// Catch settings with an already reached position and invalid/minimum frame index
+		//NotifyPlayerPos(transform.position, 0); // This ensures that any new notification will be accepted
 
-            // if (waypoints.Count > 2) reactionTime += Time.deltaTime;
-            
-        }
+		// Path settings
+		NextActionTime = 0;
+		Waypoints = new List<Vector3>();
+		CurrentWayPoint = 0;
+		CalculateNavMashLayerBite();
+	}
 
-        void CreatePath()
-        {
-            if (Patrol == true){
-                // CreateRandomPath();
-            }
-            else
-            {
-                patrolCheckTime = -Mathf.Infinity;
-                CreateTargetPath(TargetObject);   
-            }
-        }
-    }
-
-
-    public void CreateTargetPath(Transform destination) //Creates a path to the Custom destination
-    {
-        UnityEngine.AI.NavMeshPath path = new UnityEngine.AI.NavMeshPath();
-        Vector3 sourcePosition;
-        currentWayPoint = 1;
-    
-        sourcePosition = CarFront.position;
-        if(direction == null) direction = CarFront.forward;
-        List<Vector3> currentWaypointList = Calculate(destination.position, sourcePosition, direction, NavMeshLayerBite);
-        
-        if (actionTime > reactionTime || (actionTime > defaultReactionTime && currentWaypointList.Count == 2)){
-            waypoints = new List<Vector3>(currentWaypointList);
-            actionTime = 0.0f;
-            if (currentWaypointList.Count != 2) reactionTime += 0.25f;
-            else reactionTime = defaultReactionTime;
-        }
-
-        // List<Vector3> waypoints = new List<Vector3>();
-        List<Vector3> Calculate(Vector3 destination, Vector3 sourcePosition, Vector3 direction, int NavMeshAreaBite)
-        {
-            List<Vector3> waypointsList = new List<Vector3>();
-            if (UnityEngine.AI.NavMesh.SamplePosition(destination, out UnityEngine.AI.NavMeshHit hit, 1000000, NavMeshAreaBite) &&
-                UnityEngine.AI.NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaBite, path))
-            {
-                
-                if (path.corners.ToList().Count() > 1 && CheckForAngle(path.corners[1], sourcePosition, direction))
-                {
-                    waypointsList.AddRange(path.corners.ToList());
-                    debug("Custom Path generated successfully", false);
-                }
-                else
-                {
-                    if (path.corners.Length > 2 && CheckForAngle(path.corners[2], sourcePosition, direction))
-                    {
-                        waypointsList.AddRange(path.corners.ToList());
-                        debug("Custom Path generated successfully", false);
-                    }
-                    else
-                    {
-                        debug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
-                        Fails++;
-                    }
-                }
-            }
-            else
-            {
-                debug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
-                Fails++;
-            }
-
-            return waypointsList;
-        }
-    }
-
-    // public void CreateRandomPath() // Creates a path to a random destination
-    // {   
-    //     // In every 2 seconds
-    //     if (patrolCheckTime == -Mathf.Infinity || Time.time - patrolCheckTime > 1 ) {
-    //         if (patrolCheckTime == -Mathf.Infinity || waypoints.Count > 5) {
-    //             waypoints.Clear();
-    //             currentWayPoint = 1;
-    //         } 
-    //         patrolCheckTime = Time.time;
-
-    //         NavMeshPath path = new NavMeshPath();
-    //         Vector3 sourcePosition;
-
-
-    //         if (waypoints.Count == 0)
-    //         {
-    //             Vector3 randomDirection = Random.insideUnitSphere * 150;
-    //             randomDirection += transform.position;
-    //             sourcePosition = CarFront.position;
-    //             Calculate(randomDirection, sourcePosition, direction, NavMeshLayerBite);
-    //         }
-    //         else
-    //         {
-    //             sourcePosition = waypoints[waypoints.Count - 1];
-    //             Vector3 randomPosition = Random.insideUnitSphere * 100;
-    //             randomPosition += sourcePosition;
-    //             Calculate(randomPosition, sourcePosition, direction, NavMeshLayerBite);
-    //         }
-
-    //         void Calculate(Vector3 destination, Vector3 sourcePosition, Vector3 direction, int NavMeshAreaByte)
-    //         {
-    //             if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 1000000, NavMeshAreaByte) &&
-    //                 NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaByte, path) && path.corners.Length > 2)
-    //             {
-    //                 if (CheckForAngle(path.corners[1], sourcePosition, direction))
-    //                 {
-    //                     waypoints.AddRange(path.corners.ToList());
-    //                     debug("Random Path generated successfully", false);
-    //                 }
-    //                 else
-    //                 {
-    //                     if (CheckForAngle(path.corners[2], sourcePosition, direction))
-    //                     {
-    //                         waypoints.AddRange(path.corners.ToList());
-    //                         debug("Random Path generated successfully", false);
-    //                     }
-    //                     else
-    //                     {
-    //                         debug("Failed to generate a random path. Waypoints are outside the AIFOV. Generating a new one", false);
-    //                         Fails++;
-    //                     }
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 debug("Failed to generate a random path. Invalid Path. Generating a new one", false);
-    //                 Fails++;
-    //             }
-    //         }
-    //     }
-    // }
-
-    private bool CheckForAngle(Vector3 pos, Vector3 source, Vector3 direction) //calculates the angle between the car and the waypoint 
-    {
-        Vector3 distance = (pos - source).normalized;
-        float CosAngle = Vector3.Dot(distance, direction);
-        float Angle = Mathf.Acos(CosAngle) * Mathf.Rad2Deg;
-
-        if (Angle < AIFOV)
-            return true;
-        else
-            return false;
-    }
-
-    protected override float GetSteeringAngle()
+	private void CalculateNavMashLayerBite()
 	{
-        Vector3 relativeVector = transform.InverseTransformPoint(PositionToFollow);
-        float SteeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
+		if (NavMeshLayers == null || NavMeshLayers[0] == "AllAreas")
+			NavMeshLayerBite = NavMesh.AllAreas;
+		else if (NavMeshLayers.Count == 1)
+			NavMeshLayerBite += 1 << NavMesh.GetAreaFromName(NavMeshLayers[0]);
+		else
+		{
+			foreach (string Layer in NavMeshLayers)
+			{
+				int I = 1 << NavMesh.GetAreaFromName(Layer);
+				NavMeshLayerBite += I;
+			}
+		}
+	}
 
-        if(backwardStartTime!= Mathf.Infinity & Time.time < backwardStartTime + backwardTime) SteeringAngle = -SteeringAngle;
-        return SteeringAngle;
-    }
-
-
-    protected override float GetMovementDirection()
+	public void SetPoliceManager(PoliceManager policeMang)
 	{
-        float movementDirection = 0;
+		PoliceMang = policeMang;
+	}
 
-        // Check if go backwards for avoid blocking
-        if (stopCheckStartTime != Mathf.Infinity)
-        {
-            // If too many time stopped (ergo blocked) and no backward time started
-            if (Time.time >= (stopCheckStartTime + stopCheckTime) && backwardStartTime == Mathf.Infinity)
-                backwardStartTime = Time.time;
+	#endregion
 
-            // If backward time started
-            if (backwardStartTime != Mathf.Infinity){
-                if(Time.time < (backwardStartTime + backwardTime))
-                    movementDirection = -1.0f;
-                else {
-                    stopCheckStartTime = Mathf.Infinity;
-                    backwardStartTime = Mathf.Infinity;
-                }
-            }
-        } 
-        else {
-            // If car don't move and target is far, start the stop timer (consider the car blocked)
-            if (Mathf.Abs(CurrentForwardSpeed) < 0.1f && Vector3.Distance(CarFront.position, TargetObject.position) > 5)
-                stopCheckStartTime = Time.time;
-            else
-                stopCheckStartTime = Mathf.Infinity;
+	#region Player visual
 
-            // Move to waypoints
-            if (waypoints.Count == 2) movementDirection = 1.0f;
-            else if (waypoints.Count > 2) 
-            {
-                float distanceToWaypoint = Vector3.Distance(CarFront.position, waypoints[currentWayPoint]);
-                
-                if (distanceToWaypoint > waypointDistanceThreshold) movementDirection = 1.0f;
-                else 
-                {
-                    if (CurrentForwardSpeed > MaxSpeedAtCurve) movementDirection = -(waypointDistanceThreshold/distanceToWaypoint) * CurrentForwardSpeed / MaxSpeedAtCurve;
-                    else if (CurrentForwardSpeed == MaxSpeedAtCurve) movementDirection = 0;
-                    else movementDirection = 1.0f;
-                }
-                
-            }
-            else movementDirection = 1.0f;
-        }
-        return movementDirection;
-    }
+	protected override void Update()
+	{
+		base.Update();
+		CheckPlayerVisual();
+	}
 
-    void debug(string text, bool IsCritical)
-    {
-        if (Debugger){
-            if (IsCritical)
-                Debug.LogError(text);
-            else
-                Debug.Log(text);
-        }
-    }
+	protected virtual void CheckPlayerVisual()
+	{
+		Vector3 iniPos = CarFront.position;
+		Vector3 direction = (PoliceMang.PlayerCar.transform.position - iniPos).normalized;
+		if (Physics.Raycast(iniPos, direction, out RaycastHit hit, Mathf.Infinity, 0xFFFF) &&
+			hit.transform.gameObject == PoliceMang.PlayerCar.gameObject)
+		{
+			//Debug.DrawRay(iniPos, direction * hit.distance, Color.red);
+			LastPlayerKnownPos = PoliceMang.PlayerCar.transform.position;
+			LastPlayerPosKnownTime = Time.time;
+		}
+	}
 
-    private void OnDrawGizmos() // shows a Gizmos representing the waypoints and AI FOV
-    {
-        if (ShowGizmos == true)
-        {
-            for (int i = 0; i < waypoints.Count; i++)
-            {
-                if (i == currentWayPoint)
-                    Gizmos.color = Color.blue;
-                else
-                {
-                    if (i > currentWayPoint)
-                        Gizmos.color = Color.red;
-                    else
-                        Gizmos.color = Color.green;
-                }
-                Gizmos.DrawWireSphere(waypoints[i], 2f);
-            }
-            CalculateFOV();
-        }
+	/// <summary>
+	/// Called by the PoliceManager. Time == -Infinity is a sentinel for start patrolling
+	/// </summary>
+	public void NotifyPlayerPos(Vector3 lastPlayerKnownPos, float lastPlayerPosTime)
+	{
+		// If notification is more recent or time == -Infinity, update the parameters | >= For time is required for correct initialization by PoliceManager
+		if (lastPlayerPosTime >= LastPlayerPosKnownTime || lastPlayerPosTime == Mathf.NegativeInfinity)
+		{
+			LastPlayerKnownPos = lastPlayerKnownPos;
+			LastPlayerPosKnownTime = lastPlayerPosTime;
+		}
+	}
 
-        void CalculateFOV()
-        {
-            Gizmos.color = Color.white;
-            float totalFOV = AIFOV * 2;
-            float rayRange = 10.0f;
-            float halfFOV = totalFOV / 2.0f;
-            Quaternion leftRayRotation = Quaternion.AngleAxis(-halfFOV, Vector3.up);
-            Quaternion rightRayRotation = Quaternion.AngleAxis(halfFOV, Vector3.up);
-            Vector3 leftRayDirection = leftRayRotation * transform.forward;
-            Vector3 rightRayDirection = rightRayRotation * transform.forward;
-            Gizmos.DrawRay(CarFront.position, leftRayDirection * rayRange);
-            Gizmos.DrawRay(CarFront.position, rightRayDirection * rayRange);
-        }
-    }
+	#endregion
 
+	#region Driving and path
+
+	protected override void FixedUpdate()
+	{
+		base.FixedUpdate();
+		ProgessPath();
+	}
+
+	#region Path
+
+	/// <summary>
+	/// Checks if the agent has reached the currentWayPoint or not. If yes, it will assign the next waypoint as the currentWayPoint depending on the input
+	/// </summary>
+	protected virtual void ProgessPath()
+	{
+		// Update path if necessary
+		if (IsPatroling)
+		{
+			Debug.Log(name + " police car patrolling");
+			// TODO: Follow the civilian routes
+		}
+		else
+		{
+			CreatePathToTarget(LastPlayerKnownPos);
+
+			// If possible, define PositionToFollow
+			if (CurrentWayPoint > 0 && CurrentWayPoint < Waypoints.Count)
+			{
+				PositionToFollow = Waypoints[CurrentWayPoint];
+
+				// While very close to current waypoint, go to the next one
+				while (Vector3.Distance(CarFront.position, PositionToFollow) < 1 && CurrentWayPoint < Waypoints.Count)
+				{
+					CurrentWayPoint++;
+					if (CurrentWayPoint < Waypoints.Count)
+						PositionToFollow = Waypoints[CurrentWayPoint];
+				}
+			}
+
+			// If not PositionToFollow possible, go to the target
+			if (CurrentWayPoint <= 0 || CurrentWayPoint >= Waypoints.Count)
+			{
+				CurrentWayPoint = Waypoints.Count; // Set to an impossible value, as sentinel
+				PositionToFollow = LastPlayerKnownPos;
+			}
+
+			// Reset movement direction and steering (already defined in base.FixedUpdate)
+			Steer();
+			Move();
+		}
+	}
+
+	/// <summary>
+	/// Creates a path to the Custom destination
+	/// </summary>
+	public virtual void CreatePathToTarget(Vector3 destination)
+	{
+		// If next action time, update path
+		if (Time.time > NextActionTime)
+		{
+			NavMeshPath path = new NavMeshPath();
+			Vector3 sourcePosition;
+
+			NextActionTime += ReactionSeconds;
+			Waypoints.Clear();
+			CurrentWayPoint = 1;
+
+			sourcePosition = CarFront.position;
+			if (CurrentDirection == null)
+				CurrentDirection = CarFront.forward;
+
+			Calculate(destination, sourcePosition, CurrentDirection, NavMeshLayerBite);
+			void Calculate(Vector3 destination, Vector3 sourcePosition, Vector3 direction, int NavMeshAreaBite)
+			{
+				if (NavMesh.SamplePosition(destination, out NavMeshHit hit, Mathf.Infinity, NavMeshAreaBite) &&
+					NavMesh.CalculatePath(sourcePosition, hit.position, NavMeshAreaBite, path))
+				{
+					if (path.corners.ToList().Count() > 1)
+					{
+						Waypoints.AddRange(path.corners.ToList());
+						CustomDebug("Custom Path generated successfully", false);
+					}
+					else
+					{
+						if (path.corners.Length > 2)
+						{
+							Waypoints.AddRange(path.corners.ToList());
+							CustomDebug("Custom Path generated successfully", false);
+						}
+						else
+						{
+							CustomDebug("Failed to generate a Custom path. Waypoints are outside the AIFOV. Generating a new one", false);
+						}
+					}
+				}
+				else
+				{
+					CustomDebug("Failed to generate a Custom path. Invalid Path. Generating a new one", false);
+				}
+			}
+		}
+	}
+
+	#endregion
+
+	#region Steering
+
+	protected override float GetSteeringAngle()
+	{
+		// Steer to PositionToFollow
+		Vector3 relativeVector = transform.InverseTransformPoint(PositionToFollow);
+		float steeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
+
+		// If going backwards, inverse steer
+		if (IsGoingBackwards)
+			steeringAngle = -steeringAngle;
+
+		return steeringAngle;
+	}
+
+	#endregion
+
+	#region Movement
+
+	protected override float GetMovementDirection()
+	{
+		float movementDirection = 1;    // By default, accelerate
+
+		// If going backwards for avoiding blocking
+		if (IsGoingBackwards)
+		{
+			movementDirection = -1;
+		}
+		// If no backwards
+		else
+		{
+			// If car don't move and target is far, start the blocked timer (consider the car blocked)
+			if (Mathf.Abs(CurrentForwardSpeed) < 0.1f && 
+				Vector3.Distance(CarFront.position, LastPlayerKnownPos) > PoliceMang.MinDistanceToCatch / 2)
+			{
+				// If first time blocked
+				if (BlockCheckStartTime == Mathf.Infinity)
+					BlockCheckStartTime = Time.time;
+				// Otherwise, check blocked time threshold
+				else if (IsBlocked)
+					BackwardEndTime = Time.time + BackwardSeconds;	// Set seconds for backwards
+			}				
+			else
+				BlockCheckStartTime = Mathf.Infinity;
+
+			// Define the movement direction (accelerating or braking) depending on the curves
+			Vector3 prev, post, diff;
+			float curveAngle, requiredSpeed, brakeDistance, distanceToWaypoint;
+			// For each next waypoints in the path, get angle between them. End if already breaking
+			for (int i = CurrentWayPoint - 1; i < Waypoints.Count - 1 && movementDirection == 1; i++)
+			{
+				// First check is the trajectory to target
+				prev = (i < CurrentWayPoint) ? CarFront.position : Waypoints[i];
+				post = (i < CurrentWayPoint) ? PositionToFollow : Waypoints[i + 1];
+				diff = post - prev; // TODO: Consider the distance btw the waypoints and the distance to that path section
+
+				// Get the angle of the curve
+				curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, diff);
+
+				// TODO: Check this
+				//if (i < Waypoints.Count - 2)    // If no last point
+				//else // If last point
+				//	curveAngle = 180; // Force brake
+
+				// Get distance required to achieve the required speed				
+				requiredSpeed = CurveSpeedFactor / curveAngle;  // Example with 50 degrees: 1000/50 = 20 Km/h
+				brakeDistance = EstimateBrakeDistance(requiredSpeed);
+				distanceToWaypoint = Vector3.Distance(CarFront.position, post);
+
+				// If distance is close or lower to the brake distance
+				if ((distanceToWaypoint - brakeDistance) < 5)
+					movementDirection = -1;
+			}
+
+		}
+
+		return movementDirection;
+	}
+
+	#endregion
+
+	#endregion
+
+	#region Debug and Gizmos
+
+	protected virtual void CustomDebug(string text, bool isCritical = false)
+	{
+		if (CustomDebugger)
+		{
+			if (isCritical)
+				Debug.LogError(text);
+			else
+				Debug.Log(text);
+		}
+	}
+
+	/// <summary>
+	/// Shows a Gizmos representing the waypoints and AI FOV
+	/// </summary>
+	protected virtual void OnDrawGizmos()
+	{
+		if (ShowGizmos == true)
+		{
+			for (int i = 0; i < Waypoints.Count; i++)
+			{
+				if (i == CurrentWayPoint)
+					Gizmos.color = Color.blue;
+				else
+				{
+					if (i > CurrentWayPoint)
+						Gizmos.color = Color.red;
+					else
+						Gizmos.color = Color.green;
+				}
+				Gizmos.DrawWireSphere(Waypoints[i], 2f);
+			}
+		}
+	}
+
+	#endregion
 }
