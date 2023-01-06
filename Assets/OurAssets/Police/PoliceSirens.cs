@@ -8,9 +8,14 @@ public class PoliceSirens : MonoBehaviour
     public float waitTime = 0.05f;
     private float changeTime = 0.0f;
     private int state = 0;
+    private AudioSource sirenAudioSource;
+    
     // Start is called before the first frame update
     void Start()
     {
+        sirenAudioSource = GetComponent<AudioSource>();
+		sirenAudioSource.time = Random.Range(0f, sirenAudioSource.clip.length);
+    	sirenAudioSource.Play();
     }
 
     void Update(){

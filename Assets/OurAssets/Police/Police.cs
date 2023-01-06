@@ -16,8 +16,6 @@ public class Police : CarController
 	[SerializeField] protected bool CustomDebugger = false;
 	[SerializeField] protected bool ShowGizmos = true;
 
-    public AudioSource sirenAudioSource;
-
 	// Auxiliar parameters
 	protected PoliceManager PoliceMang;
 	protected int NavMeshLayerBite;
@@ -121,21 +119,7 @@ public class Police : CarController
 	{
 		base.FixedUpdate();
 		ProgessPath();
-        // UpdatePoliceSound();
 	}
-
-    private void UpdatePoliceSound()
-    {
-        // Calculate the distance between the police car and the player
-        float distance = Vector3.Distance(CarFront.position, PoliceMang.PlayerCar.transform.position);
-
-        // Calculate the volume of the siren sound based on the distance
-        float volume = Mathf.Lerp(1.0f, 0.0f, distance / 200.0f);
-
-        // Set the volume of the siren audio source
-        sirenAudioSource.volume = volume;
-    }
-    
 
 	#region Path
 

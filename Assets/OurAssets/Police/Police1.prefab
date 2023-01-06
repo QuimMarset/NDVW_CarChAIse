@@ -493,6 +493,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8891219246404873341}
   - component: {fileID: 864587872796404401}
+  - component: {fileID: 9173586774436823164}
   m_Layer: 0
   m_Name: Sirens
   m_TagString: Untagged
@@ -540,7 +541,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 200
+  MaxDistance: 100
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -615,6 +616,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9173586774436823164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5485660303003590634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab2af9d4fb2bf424c953b9b4e0d18221, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  redLight1: {fileID: 1310776998761468977}
+  redLight2: {fileID: 8692318467660041}
+  blueLight1: {fileID: 5327975354770368264}
+  blueLight2: {fileID: 8324580161629432390}
+  waitTime: 0.07
 --- !u!1 &6164045758447193037
 GameObject:
   m_ObjectHideFlags: 0
@@ -1379,7 +1397,6 @@ MonoBehaviour:
   CurveSpeedFactor: 1000
   CustomDebugger: 0
   ShowGizmos: 1
-  sirenAudioSource: {fileID: 0}
 --- !u!1 &8751094529259719749
 GameObject:
   m_ObjectHideFlags: 0
@@ -1577,28 +1594,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d61b66c1a6f31a3448c7945603495569, type: 3}
---- !u!1 &8856567918628581522 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100000, guid: d61b66c1a6f31a3448c7945603495569, type: 3}
-  m_PrefabInstance: {fileID: 8856567918628681266}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6398543050786223393
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8856567918628581522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab2af9d4fb2bf424c953b9b4e0d18221, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  redLight1: {fileID: 1310776998761468977}
-  redLight2: {fileID: 8692318467660041}
-  blueLight1: {fileID: 5327975354770368264}
-  blueLight2: {fileID: 8324580161629432390}
-  waitTime: 0.2
 --- !u!4 &8856567918628809906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: d61b66c1a6f31a3448c7945603495569, type: 3}
