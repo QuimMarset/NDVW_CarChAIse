@@ -6593,7 +6593,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1831448033}
   - component: {fileID: 1831448032}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: NavMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6628,7 +6628,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.8333333
   m_BuildHeightMesh: 0
-  m_NavMeshData: {fileID: 23800000, guid: 457bd3f0cabe9e74e8142be2578bcac7, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 2e839abd76eb00f40969058d6edf32f9, type: 2}
 --- !u!4 &1831448033
 Transform:
   m_ObjectHideFlags: 0
@@ -8948,6 +8948,10 @@ PrefabInstance:
       propertyPath: NavMeshLayers.Array.data[0]
       value: Walkable
       objectReference: {fileID: 0}
+    - target: {fileID: 3227069378662720043, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4463885358860546772, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -8977,9 +8981,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: SpawnersContainer
       value: 
       objectReference: {fileID: 414536952}
+    - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: TimeForLosingPlayer
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
+      propertyPath: TimeForRelocatePolice
+      value: 300
+      objectReference: {fileID: 0}
     - target: {fileID: 7603499191516018473, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.7071068

@@ -40,7 +40,7 @@ public class CarCollisionBehavior : MonoBehaviour
 
     private bool IsThereACarInFOV(Vector3 fovDirection, float fovRadius, float fovAngle)
     {
-        int layerMask = LayerMask.GetMask(new string[] { "Civilian", "Police" });
+        int layerMask = LayerMask.GetMask(new string[] { "Civilian", "Police", "Player" });
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, fovRadius, layerMask);
 
@@ -51,7 +51,8 @@ public class CarCollisionBehavior : MonoBehaviour
                 continue;
             }
 
-            Vector3 direction = (collider.transform.position - transform.position).normalized;
+            Vector3 closestPoint = collider.ClosestPoint(transform.position);
+            Vector3 direction = (closestPoint - transform.position).normalized;
             if (Vector3.Angle(fovDirection, direction) < fovAngle / 2)
             {
                 return true;

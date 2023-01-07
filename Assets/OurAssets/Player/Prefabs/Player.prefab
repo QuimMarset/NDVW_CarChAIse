@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2133191235178088349}
   - component: {fileID: 2940257081426452726}
   - component: {fileID: 5751439675625468206}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8910851916862969199}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: CarBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 7861920237193725644}
   - component: {fileID: 5403219919112464456}
   - component: {fileID: 4394882466096497882}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: polySurface31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -210,7 +210,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1572257902798421475}
   - component: {fileID: 1386336408765006185}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackwardsCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5993828291317113086}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -317,7 +317,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5993828291419099263}
   - component: {fileID: 5993828291419099260}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -378,7 +378,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5993828291704358444}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,7 +410,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5993828291866507170}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -442,7 +442,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5993828292153346829}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -474,7 +474,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5993828292168281296}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wheel transforms
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -510,7 +510,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5993828292398979400}
   - component: {fileID: 5993828292398979401}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -572,12 +572,13 @@ GameObject:
   m_Component:
   - component: {fileID: 5993828292672005689}
   - component: {fileID: 5993828292672005692}
+  - component: {fileID: 7358562498239434099}
   - component: {fileID: 5993828292672005690}
   - component: {fileID: 5993828292672005693}
   - component: {fileID: 4962953550989134259}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -634,6 +635,22 @@ MonoBehaviour:
   HardBrakeStifnessMultiplier: 0.1
   MainCamera: {fileID: 5993828293321323347}
   CameraSecondsToRotate: 0.5
+--- !u!208 &7358562498239434099
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5993828292672005695}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 1, y: 1, z: 2.75}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 0
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!65 &5993828292672005690
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -768,7 +785,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5993828292690626285}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wheel colliders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -804,7 +821,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5993828292778045155}
   - component: {fileID: 5993828292778045152}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -866,7 +883,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5993828293001270827}
   - component: {fileID: 5993828293001270824}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -929,7 +946,7 @@ GameObject:
   - component: {fileID: 5993828293321323349}
   - component: {fileID: 5993828293321323347}
   - component: {fileID: 5993828293321323346}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -1013,7 +1030,7 @@ GameObject:
   - component: {fileID: 2051921961981147074}
   - component: {fileID: 7098448298740798363}
   - component: {fileID: 4879040625911634472}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1097,7 +1114,7 @@ GameObject:
   - component: {fileID: 4891594214815517874}
   - component: {fileID: 4286170076536747613}
   - component: {fileID: 2741286864041603325}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: polySurface29
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1180,7 +1197,7 @@ GameObject:
   - component: {fileID: 8763833581997194728}
   - component: {fileID: 5931223329825720162}
   - component: {fileID: 4242314707580468666}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ImprezaBody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1274,7 +1291,7 @@ GameObject:
   - component: {fileID: 8445601544437712076}
   - component: {fileID: 7640950570040583899}
   - component: {fileID: 3572115116239387015}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BackR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1358,7 +1375,7 @@ GameObject:
   - component: {fileID: 2020973330550939547}
   - component: {fileID: 1383542613196509281}
   - component: {fileID: 1227101922127886071}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FrontL
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ public abstract class Road : MonoBehaviour
     private List<Marker> markersReceivingConnections;
     [SerializeField]
     private List<Marker> spawnMarkers;
-    private List<Marker> allMarkers;
+    public List<Marker> allMarkers { get; protected set; }
 
     public virtual Vector3 Forward
     {

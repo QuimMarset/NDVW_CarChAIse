@@ -19,8 +19,12 @@ public class PoliceSirens : MonoBehaviour
     }
 
     void Update(){
-        changeTime += Time.deltaTime;
+        // Player if stopped
+        if(!sirenAudioSource.isPlaying)
+            sirenAudioSource.Play();
 
+        // Alternating
+        changeTime += Time.deltaTime;
         if (changeTime > waitTime)
         {
             changeTime = 0.0f;
@@ -39,7 +43,6 @@ public class PoliceSirens : MonoBehaviour
 
             state += 1;
             state %= 4;
-
         }
     }
 

@@ -20,7 +20,7 @@ public class InvisibleBlocker : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Civilian"))
+        if (other.CompareTag("Civilian") || other.CompareTag("Police"))
         {
             if (waitingReason == WaitingReason.TrafficLight)
             {

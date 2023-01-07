@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -10,11 +11,12 @@ public class GameManager : MonoBehaviour
 	[Header("General")]
 	public Player PlayerCar;
 	[SerializeField] private PlayerHUD PlayerCanv;
-	[SerializeField] private GameOverHUD GameOverCanv;
-	[SerializeField] private PoliceManager PoliceMang;
-	[SerializeField] private int MainMenuBuildIdx = 0;
-	[SerializeField] protected List<string> NavMeshLayers;
 	[SerializeField] private GameObject PlayerTargetMark;
+	public RoadManager RoadMang;
+	public PoliceManager PoliceMang;	
+	[SerializeField] private GameOverHUD GameOverCanv;
+	[SerializeField] private int MainMenuBuildIdx = 0;
+	[SerializeField] private List<string> NavMeshLayers;	
 	[SerializeField] public bool ForceResetPlayerTarget = false;
 
 	// Auxiliar variables
@@ -32,14 +34,18 @@ public class GameManager : MonoBehaviour
 		IsGameOver = false;
 		CalculateNavMashLayerBite();
 
-		// Get Player (if not assigned)
+		// Player
 		if (PlayerCar == null)
 			PlayerCar = FindObjectOfType<Player>();
 		PlayerCar.SetGameManager(this);
 
-		// Check PoliceManager
+		// PoliceManager
 		if (PoliceMang == null)
 			PoliceMang = GetComponent<PoliceManager>();
+
+		// RoadManager
+		if (RoadMang == null)
+			RoadMang = FindObjectOfType<RoadManager>();
 
 		// Canvas
 		PlayerCanv.gameObject.SetActive(true);
@@ -108,13 +114,9 @@ public class GameManager : MonoBehaviour
 			if (targetReached)
 				PlayerScore += PlayerDistToTarget;
 
-			// Generate a new accesible target
-			PlayerTarget = new Vector3(Random.Range(-500, 500), 0, Random.Range(-500, 500)); // TODO: Use street waypoints
-			NavMeshHit hit;
-			while (!NavMesh.SamplePosition(PlayerTarget, out hit, Mathf.Infinity, NavMeshLayerBite))
-				PlayerTarget = new Vector3(Random.Range(-500, 500), 0, Random.Range(-500, 500));
-			PlayerTarget = new Vector3(hit.position.x, 0, hit.position.z); // Use closest position to navmesh as target
-
+			// Generate a new accesible target if possible
+			PlayerTarget = RoadMang.GetRandomMarker().transform.position;
+			
 			// Set distance to target (potential score)
 			PlayerDistToTarget = Vector3.Distance(PlayerCar.transform.position, PlayerTarget);
 
@@ -147,6 +149,34 @@ public class GameManager : MonoBehaviour
 	public void ReturnToMainMenu()
 	{
 		SceneManager.LoadScene(MainMenuBuildIdx);
+	}
+
+	#endregion
+
+	#region Auxiliar
+	public bool IsVisibleByPlayer(Vector3 pos)
+	{
+		Vector3 iniPos = new Vector3(pos.x, PlayerCar.MainCamera.transform.position.y, pos.z);
+		Vector3 dirToCamera = (PlayerCar.MainCamera.transform.position - iniPos);
+		return !Physics.Raycast(iniPos, dirToCamera.normalized, dirToCamera.magnitude, NavMeshLayerBite);
+	}
+
+	/// <summary>
+	/// // Search available markers (not colliding with civilians, police or player) and not visible by the player
+	/// </summary>
+	public List<Marker> GetMarkersForSpawning()
+	{
+		List<Marker> availableMarkers = new List<Marker>();
+		List<GameObject> carsObjs = PoliceMang.PoliceCars.Select((x) => x.gameObject).ToList();
+		carsObjs.Add(PlayerCar.gameObject); // Consider player for not spawning at its position
+		foreach (Marker mkr in RoadMang.AllMarkers)
+		{
+			if (!IsVisibleByPlayer(mkr.transform.position) &&
+				RoadMang.IsMarkerAvailable(mkr, otherObjs: carsObjs))
+				availableMarkers.Add(mkr);
+		}
+
+		return availableMarkers;
 	}
 
 	#endregion

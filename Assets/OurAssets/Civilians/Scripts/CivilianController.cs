@@ -4,23 +4,17 @@ using UnityEngine;
 [RequireComponent(typeof(ObstacleAvoidanceBehavior))]
 public class CivilianController : CarController
 {
-    private ObstacleAvoidanceBehavior obstacleAvoidanceBehavior;
+    [Header("Civlian Parameters")]
+    [SerializeField] public Vector3 targetPosition;
+    [SerializeField] protected float turnSpeed;
+    [SerializeField] protected float steeringAngle;
+    [SerializeField] protected bool movingBackwards;
 
-    [SerializeField]
-    protected Vector3 targetPosition;
+    protected ObstacleAvoidanceBehavior obstacleAvoidanceBehavior;
+    protected float MaxSpeedAtCurve;
+    protected float MaxSpeedOriginal;
 
-    private float MaxSpeedAtCurve;
-    private float MaxSpeedOriginal;
-
-    [SerializeField]
-    private float turnSpeed;
-    [SerializeField]
-    private float steeringAngle;
-
-    [SerializeField]
-    private bool movingBackwards;
-
-    private void Awake()
+    protected virtual void Awake()
     {
         obstacleAvoidanceBehavior = GetComponent<ObstacleAvoidanceBehavior>();
     }
@@ -33,121 +27,97 @@ public class CivilianController : CarController
         MaxSpeedAtCurve = MaxSpeed / 2.0f;
     }
 
-    public void StopCar()
+    public virtual void StopCar()
     {
         EnableMovement = false;
     }
 
-    public void SetNormalDriving()
+    public virtual void SetNormalDriving()
     {
         ResumeMovement();
         DisableObstacleAvoidance();
     }
 
-    public void SetAvoidanceDriving()
+    public virtual void SetAvoidanceDriving()
     {
         ResumeMovement();
         EnableObstacleAvoidance();
     }
 
-    private void ResumeMovement()
+    protected virtual void ResumeMovement()
     {
         EnableMovement = true;
     }
 
-    public void ChangeDestination(Vector3 newDestination)
+    public virtual void ChangeDestination(Vector3 newDestination)
     {
         targetPosition = newDestination;
     }
 
-    private void EnableObstacleAvoidance()
+    protected virtual void EnableObstacleAvoidance()
     {
         obstacleAvoidanceBehavior.enabled = true;
     }
 
-    private void DisableObstacleAvoidance()
+    protected virtual void DisableObstacleAvoidance()
     {
         obstacleAvoidanceBehavior.enabled = false;
     }
 
-    public void SetBackwardMovement()
+    public virtual void SetBackwardMovement()
     {
         movingBackwards = true;
     }
 
-    public void SetForwardMovement()
+    public virtual void SetForwardMovement()
     {
         movingBackwards = false;
     }
 
-    public bool IsMovingBackwards()
+    public virtual bool IsMovingBackwards()
     {
         return movingBackwards;
     }
 
     protected override float GetMovementDirection()
     {
-        if (movingBackwards)
-        {
-            return -1.0f;
-        }
-        return 1.0f;
+        // Adjust maximum speed
+        MaxSpeed = (steeringAngle > 15f)? MaxSpeedAtCurve : MaxSpeedOriginal;
+
+        // Return movement direction
+        return movingBackwards? -1.0f: 1.0f;
     }
 
     protected override float GetSteeringAngle()
     {
-        Vector3 relativeVector = transform.InverseTransformPoint(targetPosition);
-        float steeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
-        if (movingBackwards)
+        float steeringAngle;
+
+        if (obstacleAvoidanceBehavior.enabled && obstacleAvoidanceBehavior.ObstacleDetected(CarFront, targetPosition))
         {
-            steeringAngle = -steeringAngle;
+            steeringAngle = MaxSteeringAngle * obstacleAvoidanceBehavior.SteerDirection;
         }
+        else
+        {
+            Vector3 relativeVector = transform.InverseTransformPoint(targetPosition);
+            steeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
+            if (movingBackwards)
+                steeringAngle = -steeringAngle;
+        }
+
+        steeringAngle = LerpToTargetAngle(steeringAngle);
+
         return steeringAngle;
     }
 
-    private float GetAvoidSteeringAngle()
+    protected virtual float LerpToTargetAngle(float steeringAngle)
     {
-        return MaxSteeringAngle * obstacleAvoidanceBehavior.SteerDirection;
+        steeringAngle = Mathf.Clamp(steeringAngle, -MaxSteeringAngle, MaxSteeringAngle);
+        return Mathf.Lerp(WheelColliders[0].steerAngle, steeringAngle, Time.deltaTime * turnSpeed);
     }
 
-    protected override void Steer()
-    {
-        if (obstacleAvoidanceBehavior.enabled && obstacleAvoidanceBehavior.ObstacleDetected(CarFront, targetPosition))
-        {
-            steeringAngle = GetAvoidSteeringAngle();
-        }
-        else
-        {
-            steeringAngle = GetSteeringAngle();
-        }
-        LerpToTargetAngle(steeringAngle);
-        UpdateWheels();
-    }
-
-    protected override void Move()
-    {
-        if (steeringAngle > 15f)
-        {
-            MaxSpeed = MaxSpeedAtCurve;
-        }
-        else
-        {
-            MaxSpeed = MaxSpeedOriginal;
-        }
-        base.Move();
-    }
-
-
-    private void LerpToTargetAngle(float targetSteerAngle)
-    {
-        targetSteerAngle = Mathf.Clamp(targetSteerAngle, -MaxSteeringAngle, MaxSteeringAngle);
-        WheelColliders[0].steerAngle = Mathf.Lerp(WheelColliders[0].steerAngle, targetSteerAngle, Time.deltaTime * turnSpeed);
-        WheelColliders[1].steerAngle = Mathf.Lerp(WheelColliders[1].steerAngle, targetSteerAngle, Time.deltaTime * turnSpeed);
-    }
-
-    private void OnDrawGizmosSelected()
+    protected virtual void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(targetPosition, 0.5f);
+        Gizmos.DrawWireSphere(targetPosition, 1f);
     }
 }

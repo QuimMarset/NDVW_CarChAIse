@@ -134,7 +134,7 @@ public class ObstacleAvoidanceBehavior : MonoBehaviour
     private bool ComputeRaycast(Vector3 startPosition, float sensorAngle, float sensorLength, out RaycastHit hit)
     {
         Vector3 direction = Quaternion.AngleAxis(sensorAngle, transform.up) * transform.forward;
-        int layerMask = LayerMask.GetMask(new string[2] { "Police", "Civilian" });
+        int layerMask = LayerMask.GetMask(new string[3] { "Police", "Civilian", "Player" });
         bool hasHit = Physics.Raycast(startPosition, direction, out hit, sensorLength, layerMask);
         if (hasHit)
         {

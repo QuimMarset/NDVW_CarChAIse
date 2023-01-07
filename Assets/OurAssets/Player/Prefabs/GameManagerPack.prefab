@@ -30,6 +30,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6005083306507503518}
   - {fileID: 498702804320413989}
   - {fileID: 4111020538237968058}
   - {fileID: 8688999991975757787}
@@ -50,12 +51,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerCar: {fileID: 5733730444239174697}
   PlayerCanv: {fileID: 287834489169895805}
-  GameOverCanv: {fileID: 3103402931755586210}
+  PlayerTargetMark: {fileID: 4433387576888310203}
+  RoadMang: {fileID: 0}
   PoliceMang: {fileID: 6673527038755882817}
+  GameOverCanv: {fileID: 3103402931755586210}
   MainMenuBuildIdx: 0
   NavMeshLayers:
   - Walkable
-  PlayerTargetMark: {fileID: 0}
   ForceResetPlayerTarget: 0
 --- !u!114 &6673527038755882817
 MonoBehaviour:
@@ -69,16 +71,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3129e21f06553dd42b762d94e2c9c599, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxPoliceCars: 3
-  PolicePrefab: {fileID: 4124534527192030888, guid: 9ed09858eaa05b4438b0417c86c22a26, type: 3}
-  SpawnersContainer: {fileID: 0}
+  PoliceCarsToSpawn: 5
+  PolicePrefab: {fileID: 7345431163290133205, guid: 54d61551768befe42bda4574d3791071, type: 3}
+  StartChasing: 1
+  ForceIgnorePlayer: 0
   MinSpeedToCatch: 10
   MinDistanceToCatch: 10
   CatchPointPerPolice: 5
   EscapePointPerSecond: 5
   EscapePointLostPlayerPerSecond: 20
-  TimeForLosingPlayer: 10
-  TimeForRelocatePolice: 30
+  TimeForLosingPlayer: 5
+  TimeForRelocatePolice: 10
 --- !u!1 &4433387576888310203
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,7 +113,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4463885358860546772}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7347922617419411157
 MeshFilter:
@@ -162,6 +165,74 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &8933363296014296192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6005083306507503518}
+  - component: {fileID: 5024216695172440997}
+  - component: {fileID: 2259433531724190801}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6005083306507503518
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8933363296014296192}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4463885358860546772}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5024216695172440997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8933363296014296192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!114 &2259433531724190801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8933363296014296192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
 --- !u!1001 &6234017390349881196
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -187,7 +258,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8038620411328188886, guid: b7217a79f591ce84595e6d0581f4a0aa, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8038620411328188886, guid: b7217a79f591ce84595e6d0581f4a0aa, type: 3}
       propertyPath: m_AnchorMax.x
@@ -288,7 +359,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3320888766688307121, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3320888766688307121, guid: 09a952a0b6a1c934da139da5e187425d, type: 3}
       propertyPath: m_LocalPosition.x

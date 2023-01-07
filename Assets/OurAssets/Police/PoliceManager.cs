@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(GameManager))]
@@ -6,9 +7,10 @@ public class PoliceManager : MonoBehaviour
 {
 	// Editable parameters
 	[Header("Spawning")]
-	[SerializeField] private uint MaxPoliceCars = 3;
+	[SerializeField] private uint PoliceCarsToSpawn = 3;
 	[SerializeField] private Police PolicePrefab;
-	[SerializeField] private GameObject SpawnersContainer;
+	[SerializeField] private bool StartChasing = true;
+	[SerializeField] private bool ForceIgnorePlayer = false;
 
 	[Header("Chasing")]
 	[SerializeField] private float MinSpeedToCatch = 10;
@@ -21,10 +23,10 @@ public class PoliceManager : MonoBehaviour
 
 	// Auxiliar parameters
 	private GameManager GameMang;
-	private List<Police> PoliceCars;
-	private Transform[] Spawners;
-	public float CatchCounter { get; protected set; }
 	public Player PlayerCar { get => GameMang.PlayerCar; }
+	public RoadManager RoadMang { get => GameMang.RoadMang; }
+	public List<Police> PoliceCars { get; protected set; }
+	public float CatchCounter { get; protected set; }
 	public bool PlayerIsLost { get => (Time.time - LastPlayerPosTime) > TimeForLosingPlayer; }
 	private Vector3 LastPlayerKnownPos;
 	private float LastPlayerPosTime;
@@ -37,52 +39,28 @@ public class PoliceManager : MonoBehaviour
 		// Initialize main variables		
 		GameMang = GetComponent<GameManager>();
 		PoliceCars = new List<Police>();
-		Spawners = SpawnersContainer.GetComponentsInDirectChildren<Transform>();
+
 		CatchCounter = 0;
 		LastRelocateTime = Time.time;
 
 		// Initialize catch parameters
-		LastPlayerKnownPos = PlayerCar.transform.position;
-		LastPlayerPosTime = Time.time;
+		if (StartChasing && !ForceIgnorePlayer)
+		{
+			LastPlayerKnownPos = PlayerCar.transform.position;
+			LastPlayerPosTime = Time.time;
+		}
+		else
+		{
+			LastPlayerKnownPos = Vector3.zero;
+			LastPlayerPosTime = Mathf.NegativeInfinity;
+		}
 		UpdateCatchCounter(0);
-
-		// First spawn of police cars		
-		IniPoliceSpawn();
-	}
-
-	private void IniPoliceSpawn()
-	{
-		// Check if spawners are available
-		if (Spawners.Length < MaxPoliceCars)
-			throw new System.Exception("PoliceManager has less spawners than maximum number of police cars.");
-
-		// Spawn all the police cars
-		for (int spawnerIdx = 0; spawnerIdx < MaxPoliceCars; spawnerIdx++)
-			SpawnPolice(spawnerIdx);
 	}
 
 	#endregion
 
 	#region Spawning
 
-	private void SpawnPolice(int spawnerIdx = -1)
-	{
-		// If spawner is negative, select a random one
-		if (spawnerIdx < 0)
-			spawnerIdx = (int)Random.Range(0, Spawners.Length - 0.9f);
-
-		// Get spawner
-		Vector3 spawnerPos = Spawners[spawnerIdx].position;
-
-		// Spawn a new car
-		GameObject newPoliceObj = Instantiate(PolicePrefab.gameObject, spawnerPos, Quaternion.identity, this.transform);
-		Police police = newPoliceObj.GetComponent<Police>();
-		police.SetPoliceManager(this);
-		police.NotifyPlayerPos(PlayerCar.transform.position, Time.time); // TODO: Don't say player position at the start, start with patrol
-
-		// Store police car
-		PoliceCars.Add(police);
-	}
 
 	#endregion
 
@@ -90,38 +68,147 @@ public class PoliceManager : MonoBehaviour
 
 	private void Update()
 	{
-		CheckPlayerVisual();
+		ManagePlayerVisual();
 		CheckCatchState();
-		RelocatePolice();
+		CheckSpawnPolice(); // This should be done after ManagePlayerVisual
+		CheckRelocatePolice();
 	}
+
+	#region Spawning and relocating
+
+	private void CheckSpawnPolice()
+	{
+		// If too few police cars
+		if (PoliceCars.Count < PoliceCarsToSpawn)
+		{
+			// Spawn remaining police cars
+			for (int i = PoliceCars.Count; i < PoliceCarsToSpawn; i++)
+				PlacePolice();
+		}
+		// If too much police cars
+		else if (PoliceCars.Count > PoliceCarsToSpawn)
+		{
+			// Spawn remaining police cars
+			for (int i = PoliceCars.Count - 1; i > PoliceCarsToSpawn - 1; i--)
+			{
+				Destroy(PoliceCars[i].gameObject);
+				PoliceCars.RemoveAt(i);
+			}
+		}
+	}
+
+	private void PlacePolice(Marker mkr = null, GameObject policeObj = null)
+	{
+		// Get marker
+		if (mkr == null)
+		{
+			// Search available markers
+			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning();
+
+			// Get a random marker
+			if (availableMarkers.Count > 0)
+				mkr = availableMarkers[Random.Range(0, availableMarkers.Count)];
+		}
+
+		if (mkr == null)
+			Debug.LogWarning("No marker found for spawning a police car.");
+		else
+		{
+			// Spawn a new car
+			if (policeObj == null)
+			{
+				policeObj = Instantiate(PolicePrefab.gameObject, mkr.transform.position, mkr.transform.rotation);
+				policeObj.name = "Police_" + (PoliceCars.Count + 1);
+
+				// Initialize police behaviour
+				Police police = policeObj.GetComponent<Police>();
+				police.SetPoliceManager(this);
+				PoliceCars.Add(police);
+			}
+			// Replace car
+			else
+			{
+				// Resume movement if was at traffic light
+				TrafficLightBehavior trafficLightBehavior = policeObj.GetComponent<TrafficLightBehavior>();
+				trafficLightBehavior.ResumeMovement();
+
+				policeObj.transform.position = mkr.transform.position;
+				policeObj.transform.rotation = mkr.transform.rotation;
+			}
+
+			// Set current waypoint
+			MoveToWaypointBehavior moveToWaypointBehavior = policeObj.GetComponent<MoveToWaypointBehavior>();
+			moveToWaypointBehavior.SetTargetMarker(mkr.GetNextAdjacentMarker());
+		}
+	}
+
+	private void CheckRelocatePolice()
+	{
+		// If too many time since player is lost and since last relocate
+		if (PlayerIsLost && (Time.time - LastPlayerPosTime) > TimeForRelocatePolice &&
+			(Time.time - LastRelocateTime) > TimeForRelocatePolice)
+		{
+			// Search available markers
+			List<GameObject> carsObjs = PoliceCars.Select((x) => x.gameObject).ToList();
+			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning();
+
+			// Sort by distance to target	//TODO: Add noise to distances for randomization
+			availableMarkers = availableMarkers.OrderBy(mkr => (mkr.transform.position - GameMang.PlayerTarget).magnitude).ToList();
+
+			// Move police cars to available markers. Maybe not all can be relocated
+			int policeIdx = 0;
+			for (int mkrIdx = 0; mkrIdx < availableMarkers.Count && policeIdx < PoliceCars.Count; mkrIdx++)
+			{
+				// If police car is visible by player
+				if (GameMang.IsVisibleByPlayer(PoliceCars[policeIdx].transform.position))
+					policeIdx++;
+				// If marker NOT occupied by a previously relocated car
+				else if (RoadMang.IsMarkerAvailable(availableMarkers[mkrIdx], otherObjs: carsObjs))
+				{
+					PlacePolice(availableMarkers[mkrIdx], PoliceCars[policeIdx].gameObject);
+					policeIdx++;
+				}
+			}
+
+			// Reset relocate timer
+			LastRelocateTime = Time.time;
+
+			// Debug
+			Debug.Log("Police relocated");
+		}
+	}
+
+	public Marker GetClosestMarker(Vector3 pos)
+	{
+		return RoadMang.GetClosestMarker(pos);
+	}
+
+	#endregion
 
 	#region Player visual
 
-	private void CheckPlayerVisual()
+	public void InformPlayerPos(Vector3 lastPlayerKnownPos, float lastPlayerPosTime)
 	{
-		bool posUpdated = false;
-		foreach (Police police in PoliceCars)
+		// If update is more recent or the player is lost (some car at last player pos but without visual or contact) and not ignoring, update
+		if ((lastPlayerPosTime > LastPlayerPosTime || lastPlayerPosTime == Mathf.NegativeInfinity) && !ForceIgnorePlayer)
 		{
-			// If update is more recent, use it for update
-			if (police.LastPlayerPosKnownTime > LastPlayerPosTime)
-			{
-				LastPlayerKnownPos = police.LastPlayerKnownPos;
-				LastPlayerPosTime = police.LastPlayerPosKnownTime;
-				posUpdated = true;
-			}
+			LastPlayerKnownPos = lastPlayerKnownPos;
+			LastPlayerPosTime = lastPlayerPosTime;
 		}
+	}
 
-		// If new pos, communicate to police cars the new player position
-		if (posUpdated || PlayerIsLost)
-		{
-			// If player is lost, use Time == -Infinity is a sentinel for patrolling
-			if (PlayerIsLost)
-				LastPlayerPosTime = Mathf.NegativeInfinity;
+	private void ManagePlayerVisual()
+	{
+		// If player is lost or to ignore, use Time == -Infinity; the sentinel for patrolling
+		if (PlayerIsLost || ForceIgnorePlayer)
+			LastPlayerPosTime = Mathf.NegativeInfinity;
 
-			// Comunite information to police cars
-			foreach (Police police in PoliceCars)
-				police.NotifyPlayerPos(LastPlayerKnownPos, LastPlayerPosTime);
-		}
+		// Set multiple targets at different sides of the player
+		Vector3[] targets = { PlayerCar.transform.forward, -PlayerCar.transform.forward, PlayerCar.transform.right, -PlayerCar.transform.right };
+
+		// Communicate information to police cars, with a different target depending on the index
+		for (int i = 0; i < PoliceCars.Count; i++)
+			PoliceCars[i].ReceivePlayerPos(LastPlayerKnownPos + 2 * targets[i%targets.Length], LastPlayerPosTime);
 	}
 
 	#endregion
@@ -153,40 +240,6 @@ public class PoliceManager : MonoBehaviour
 	{
 		CatchCounter += increment;
 		CatchCounter = Mathf.Clamp(CatchCounter, 0, 100);
-	}
-
-	#endregion
-
-	#region Police relocating
-
-	private void RelocatePolice()
-	{
-		// If too many time since player is lost and since last relocate
-		if ((Time.time - LastPlayerPosTime) > TimeForRelocatePolice &&
-			(Time.time - LastRelocateTime) > TimeForRelocatePolice)
-		{
-			// Search spawners close to player but not visible from them
-			List<Transform> AvailableSpawners = new List<Transform>();
-			foreach (Transform spawner in Spawners)
-			{
-				Vector3 iniPos = spawner.position;
-				Vector3 direction = (PlayerCar.transform.position - iniPos).normalized;
-				// If no hit or the hit is not with the player, spawner is available
-				if (!Physics.Raycast(iniPos, direction, out RaycastHit hit, Mathf.Infinity, GameMang.NavMeshLayerBite) ||
-					hit.transform.gameObject != PlayerCar.gameObject)
-					AvailableSpawners.Add(spawner);
-			}
-
-			// Move police cars to available spawners
-			for (int i = 0; i < AvailableSpawners.Count; i++)
-			{
-				PoliceCars[i].gameObject.SetActive(false);
-				PoliceCars[i].transform.position = AvailableSpawners[i].position;
-				PoliceCars[i].gameObject.SetActive(true);
-			}
-
-			LastRelocateTime = Time.time;
-		}
 	}
 
 	#endregion
