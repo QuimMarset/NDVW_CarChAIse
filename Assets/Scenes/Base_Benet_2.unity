@@ -248,7 +248,7 @@ GameObject:
   - component: {fileID: 424144521}
   - component: {fileID: 424144520}
   - component: {fileID: 424144519}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -491,8 +491,8 @@ MonoBehaviour:
   rules:
   - {fileID: 11400000, guid: 8b4945fb674e58642bb4a8dc5df2c1c6, type: 2}
   initialSentence: '[F]--F'
-  iterationLimit: 2
-  probabilityToIgnoreARule: 0.5
+  iterationLimit: 3
+  probabilityToIgnoreARule: 0.6
   finalSentence: 
 --- !u!4 &730492668
 Transform:
