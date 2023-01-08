@@ -19,17 +19,24 @@ public class PoliceAvoidanceBehavior : MonoBehaviour
     private float forwardOffset;
     private Vector3 forwardDirection;
 
+    private Vector3 policeCarPosition;
+
     private void Start()
     {
         avoidPosition = Vector3.positiveInfinity;
+        policeCarPosition = Vector3.positiveInfinity;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("PoliceEmitter"))
         {
-            policeDetected = true;
-            forwardDirection = transform.forward;
+            if (!Vector3.Equals(other.transform.position, policeCarPosition))
+            {
+                policeDetected = true;
+                forwardDirection = transform.forward;
+                policeCarPosition = other.transform.position;
+            }
         }
         else if (other.CompareTag("InvisibleBlocker"))
         {
@@ -80,6 +87,7 @@ public class PoliceAvoidanceBehavior : MonoBehaviour
             Road road = hitInfo.collider.GetComponent<Road>();
             return road;
         }
+        Debug.Log(name + " " + "UNDEFINED ROAD");
         return null;
     }
 

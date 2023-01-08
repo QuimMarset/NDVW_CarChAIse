@@ -108,7 +108,7 @@ public class Marker : MonoBehaviour, IEquatable<Marker>
         if (Selection.activeObject == gameObject)
         {
             Gizmos.color = Color.red;
-            if (adjacentMarkers.Count > 0)
+            if (adjacentMarkers != null && adjacentMarkers.Count > 0)
             {
                 foreach (var marker in adjacentMarkers)
                 {

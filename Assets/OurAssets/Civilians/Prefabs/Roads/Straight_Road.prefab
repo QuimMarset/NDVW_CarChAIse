@@ -74,6 +74,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2446802754480099944}
   - component: {fileID: 4652880255351071271}
+  - component: {fileID: 8037923904597993205}
   m_Layer: 8
   m_Name: Straight_Road
   m_TagString: Road
@@ -123,6 +124,19 @@ MonoBehaviour:
   referencePoints:
   - {fileID: 7231116975317465768}
   - {fileID: 7593068842351251377}
+--- !u!65 &8037923904597993205
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2446802754480131656}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3, y: 0.63, z: 3}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2910584411311413014
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,7 +152,7 @@ GameObject:
   - component: {fileID: 8075883323044405761}
   m_Layer: 8
   m_Name: Tile
-  m_TagString: Untagged
+  m_TagString: Road
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -66,17 +66,24 @@ public class CivilianController : CarController
 
     public virtual void SetBackwardMovement()
     {
+        ResumeMovement();
         movingBackwards = true;
     }
 
     public virtual void SetForwardMovement()
     {
+        ResumeMovement();
         movingBackwards = false;
     }
 
     public virtual bool IsMovingBackwards()
     {
         return movingBackwards;
+    }
+
+    public bool IsMovingForward()
+    {
+        return !movingBackwards;
     }
 
     protected override float GetMovementDirection()

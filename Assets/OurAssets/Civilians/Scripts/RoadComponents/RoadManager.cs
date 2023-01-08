@@ -18,17 +18,24 @@ public class RoadManager : MonoBehaviour
     public List<Marker> AllMarkers { get; private set; }
     private List<CivilianController> Civilians;
 
-    // Start is called before the first frame update
+    private RoadsGenerator roadsGenerator;
+
+    private void Awake()
+    {
+        roadsGenerator = GetComponent<RoadsGenerator>();
+    }
+
+
     void Start()
     {
         currentlySpawned = 0;
-        cityRoads = new List<Road>();
         usedToSpawn = new List<Marker>();
         Civilians = new List<CivilianController>();
-        InitializeCityRoads();
+        roadsGenerator.GenerateRoads();
+        cityRoads = roadsGenerator.GetRoads();
         ConnectRoads();
         SpawnCivilianCars();
-        GetAllMarkers();
+        // GetAllMarkers();
     }
 
     private void ConnectRoads()
@@ -39,16 +46,6 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-    private void InitializeCityRoads()
-    {
-        int numOfChilds = gameObject.transform.childCount;
-        for (int i = 0; i < numOfChilds; ++i)
-        {
-            Road cityRoad = gameObject.transform.GetChild(i).GetComponent<Road>();
-            cityRoads.Add(cityRoad);
-        }
-    }
- 
     private bool CheckIfMarkerAlreadyUsed(Marker candidateMarker)
     {
         foreach (Marker marker in usedToSpawn)

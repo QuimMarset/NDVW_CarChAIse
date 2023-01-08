@@ -295,6 +295,7 @@ GameObject:
   - component: {fileID: 9070975025585506394}
   - component: {fileID: 5015217134677571688}
   - component: {fileID: 2050867688804191484}
+  - component: {fileID: 932598896048136033}
   m_Layer: 8
   m_Name: Four_Way_Intersection
   m_TagString: Road
@@ -382,6 +383,19 @@ MonoBehaviour:
   - {fileID: 667704541664616536}
   - {fileID: 2256115605435091047}
   - {fileID: 7489880959933396738}
+--- !u!65 &932598896048136033
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1474068683369452745}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3, y: 0.63, z: 3}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1474068683369452747
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,7 +411,7 @@ GameObject:
   - component: {fileID: 5137062619333558424}
   m_Layer: 8
   m_Name: Tile
-  m_TagString: Untagged
+  m_TagString: Road
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3738,9 +3752,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 1029300305372114529, guid: ac1ede9374959a64db32d182afe638e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.002
+      objectReference: {fileID: 0}
     - target: {fileID: 1029300305372114530, guid: ac1ede9374959a64db32d182afe638e9, type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1029300305497054516, guid: ac1ede9374959a64db32d182afe638e9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.001
       objectReference: {fileID: 0}
     - target: {fileID: 1029300305497054517, guid: ac1ede9374959a64db32d182afe638e9, type: 3}
       propertyPath: m_Layer

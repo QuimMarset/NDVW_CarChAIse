@@ -24,6 +24,8 @@ public class CivilianAI : MonoBehaviour
 
     [SerializeField]
     private bool wasAvoidingPolice;
+    [SerializeField]
+    private bool wasHelpingACarToContinue;
 
     private void Awake()
     {
@@ -40,7 +42,7 @@ public class CivilianAI : MonoBehaviour
         
         if (policeAvoidanceBehavior.IsPoliceDetected())
         {
-            civilianController.SetForwardMovement();
+            SetAvoidanceDriving();
 
             if (!policeAvoidanceBehavior.IsWaitingPositionComputed())
             {
@@ -52,14 +54,12 @@ public class CivilianAI : MonoBehaviour
                 }
                 else
                 {
-                    if (carCollisionBehavior.IsThereACarInFront() || trafficLightBehavior.IsThereARedLightInFront())
+                    MoveToWaypoint();
+
+                    if (policeAvoidanceBehavior.StopBeforeIntersection() || carCollisionBehavior.IsThereACarInFront() || 
+                        trafficLightBehavior.IsThereARedLightInFront())
                     {
                         civilianController.StopCar();
-                    }
-
-                    else
-                    {
-                        MoveToWaypoint();
                     }
                 }
             }
@@ -70,13 +70,9 @@ public class CivilianAI : MonoBehaviour
             }
         }
 
-        else if (policeAvoidanceBehavior.StopBeforeIntersection())
-        {
-            civilianController.StopCar();
-        }
-
         else
         {
+            SetNormalDriving();
             MoveToWaypoint();
 
             if (wasAvoidingPolice && moveBackwardsBehavior.BackwardMovementNeeded(targetPosition, carFront))
@@ -84,14 +80,48 @@ public class CivilianAI : MonoBehaviour
                 civilianController.SetBackwardMovement();
             }
 
-            if (civilianController.IsMovingBackwards() && !moveBackwardsBehavior.BackwardMovementNeeded(targetPosition, carFront))
+            if (civilianController.IsMovingBackwards())
             {
-                civilianController.SetForwardMovement();
+                if (!moveBackwardsBehavior.BackwardMovementNeeded(targetPosition, carFront))
+                {
+                    civilianController.SetForwardMovement();
+                }
+
+                if (carCollisionBehavior.IsThereACarBehind())
+                {
+                    civilianController.StopCar();
+                }
+
+                if (wasHelpingACarToContinue && !carCollisionBehavior.IsThereACarInFront())
+                {
+                    wasHelpingACarToContinue = false;
+                    civilianController.SetForwardMovement();
+                }
+            }
+           
+            if (civilianController.IsMovingForward())
+            {
+                if (trafficLightBehavior.IsThereARedLightInFront() || policeAvoidanceBehavior.StopBeforeIntersection())
+                {
+                    civilianController.StopCar();
+                }
+
+                if (carCollisionBehavior.IsThereACarInFront() && !carCollisionBehavior.IsThereACarInFrontMovingInTheOppositeDirection())
+                {
+                    civilianController.StopCar();
+                }
+
+                if (carCollisionBehavior.IsThereACarInFrontMovingBackwards())
+                {
+                    civilianController.SetBackwardMovement();
+                    wasHelpingACarToContinue = true;
+                }
             }
 
-            if (carCollisionBehavior.IsThereACarInFront() || trafficLightBehavior.IsThereARedLightInFront())
+            if (carCollisionBehavior.IsThereACarInFront() && carCollisionBehavior.IsThereACarInFrontMovingInTheOppositeDirection())
             {
-                civilianController.StopCar();
+                Debug.Log(name + " deadlock");
+                civilianController.SetBackwardMovement();
             }
 
             wasAvoidingPolice = false;
@@ -101,16 +131,27 @@ public class CivilianAI : MonoBehaviour
 
     private void MoveToWaypoint()
     {
-        civilianController.SetNormalDriving();
         targetPosition = moveToWaypointBehavior.GetMarkerPosition();
         civilianController.ChangeDestination(targetPosition);
     }
 
     private void MoveToAvoidPolice()
     {
-        civilianController.SetAvoidanceDriving();
         civilianController.ChangeDestination(targetPosition);
         moveToWaypointBehavior.LocalizeMarker(carFront.position);
+    }
+
+    private void SetNormalDriving()
+    {
+        civilianController.SetNormalDriving();
+        carCollisionBehavior.SetFOVMode();
+    }
+
+    private void SetAvoidanceDriving()
+    {
+        civilianController.SetForwardMovement();
+        civilianController.SetAvoidanceDriving();
+        carCollisionBehavior.SetRayMode();
     }
 
 }

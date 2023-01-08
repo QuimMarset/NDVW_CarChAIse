@@ -770,6 +770,7 @@ GameObject:
   - component: {fileID: 2846925452939472352}
   - component: {fileID: 1076542618078136153}
   - component: {fileID: 6816005966331632962}
+  - component: {fileID: 5614931234932886134}
   m_Layer: 8
   m_Name: Three_Way_Intersection
   m_TagString: Road
@@ -857,6 +858,19 @@ MonoBehaviour:
   - {fileID: 7158236499776019083}
   - {fileID: 1826241427327379619}
   - {fileID: 3194797906685297712}
+--- !u!65 &5614931234932886134
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9043180354155577560}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3, y: 0.63, z: 3}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &9043180354155577562
 GameObject:
   m_ObjectHideFlags: 0
@@ -872,7 +886,7 @@ GameObject:
   - component: {fileID: 1693813871455164996}
   m_Layer: 8
   m_Name: Tile
-  m_TagString: Untagged
+  m_TagString: Road
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

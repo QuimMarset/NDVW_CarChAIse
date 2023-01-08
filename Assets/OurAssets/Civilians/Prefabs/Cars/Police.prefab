@@ -439,7 +439,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2873764372969251684}
   - component: {fileID: 5233415237829982734}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Emitter
   m_TagString: PoliceEmitter
   m_Icon: {fileID: 0}
@@ -474,7 +474,7 @@ CapsuleCollider:
   m_Radius: 15
   m_Height: 35
   m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 14.6}
+  m_Center: {x: 0, y: 0, z: 10.9}
 --- !u!1 &2764084572127996075
 GameObject:
   m_ObjectHideFlags: 0

@@ -70,7 +70,7 @@ public abstract class Road : MonoBehaviour
         {
             float distance = Vector3.Distance(queryPosition, marker.Position);
             float angle = Vector3.Angle(forward, marker.Forward);
-            if (distance < minDistance && angle < 100)
+            if (distance < minDistance && angle <= 90)
             {
                 minDistance = distance;
                 closestMarker = marker;

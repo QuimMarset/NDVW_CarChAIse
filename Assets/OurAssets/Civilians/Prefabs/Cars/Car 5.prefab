@@ -269,9 +269,10 @@ MonoBehaviour:
   fovRadius: 3.7
   fovAngle: 60
   fovRadiusBackward: 2.5
-  fovAngleBackward: 150
+  fovAngleBackward: 120
   carInFront: 0
   carBehind: 0
+  useFOV: 0
 --- !u!114 &2262008507090240428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,6 +319,7 @@ MonoBehaviour:
   carFront: {fileID: 5002761335396469952}
   targetPosition: {x: 0, y: 0, z: 0}
   wasAvoidingPolice: 0
+  wasHelpingACarToContinue: 0
 --- !u!114 &1423751372492037630
 MonoBehaviour:
   m_ObjectHideFlags: 0
