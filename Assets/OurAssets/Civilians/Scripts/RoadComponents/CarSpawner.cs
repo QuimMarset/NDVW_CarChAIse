@@ -22,7 +22,7 @@ public class CarSpawner : MonoBehaviour
     private bool CanBePainted(int index)
     {   
         // 0 corresponds to the taxi
-        return index > 0;
+        return index >= 0;
     }
     
     private void ChangeColor(GameObject car)

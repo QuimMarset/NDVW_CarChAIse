@@ -1073,7 +1073,7 @@ MonoBehaviour:
   policeDetected: 0
   avoidIntersection: 0
   avoidPosition: {x: 0, y: 0, z: 0}
-  arriveThreshold: 3
+  arriveThreshold: 2
   isPositionComputed: 0
   forwardOffset: 0
 --- !u!114 &5229712219492718179

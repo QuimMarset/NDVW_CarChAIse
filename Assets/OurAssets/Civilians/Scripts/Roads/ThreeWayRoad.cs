@@ -55,7 +55,7 @@ public class ThreeWayRoad : RoadWithWaitingPositions
     protected override bool GetReferencePosition(Vector3 forwardDirection, out Transform referenceTransform)
     {
         float angle = Vector3.Angle(forwardDirection, referencePoints[0].forward);
-        bool goesSameDirection = angle <= 90;
+        bool goesSameDirection = angle <= 45;
         if (goesSameDirection)
         {
             referenceTransform = referencePoints[0];

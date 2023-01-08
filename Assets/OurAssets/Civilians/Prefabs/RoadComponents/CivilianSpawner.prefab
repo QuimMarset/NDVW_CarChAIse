@@ -45,5 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   carPrefabs:
-  - {fileID: 8751094529097843864, guid: c7e0c781b767db74c8d547b7686dd24e, type: 3}
   - {fileID: 8751094529097843864, guid: 019c9e14dac62a84397c31926d434ae0, type: 3}
