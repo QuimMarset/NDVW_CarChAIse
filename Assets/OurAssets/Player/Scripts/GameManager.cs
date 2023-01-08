@@ -152,12 +152,12 @@ public class GameManager : MonoBehaviour
 	#endregion
 
 	#region Auxiliar
-	public bool IsVisibleByPlayer(Vector3 pos)
+	public bool IsVisibleByPlayer(Vector3 pos, float distForView=10)
 	{
 		pos += Vector3.up; // Height offset for avoiding sidewalks
 		float distToPlayer = (pos - PlayerCar.transform.position).magnitude;    // Check if too close
 		Vector3 dirToCamera = (PlayerCar.MainCamera.transform.position - pos);
-		return distToPlayer < 10 || !Physics.Raycast(pos, dirToCamera.normalized, dirToCamera.magnitude, LayerMask.GetMask(new string[] { "Default", "Player" }));
+		return distToPlayer < distForView || !Physics.Raycast(pos, dirToCamera.normalized, dirToCamera.magnitude, LayerMask.GetMask(new string[] { "Default", "Player" }));
 	}
 
 	/// <summary>

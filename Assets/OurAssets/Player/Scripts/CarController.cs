@@ -38,14 +38,15 @@ public abstract class CarController : MonoBehaviour
 	// Auxiliar variables
 	public Rigidbody CarRigidBody { get; protected set; }
 	public Vector3 CurrentVelocity { get; protected set; }
-	protected WheelCollider[] WheelColliders;
-	protected Transform[] WheelTransforms;
-	protected AudioSource SoundSource;
 	public float CurrentHealth { get; protected set; }
 	public bool IsDead { get; protected set; }
 	public float CurrentWheelsSpeed { get; protected set; }
 	public float CurrentForwardSpeed { get; protected set; }
 	public bool IsGoingBackwards { get; protected set; }
+	protected WheelCollider[] WheelColliders;
+	protected Transform[] WheelTransforms;
+	protected AudioSource SoundSource;
+	
 
 
 	#region Intialization

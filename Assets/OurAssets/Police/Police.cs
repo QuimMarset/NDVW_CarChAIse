@@ -237,8 +237,6 @@ public class Police : CivilianController
 		MaxSpeed = MaxChasingSpeed;
 		EnableMovement = !IsDead;   // Force movement if not dead
 		Sirens.Enabled = true;
-
-		Debug.Log(name + " police car is now chasing");
 	}
 
 	public virtual void ChangeToPatroling(bool resetMarker = true)
@@ -250,8 +248,6 @@ public class Police : CivilianController
 		trafficLightBehavior.ResumeMovement();  // Resume movement if was at traffic light
 		if (resetMarker)
 			moveToWaypointBehavior.SetTargetMarker(PoliceMang.GetClosestMarker(CarFront.position)); // Reset current marker
-
-		Debug.Log(name + " police car is now patrolling");
 	}
 
 	#endregion

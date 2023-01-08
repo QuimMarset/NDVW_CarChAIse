@@ -94,8 +94,15 @@ public class RoadManager : MonoBehaviour
 
 	private void GetAllMarkers()
     {
-        foreach (Road road in cityRoads)
-            AllMarkers.AddRange(road.allMarkers);
+        // Check if all roads are initialized
+        bool areInitialized = true;
+        for (int i = 0; i < cityRoads.Count && areInitialized; i++)
+            areInitialized &= cityRoads[i].allMarkers != null && cityRoads[i].allMarkers.Count > 0;
+
+        // If are initialized, store all of them
+        if (areInitialized)
+            foreach (Road road in cityRoads)
+                AllMarkers.AddRange(road.allMarkers);
     }
 
     public bool IsMarkerAvailable(Marker mkr, List<GameObject> otherObjs = null, float maxDist = 10)
