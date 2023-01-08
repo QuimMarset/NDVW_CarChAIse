@@ -161,10 +161,10 @@ MonoBehaviour:
   MinSpeedToCatch: 10
   MinDistanceToCatch: 10
   CatchPointPerPolice: 5
-  EscapePointPerSecond: 5
+  EscapePointPerSecond: 3
   EscapePointLostPlayerPerSecond: 20
   TimeForLosingPlayer: 5
-  TimeForRelocatePolice: 10
+  TimeForRelocatePolice: 15
 --- !u!1 &3992389916529895583
 GameObject:
   m_ObjectHideFlags: 0
