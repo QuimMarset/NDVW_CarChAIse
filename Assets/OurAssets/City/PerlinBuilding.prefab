@@ -45,9 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxPieces: 6
-  scaleFactor: 10
+  scaleFactor: 11
   randomVariationMin: 1
-  randomVariationMax: 0
+  randomVariationMax: 1
   baseParts:
   - {fileID: 100002, guid: a9d497b936cc31e44951e056ce36f4f6, type: 3}
   - {fileID: 100002, guid: 1cd7f3674ff21964f8cf0b9aa82a171d, type: 3}
@@ -89,3 +89,8 @@ MonoBehaviour:
   - {fileID: 100002, guid: ed36c93bf557ca448a80cb19509a88b2, type: 3}
   - {fileID: 100002, guid: fa018bdb02c62a346a16b0bea7a0aa63, type: 3}
   - {fileID: 100002, guid: 606fd6d98ad046e4a9dee4a0060396b1, type: 3}
+  - {fileID: 100002, guid: 28b4b04df1bdf17428c4e192715ef50a, type: 3}
+  - {fileID: 100002, guid: 535a1db945db6784e89cd1e26decd2e9, type: 3}
+  - {fileID: 100002, guid: bafaed99666e41d4cab31ed4e79762ca, type: 3}
+  - {fileID: 100002, guid: 73b99f35024d0774aae115c8fafe3d4f, type: 3}
+  - {fileID: 100002, guid: 11f12b093c0618548b21972320fae5ce, type: 3}

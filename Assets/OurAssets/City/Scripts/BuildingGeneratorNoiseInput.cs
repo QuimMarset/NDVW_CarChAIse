@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BuildingGeneratorNoiseInput : MonoBehaviour
 {
@@ -57,9 +58,14 @@ public class BuildingGeneratorNoiseInput : MonoBehaviour
         BoxCollider collider = piece.AddComponent<BoxCollider>();
         collider.center = baseBounds.center;
 
+        NavMeshObstacle obstacle = piece.AddComponent<NavMeshObstacle>();
+        obstacle.center = baseBounds.center;
+        obstacle.carving = true;
+
         piece.transform.SetParent(this.transform);
 
-        GeneratedObjectControl.instance.AddObject(piece);
+        // GeneratedObjectControl.instance.AddObject(piece);
+        CityGenerator.instance.AddObject(piece);
 
         return heightOffset;
     }

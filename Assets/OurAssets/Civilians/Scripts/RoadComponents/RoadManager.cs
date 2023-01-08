@@ -20,9 +20,13 @@ public class RoadManager : MonoBehaviour
 
     private RoadsGenerator roadsGenerator;
 
+    private CityGenerator cityGenerator;
+
+
     private void Awake()
     {
         roadsGenerator = GetComponent<RoadsGenerator>();
+        cityGenerator = GetComponent<CityGenerator>();
     }
 
 
@@ -36,6 +40,7 @@ public class RoadManager : MonoBehaviour
         cityRoads = roadsGenerator.GetRoads();
         ConnectRoads();
         SpawnCivilianCars();
+        if (cityGenerator) cityGenerator.Generate();
     }
 
     private void ConnectRoads()
@@ -63,7 +68,7 @@ public class RoadManager : MonoBehaviour
         foreach (Road cityRoad in cityRoads)
         {
             Marker spawnMarker = cityRoad.GetPositionForCarToSpawn();
-            
+
             if (spawnMarker == null || CheckIfMarkerAlreadyUsed(spawnMarker))
             {
                 continue;
@@ -74,9 +79,9 @@ public class RoadManager : MonoBehaviour
             moveToWaypointBehavior.SetTargetMarker(spawnMarker.GetNextAdjacentMarker());
             civilianCar.name = "Civilian_" + currentlySpawned;
             Civilians.Add(civilianCar.GetComponent<CivilianController>());
-            
+
             currentlySpawned++;
-            
+
             usedToSpawn.Add(spawnMarker);
 
             if (currentlySpawned >= numberToSpawn)
@@ -86,13 +91,13 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-	private void Update()
-	{
-        if(AllMarkers.Count == 0)
+    private void Update()
+    {
+        if (AllMarkers.Count == 0)
             GetAllMarkers();
     }
 
-	private void GetAllMarkers()
+    private void GetAllMarkers()
     {
         // Check if all roads are initialized
         bool areInitialized = true;
