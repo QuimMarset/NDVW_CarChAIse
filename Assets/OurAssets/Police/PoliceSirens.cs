@@ -14,44 +14,45 @@ public class PoliceSirens : MonoBehaviour
 	private int state = 0;
 	private AudioSource sirenAudioSource;
 	private Collider Emitter;
-
-	// TODO: Store civlians' PoliceAvoidanceBehavior in the OnTriggerEnter for making policeDetected=false when disabling the Emitter
+	private HashSet<PoliceAvoidanceBehavior> policeAvoidanceBehaviors;
 
 	public bool Enabled
 	{
 		get => _enabled;
 		set
 		{
+			_enabled = value;
+
 			// Obtaining components if not available
 			if (!sirenAudioSource)
 				sirenAudioSource = GetComponent<AudioSource>();
 			if (!Emitter)
 				Emitter = GetComponent<Collider>();
+			if (policeAvoidanceBehaviors == null)
+				policeAvoidanceBehaviors = new HashSet<PoliceAvoidanceBehavior>();
 
-			// If there is a real change
-			if ((_enabled != value))
+			// If activating
+			if (_enabled)
 			{
-				_enabled = value;
-
-				// If activating
-				if (_enabled)
-				{
-					sirenAudioSource.time = Random.Range(0f, sirenAudioSource.clip.length);
-					sirenAudioSource.Play();
-				}
-				// If deactivating
-				else
-					sirenAudioSource.time = sirenAudioSource.clip.length * audioRatioAtDeactivation;
-
-				// In any case
-				sirenAudioSource.enabled = _enabled;
-				sirenAudioSource.loop = _enabled;
-				Emitter.enabled = _enabled;
-				redLight1.SetActive(_enabled);
-				redLight2.SetActive(_enabled);
-				blueLight1.SetActive(_enabled);
-				blueLight2.SetActive(_enabled);
+				sirenAudioSource.time = Random.Range(0f, sirenAudioSource.clip.length);
+				sirenAudioSource.Play();
 			}
+			// If deactivating
+			else
+			{
+				sirenAudioSource.time = sirenAudioSource.clip.length * audioRatioAtDeactivation;
+				foreach (PoliceAvoidanceBehavior bhv in policeAvoidanceBehaviors)
+					bhv.ResetDefault();
+				policeAvoidanceBehaviors.Clear();
+			}
+
+			// In any case
+			sirenAudioSource.loop = _enabled;
+			Emitter.enabled = _enabled;
+			redLight1.SetActive(_enabled);
+			redLight2.SetActive(_enabled);
+			blueLight1.SetActive(_enabled);
+			blueLight2.SetActive(_enabled);
 		}
 	}
 	private bool _enabled;
@@ -61,6 +62,7 @@ public class PoliceSirens : MonoBehaviour
 	{
 		sirenAudioSource = GetComponent<AudioSource>();
 		Emitter = GetComponent<Collider>();
+		policeAvoidanceBehaviors = new HashSet<PoliceAvoidanceBehavior>();
 	}
 
 	void Update()
@@ -97,6 +99,20 @@ public class PoliceSirens : MonoBehaviour
 				state %= 4;
 			}
 		}
+	}
+
+	private void OnTriggerEnter(Collider other)
+	{
+		PoliceAvoidanceBehavior bhv = other.GetComponent<PoliceAvoidanceBehavior>();
+		if (bhv)
+			policeAvoidanceBehaviors.Add(bhv);
+	}
+
+	private void OnTriggerExit(Collider other)
+	{
+		PoliceAvoidanceBehavior bhv = other.GetComponent<PoliceAvoidanceBehavior>();
+		if (bhv)
+			policeAvoidanceBehaviors.Remove(bhv);
 	}
 
 }

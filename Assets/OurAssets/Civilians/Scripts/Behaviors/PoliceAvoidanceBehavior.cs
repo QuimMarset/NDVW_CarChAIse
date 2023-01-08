@@ -23,8 +23,7 @@ public class PoliceAvoidanceBehavior : MonoBehaviour
 
 	private void Start()
 	{
-		avoidPosition = Vector3.positiveInfinity;
-		policeCarPosition = Vector3.positiveInfinity;
+		ResetDefault();
 	}
 
 	private void OnTriggerEnter(Collider other)
@@ -119,5 +118,14 @@ public class PoliceAvoidanceBehavior : MonoBehaviour
 	public bool IsWaitingPositionComputed()
 	{
 		return isPositionComputed;
+	}
+
+	public void ResetDefault()
+	{
+		policeDetected = false;
+		avoidIntersection = false;
+		isPositionComputed = false;
+		avoidPosition = Vector3.positiveInfinity;
+		policeCarPosition = Vector3.positiveInfinity;
 	}
 }

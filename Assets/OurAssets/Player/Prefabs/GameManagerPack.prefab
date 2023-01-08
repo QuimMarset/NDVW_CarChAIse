@@ -135,7 +135,6 @@ MonoBehaviour:
   PlayerCar: {fileID: 5733730444239174697}
   PlayerCanv: {fileID: 287834489169895805}
   PlayerTargetMark: {fileID: 6401641125087740156}
-  RoadMang: {fileID: 0}
   PoliceMang: {fileID: 6673527038755882817}
   GameOverCanv: {fileID: 3103402931755586210}
   MainMenuBuildIdx: 0
@@ -156,7 +155,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PoliceCarsToSpawn: 5
   PolicePrefab: {fileID: 7345431163290133205, guid: 54d61551768befe42bda4574d3791071, type: 3}
-  StartChasing: 1
+  StartChasing: 0
+  CheckInPlayerView: 1
   ForceIgnorePlayer: 0
   MinSpeedToCatch: 10
   MinDistanceToCatch: 10

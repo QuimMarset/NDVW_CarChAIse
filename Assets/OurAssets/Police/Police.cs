@@ -66,7 +66,7 @@ public class Police : CivilianController
 
 		// Chasing settings
 		if (LastPlayerKnownPos == Vector3.zero) // If no position set, force patrolling
-			LastPlayerPosKnownTime = Mathf.NegativeInfinity;
+			SetPlayerPos(Vector3.zero, Mathf.NegativeInfinity);
 		if (PoliceMang == null) // If there is not police manager, search one
 			SetPoliceManager(FindObjectOfType<PoliceManager>());
 	}

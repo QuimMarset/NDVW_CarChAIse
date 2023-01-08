@@ -1591,11 +1591,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: ForceIgnorePlayer
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: PoliceCarsToSpawn
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: TimeForRelocatePolice
@@ -2430,7 +2430,7 @@ MonoBehaviour:
   rules:
   - {fileID: 11400000, guid: 8b4945fb674e58642bb4a8dc5df2c1c6, type: 2}
   initialSentence: '[F]--F'
-  iterationLimit: 1
+  iterationLimit: 4
   probabilityToIgnoreARule: 0.5
   finalSentence: 
 --- !u!114 &608004478
