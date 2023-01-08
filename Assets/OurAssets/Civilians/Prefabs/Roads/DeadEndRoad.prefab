@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8549183939644197627}
   - component: {fileID: 6112325928592229842}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Marker_2
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -55,7 +55,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5437623647747149569}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: End
   m_TagString: Untagged
   m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
@@ -86,7 +86,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8313580030019636752}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Start
   m_TagString: Untagged
   m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
@@ -117,7 +117,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7993882863560965549}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Markers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -154,7 +154,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1971165750239356253}
   - component: {fileID: 64766066881520436}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Marker_1
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -200,7 +200,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9218679774926514493}
   - component: {fileID: 2104119063266260210}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Marker_3
   m_TagString: Untagged
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
@@ -247,9 +247,9 @@ GameObject:
   - component: {fileID: 5108395760350332609}
   - component: {fileID: 9030865466391163727}
   - component: {fileID: 7409947175058937781}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: DeadEndRoad
-  m_TagString: Untagged
+  m_TagString: Road
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -323,7 +323,7 @@ GameObject:
   - component: {fileID: 5108395760352625699}
   - component: {fileID: 5108395760352625696}
   - component: {fileID: 2851081475076075561}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2796,7 +2796,7 @@ MeshCollider:
   m_GameObject: {fileID: 5108395760350436067}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
@@ -2811,7 +2811,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7499037300135655887}
   - component: {fileID: 2108183415233055498}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Marker_4
   m_TagString: Untagged
   m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
@@ -2857,7 +2857,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3879872255338948407}
   - component: {fileID: 381623092218434321}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Marker_5
   m_TagString: Untagged
   m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
@@ -2901,7 +2901,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 309680653947035080}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ReferencePoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}

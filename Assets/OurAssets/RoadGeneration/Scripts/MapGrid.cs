@@ -25,7 +25,7 @@ public class MapGrid : MonoBehaviour
 
     private Dictionary<Vector3Int, GridPosition> gridOccupancy = new();
 
-    private void ComputeGridLimits(List<Vector3Int> roadPositions, int scaleFactor)
+    private void ComputeGridLimits(List<Vector3Int> roadPositions, int scaleFactor, int roadLength)
     {
         int minX = int.MaxValue;
         int minZ = int.MaxValue;
@@ -41,10 +41,12 @@ public class MapGrid : MonoBehaviour
             maxZ = roadPosition.z > maxZ ? roadPosition.z : maxZ;
         }
 
-        topLeftCorner = new(maxX, 0, minZ);
-        topRightCorner = new(minX, 0, minZ);
-        bottomLeftCorner = new(maxX, 0, maxZ);
-        bottomRightCorner = new(minX, 0, maxZ);
+        int extraCellSpace = scaleFactor * roadLength;
+
+        topLeftCorner = new(maxX + extraCellSpace, 0, minZ - extraCellSpace);
+        topRightCorner = new(minX - extraCellSpace, 0, minZ - extraCellSpace);
+        bottomLeftCorner = new(maxX + extraCellSpace, 0, maxZ + extraCellSpace);
+        bottomRightCorner = new(minX - extraCellSpace, 0, maxZ + extraCellSpace);
     }
 
     private void FillGridWithRoads(List<Vector3Int> roadPositions, int scaleFactor)
@@ -119,9 +121,13 @@ public class MapGrid : MonoBehaviour
         bool isDownValid = CheckIfNeighbourIsType(position, -Vector3Int.forward, roadLength, scaleFactor, GridPosition.Road);
         bool isRightValid = CheckIfNeighbourIsType(position, Vector3Int.right, roadLength, scaleFactor, GridPosition.Road);
         bool isLeftValid = CheckIfNeighbourIsType(position, -Vector3Int.right, roadLength, scaleFactor, GridPosition.Road);
+        
         bool isLeftUpValid = CheckIfNeighbourIsType(position, Vector3Int.forward - Vector3Int.right, roadLength, scaleFactor, GridPosition.Road);
         bool isRightUpValid = CheckIfNeighbourIsType(position, Vector3Int.forward + Vector3Int.right, roadLength, scaleFactor, GridPosition.Road);
-        return isUpValid || isDownValid || isRightValid || isLeftValid || isLeftUpValid || isRightUpValid;
+        bool isLeftBottomValid = CheckIfNeighbourIsType(position, -Vector3Int.forward - Vector3Int.right, roadLength, scaleFactor, GridPosition.Road);
+        bool isRightBottomValid = CheckIfNeighbourIsType(position, -Vector3Int.forward + Vector3Int.right, roadLength, scaleFactor, GridPosition.Road);
+        
+        return isUpValid || isDownValid || isRightValid || isLeftValid || isLeftUpValid || isRightUpValid || isLeftBottomValid || isRightBottomValid;
     }
 
     private bool CheckIfNeighbourIsType(Vector3Int position, Vector3Int direction, int roadLength, int scaleFactor, GridPosition positionType)
@@ -137,7 +143,7 @@ public class MapGrid : MonoBehaviour
 
     public void BuildGrid(List<Vector3Int> roadPositions, int roadLength, int scaleFactor)
     {
-        ComputeGridLimits(roadPositions, scaleFactor);
+        ComputeGridLimits(roadPositions, scaleFactor, roadLength);
         FillGridWithRoads(roadPositions, scaleFactor);
         FillGridEmptySpaces(roadLength, scaleFactor);
         FixFilteredEmptySpaces(roadLength, scaleFactor);

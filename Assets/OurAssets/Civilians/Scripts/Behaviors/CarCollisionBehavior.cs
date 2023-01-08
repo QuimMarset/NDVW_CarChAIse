@@ -44,7 +44,7 @@ public class CarCollisionBehavior : MonoBehaviour
     private bool IsThereACarInFOV(Vector3 fovDirection, float fovRadius, float fovAngle, out Collider colliderInFOV)
     {
         int layerMask = LayerMask.GetMask(new string[] { "Civilian", "Police", "Player" });
-        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRadius, layerMask);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, fovRadius, layerMask, QueryTriggerInteraction.Ignore);
 
         foreach (Collider collider in colliders)
         {
@@ -55,8 +55,11 @@ public class CarCollisionBehavior : MonoBehaviour
 
             Vector3 closesPoint = collider.ClosestPoint(transform.position);
             Vector3 direction = (closesPoint - transform.position).normalized;
+            Vector3 direction2 = (collider.transform.position - transform.position).normalized;
+            float angle = Vector3.Angle(fovDirection, direction);
+            float angle2 = Vector3.Angle(fovDirection, direction2);
 
-            if (Vector3.Angle(fovDirection, direction) < fovAngle / 2)
+            if (angle < fovAngle / 2 || angle2 < fovAngle / 2)
             {
                 colliderInFOV = collider;
                 return true;
@@ -70,7 +73,7 @@ public class CarCollisionBehavior : MonoBehaviour
     private bool IsThereACarInForwardRay(Vector3 rayDirection, float rayDistance, out Collider colliderInRay)
     {
         int layerMask = LayerMask.GetMask(new string[] { "Civilian", "Police", "Player" });
-        bool detection = Physics.Raycast(transform.position, rayDirection, out RaycastHit hitInfo, rayDistance, layerMask);
+        bool detection = Physics.Raycast(transform.position, rayDirection, out RaycastHit hitInfo, rayDistance, layerMask, QueryTriggerInteraction.Ignore);
         if (detection)
         {
             colliderInRay = hitInfo.collider;
@@ -116,8 +119,34 @@ public class CarCollisionBehavior : MonoBehaviour
         carInFront = IsThereACarInFOV(transform.forward, fovRadius, fovAngle, out Collider colliderInFOV);
         if (carInFront)
         {
-            CarController otherController = colliderInFOV.GetComponent<CarController>();
-            return otherController && otherController.IsGoingBackwards;
+            CivilianController otherController = colliderInFOV.GetComponent<CivilianController>();
+            if (otherController == null)
+            {
+                return false;
+            }
+            return otherController.IsMovingBackwards();
+        }
+        return false;
+    }
+
+    public bool IsThereSomeNonCarObstacleBlocking()
+    {
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int civilianLayer = LayerMask.NameToLayer("Civilian");
+        int policeLayer = LayerMask.NameToLayer("Police");
+        int defaultLayer = 1 << LayerMask.NameToLayer("Default");
+
+        bool detection = Physics.BoxCast(transform.position, new Vector3(1.5f, 1.5f, 1.5f), transform.forward,
+            out RaycastHit hitInfo, transform.rotation, fovRadius, defaultLayer, QueryTriggerInteraction.Ignore);
+
+        if (detection)
+        {
+            int layer = hitInfo.transform.gameObject.layer;
+            Debug.Log(LayerMask.LayerToName(layer));
+            if (layer != playerLayer && layer != civilianLayer && layer != policeLayer)
+            {
+                return true;
+            }
         }
         return false;
     }

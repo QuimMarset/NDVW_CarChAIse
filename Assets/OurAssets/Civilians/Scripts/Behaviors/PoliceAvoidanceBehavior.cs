@@ -80,22 +80,11 @@ public class PoliceAvoidanceBehavior : MonoBehaviour
 		return Utilities.DestinationReached(carFront.position, avoidPosition, arriveThreshold);
 	}
 
-	private Road FindRoadUnderCar(Transform carFront)
-	{
-		RaycastHit hitInfo;
-		bool hit = Physics.Raycast(carFront.position, -carFront.up, out hitInfo, 5f, LayerMask.GetMask("Road"));
-		if (hit)
-		{
-			Road road = hitInfo.collider.GetComponent<Road>();
-			return road;
-		}
-		Debug.Log(name + " " + "UNDEFINED ROAD");
-		return null;
-	}
+
 
 	public bool ComputePositionToWait(Transform carFront, out Vector3 waitPosition)
 	{
-		Road road = FindRoadUnderCar(carFront);
+		Road road = Utilities.FindRoadUnderCar(transform);
 		if (road != null)
 		{
 			Vector3 position = carFront.position + carFront.forward * forwardOffset;
@@ -112,7 +101,8 @@ public class PoliceAvoidanceBehavior : MonoBehaviour
 		int layerMask = LayerMask.GetMask(layers);
 		Vector3 direction = (waitingPosition - position).normalized;
 		return Physics.BoxCast(transform.position, new Vector3(1f, 1f, 1f), direction,
-			transform.rotation, Vector3.Distance(waitingPosition, position), layerMask);
+			transform.rotation, Vector3.Distance(waitingPosition, position), layerMask, 
+			QueryTriggerInteraction.Ignore);
 	}
 
 	public bool IsWaitingPositionComputed()

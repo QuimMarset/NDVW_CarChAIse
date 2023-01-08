@@ -10,8 +10,6 @@ public class MoveBackwardsBehavior : MonoBehaviour
     [SerializeField]
     private bool movingBackwards;
 
-
-
     public bool BackwardMovementNeeded(Vector3 targetPosition, Transform carFront)
     {
         Vector3 direction = targetPosition - carFront.position;
@@ -19,12 +17,5 @@ public class MoveBackwardsBehavior : MonoBehaviour
         movingBackwards = angle > 40f;
         return movingBackwards;
     }
-
-    public bool IsMovingBackwards()
-    {
-        return movingBackwards;
-    }
-
-
 
 }

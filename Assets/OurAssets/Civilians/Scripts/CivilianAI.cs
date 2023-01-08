@@ -26,6 +26,10 @@ public class CivilianAI : MonoBehaviour
     private bool wasAvoidingPolice;
     [SerializeField]
     private bool wasHelpingACarToContinue;
+    [SerializeField]
+    private bool wasFacingANonCarObstacle;
+    [SerializeField]
+    private bool wasFacingACar;
 
     private void Awake()
     {
@@ -92,9 +96,21 @@ public class CivilianAI : MonoBehaviour
                     civilianController.StopCar();
                 }
 
-                if (wasHelpingACarToContinue && !carCollisionBehavior.IsThereACarInFront())
+                if (wasHelpingACarToContinue && !carCollisionBehavior.IsThereACarInFrontMovingBackwards())
                 {
                     wasHelpingACarToContinue = false;
+                    civilianController.SetForwardMovement();
+                }
+
+                if (wasFacingACar && !carCollisionBehavior.IsThereACarInFrontMovingInTheOppositeDirection())
+                {
+                    wasFacingACar = false;
+                    civilianController.SetForwardMovement();
+                }
+
+                if (wasFacingANonCarObstacle && !carCollisionBehavior.IsThereSomeNonCarObstacleBlocking())
+                {
+                    wasFacingANonCarObstacle = false;
                     civilianController.SetForwardMovement();
                 }
             }
@@ -116,12 +132,18 @@ public class CivilianAI : MonoBehaviour
                     civilianController.SetBackwardMovement();
                     wasHelpingACarToContinue = true;
                 }
-            }
 
-            if (carCollisionBehavior.IsThereACarInFront() && carCollisionBehavior.IsThereACarInFrontMovingInTheOppositeDirection())
-            {
-                Debug.Log(name + " deadlock");
-                civilianController.SetBackwardMovement();
+                if (carCollisionBehavior.IsThereACarInFrontMovingInTheOppositeDirection())
+                {
+                    wasFacingACar = true;
+                    civilianController.SetBackwardMovement();
+                }
+
+                if (carCollisionBehavior.IsThereSomeNonCarObstacleBlocking())
+                {
+                    civilianController.SetBackwardMovement();
+                    wasFacingANonCarObstacle = true;
+                }
             }
 
             wasAvoidingPolice = false;
