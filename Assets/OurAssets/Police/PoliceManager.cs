@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -107,7 +108,7 @@ public class PoliceManager : MonoBehaviour
 
 			// Get a random marker
 			if (availableMarkers.Count > 0)
-				mkr = availableMarkers[Random.Range(0, availableMarkers.Count)];
+				mkr = availableMarkers[UnityEngine.Random.Range(0, availableMarkers.Count)];
 		}
 
 		if (mkr == null)
@@ -152,8 +153,22 @@ public class PoliceManager : MonoBehaviour
 			List<GameObject> carsObjs = PoliceCars.Select((x) => x.gameObject).ToList();
 			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning();
 
-			// Sort by distance to target	//TODO: Add noise to distances for randomization
+			// Sort by distance to target
 			availableMarkers = availableMarkers.OrderBy(mkr => (mkr.transform.position - GameMang.PlayerTarget).magnitude).ToList();
+
+			// Remove first 5% of positions in order not to spawn too close to player
+			availableMarkers.RemoveRange(0, availableMarkers.Count / 5);
+           
+		    // Randomize the order of positions
+            System.Random rnd = new System.Random();
+            for (int i = 0; i < availableMarkers.Count && i < PoliceCars.Count * 4; i++)
+			{
+                int j = rnd.Next(i, availableMarkers.Count < PoliceCars.Count * 4 ? availableMarkers.Count : PoliceCars.Count * 4);
+                Marker temp = availableMarkers[i];
+                availableMarkers[i] = availableMarkers[j];
+                availableMarkers[j] = temp;
+            }
+        
 
 			// Move police cars to available markers. Maybe not all can be relocated
 			int policeIdx = 0;

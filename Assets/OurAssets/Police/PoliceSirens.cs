@@ -20,8 +20,10 @@ public class PoliceSirens : MonoBehaviour
 
     void Update(){
         // Player if stopped
-        if(!sirenAudioSource.isPlaying)
+        if(!sirenAudioSource.isPlaying){
+            sirenAudioSource.time = Random.Range(0f, sirenAudioSource.clip.length);
             sirenAudioSource.Play();
+        }
 
         // Alternating
         changeTime += Time.deltaTime;
