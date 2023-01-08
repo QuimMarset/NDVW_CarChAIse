@@ -40,21 +40,9 @@ public class MoveToWaypointBehavior : MonoBehaviour
         targetMarker = targetMarker.GetNextAdjacentMarker();
     }
 
-    private Road FindRoadUnderCar()
-    {
-        RaycastHit hitInfo;
-        bool hit = Physics.Raycast(transform.position, -transform.up, out hitInfo, 5f, LayerMask.GetMask("Road"));
-        if (hit)
-        {
-            Road road = hitInfo.collider.GetComponent<Road>();
-            return road;
-        }
-        return null;
-    }
-
     public void LocalizeMarker(Vector3 carFrontPosition)
     {
-        Road road = FindRoadUnderCar();
+        Road road = Utilities.FindRoadUnderCar(transform);
         if (road != null)
         {
             targetMarker = road.GetClosestMarker(carFrontPosition, transform.forward);
