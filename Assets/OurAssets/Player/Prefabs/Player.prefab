@@ -114,7 +114,7 @@ Transform:
   m_Children:
   - {fileID: 8763833581997194728}
   m_Father: {fileID: 5993828292672005689}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2952077336401373024
 GameObject:
@@ -178,7 +178,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: -1386405649666790125, guid: 5989fbcdc0a114b4a88c604549c0eeca, type: 3}
-  - {fileID: 3539685520940596551, guid: 5989fbcdc0a114b4a88c604549c0eeca, type: 3}
+  - {fileID: 2100000, guid: ade8fca681f724cd89b5a568642f15ae, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -230,7 +230,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5993828292672005689}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!20 &1386336408765006185
 Camera:
@@ -498,7 +498,7 @@ Transform:
   - {fileID: 5993828291317113086}
   - {fileID: 5993828292153346829}
   m_Father: {fileID: 5993828292672005689}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5993828292398979403
 GameObject:
@@ -596,6 +596,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5993828293321323349}
+  - {fileID: 4143642016177481718}
   - {fileID: 8910851916862969199}
   - {fileID: 5993828292690626285}
   - {fileID: 5993828292168281296}
@@ -626,7 +627,7 @@ MonoBehaviour:
   BrakeTorque: 25000
   MovementTorque: 2000
   DragCoefficient: 0.47
-  CarFront: {fileID: 0}
+  CarFront: {fileID: 4143642016177481718}
   MaxHealth: 100
   DamagePerKph: 0.1
   MinPitch: 0.5
@@ -634,7 +635,8 @@ MonoBehaviour:
   EnableHandBrake: 1
   HardBrakeStifnessMultiplier: 0.1
   MainCamera: {fileID: 5993828293321323347}
-  CameraSecondsToRotate: 0.5
+  CameraSecsToRotate: 0.5
+  CameraSmoother: 0.9
 --- !u!208 &7358562498239434099
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -809,7 +811,7 @@ Transform:
   - {fileID: 5993828292778045155}
   - {fileID: 5993828292398979400}
   m_Father: {fileID: 5993828292672005689}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5993828292778045154
 GameObject:
@@ -1103,6 +1105,37 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &7889791147747372689
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4143642016177481718}
+  m_Layer: 9
+  m_Name: CarFront
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4143642016177481718
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7889791147747372689}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 2.87}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5993828292672005689}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7910629555576745055
 GameObject:
   m_ObjectHideFlags: 0
@@ -1164,7 +1197,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 3539685520940596551, guid: 5989fbcdc0a114b4a88c604549c0eeca, type: 3}
+  - {fileID: 2100000, guid: ade8fca681f724cd89b5a568642f15ae, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(ObstacleAvoidanceBehavior))]
 public class CivilianController : CarController
 {
-    [Header("Civlian Parameters")]
+    [Header("Civilian Parameters")]
     [SerializeField] public Vector3 targetPosition;
     [SerializeField] protected float turnSpeed;
     [SerializeField] protected float steeringAngle;

@@ -62,7 +62,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2988841592765382143}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &4711467221503245880
 Light:
@@ -156,7 +156,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2988841592765382143}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &4053301928006662050
 Light:
@@ -250,7 +250,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2988841592765382143}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &6800584357309111581
 Light:
@@ -482,52 +482,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &5889316579193010685
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 541918036912517131}
-  - component: {fileID: 6831738559137820144}
-  m_Layer: 7
-  m_Name: SirensEmitter
-  m_TagString: PoliceEmitter
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &541918036912517131
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5889316579193010685}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: -0, y: 0, z: 8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2988841592765382143}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!136 &6831738559137820144
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5889316579193010685}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 10
-  m_Height: 40
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6164045758447193037
 GameObject:
   m_ObjectHideFlags: 0
@@ -707,13 +661,14 @@ GameObject:
   - component: {fileID: 2988841592765382143}
   - component: {fileID: 6118205590697910095}
   - component: {fileID: 7493919714296788227}
+  - component: {fileID: 3726380174245533296}
   m_Layer: 7
   m_Name: Sirens
-  m_TagString: Untagged
+  m_TagString: PoliceEmitter
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2988841592765382143
 Transform:
   m_ObjectHideFlags: 0
@@ -726,7 +681,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 541918036912517131}
   - {fileID: 5471765158134928144}
   - {fileID: 1294064739959554576}
   - {fileID: 3164758959781437202}
@@ -751,6 +705,7 @@ MonoBehaviour:
   blueLight1: {fileID: 7712597351940972662}
   blueLight2: {fileID: 726971170741325682}
   waitTime: 0.2
+  audioRatioAtDeactivation: 0.95
 --- !u!82 &7493919714296788227
 AudioSource:
   m_ObjectHideFlags: 0
@@ -761,8 +716,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: f5553c1840476425599ae73c691a6058, type: 3}
-  m_PlayOnAwake: 1
+  m_audioClip: {fileID: 8300000, guid: 9984430d988567a48a65d38485a4f4cb, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
@@ -847,6 +802,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!135 &3726380174245533296
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7447339922452260078}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 50
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7712597351940972662
 GameObject:
   m_ObjectHideFlags: 0
@@ -877,7 +845,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2988841592765382143}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &3680629476134347717
 Light:
@@ -1421,10 +1389,11 @@ MonoBehaviour:
   NavMeshLayers:
   - Walkable
   BackwardSeconds: 1
-  SecondsForBlocked: 0.25
+  SecondsForBlocked: 0.1
   ReactionSeconds: 0.1
   CurveSpeedFactor: 1000
-  Sirens: {fileID: 7447339922452260078}
+  MaxBlockedSpeed: 5
+  Sirens: {fileID: 6118205590697910095}
   CustomDebugger: 0
   ShowGizmos: 1
 --- !u!114 &8857721527356481924
@@ -1453,7 +1422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f5baa66c9d21f14c95122e0d4848e8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensorLength: 10
+  sensorLength: 5
   horizontalOffset: 0.5
   angle: 45
   steerDirection: 0
@@ -1476,6 +1445,7 @@ MonoBehaviour:
   fovAngleBackward: 120
   carInFront: 0
   carBehind: 0
+  useFOV: 0
 --- !u!114 &4674197407516145582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1535,6 +1505,7 @@ MonoBehaviour:
   carFront: {fileID: 8751094528434851700}
   targetPosition: {x: 0, y: 0, z: 0}
   wasAvoidingPolice: 0
+  wasHelpingACarToContinue: 0
 --- !u!208 &7861036775314478536
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -1562,7 +1533,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: bd405e3e6269d6a42abe0d32558944bf, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1

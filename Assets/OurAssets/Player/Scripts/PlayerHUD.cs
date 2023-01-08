@@ -28,13 +28,13 @@ public class PlayerHUD : MonoBehaviour
 	public void SetSpeed(float speed, float maxSpeed)
 	{
 		SpeedBar.fillAmount = Mathf.Abs(speed) / maxSpeed;
-		SpeedText.text = (int)speed + " Km/h";
+		SpeedText.text = (int)speed+"";
 	}
 
 	public void SetHealth(float health, float maxHealth)
 	{
 		HealthBar.fillAmount = health / maxHealth;
-		HealthText.text = (int)health + "%";
+		HealthText.text = (int)health+"";
 	}
 
 	public void SetCatch(float catchCount, float maxCatchCount)

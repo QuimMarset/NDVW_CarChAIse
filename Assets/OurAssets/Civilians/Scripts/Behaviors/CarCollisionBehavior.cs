@@ -116,8 +116,8 @@ public class CarCollisionBehavior : MonoBehaviour
         carInFront = IsThereACarInFOV(transform.forward, fovRadius, fovAngle, out Collider colliderInFOV);
         if (carInFront)
         {
-            CivilianController otherController = colliderInFOV.GetComponent<CivilianController>();
-            return otherController.IsMovingBackwards();
+            CarController otherController = colliderInFOV.GetComponent<CarController>();
+            return otherController && otherController.IsGoingBackwards;
         }
         return false;
     }

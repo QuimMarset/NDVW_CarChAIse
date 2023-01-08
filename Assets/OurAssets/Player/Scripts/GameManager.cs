@@ -12,14 +12,15 @@ public class GameManager : MonoBehaviour
 	public Player PlayerCar;
 	[SerializeField] private PlayerHUD PlayerCanv;
 	[SerializeField] private GameObject PlayerTargetMark;
-	public RoadManager RoadMang;
-	public PoliceManager PoliceMang;	
+
+	public PoliceManager PoliceMang;
 	[SerializeField] private GameOverHUD GameOverCanv;
 	[SerializeField] private int MainMenuBuildIdx = 0;
-	[SerializeField] private List<string> NavMeshLayers;	
+	[SerializeField] private List<string> NavMeshLayers;
 	[SerializeField] public bool ForceResetPlayerTarget = false;
 
 	// Auxiliar variables
+	public RoadManager RoadMang { get; private set; }
 	public int NavMeshLayerBite { get; private set; }
 	public bool IsGameOver { get; private set; }
 	public Vector3 PlayerTarget { get; private set; }
@@ -52,7 +53,7 @@ public class GameManager : MonoBehaviour
 		GameOverCanv.gameObject.SetActive(false);
 
 		// Player targets
-		PlayerDistToTarget = -1; // Sentinel
+		PlayerDistToTarget = 0; // Sentinel
 		PlayerScore = 0;
 	}
 
@@ -65,10 +66,7 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			foreach (string Layer in NavMeshLayers)
-			{
-				int i = 1 << NavMesh.GetAreaFromName(Layer);
-				NavMeshLayerBite += i;
-			}
+				NavMeshLayerBite += 1 << NavMesh.GetAreaFromName(Layer);
 		}
 	}
 
@@ -102,8 +100,8 @@ public class GameManager : MonoBehaviour
 
 	private void UpdatePlayerTarget()
 	{
-		bool noTarget = PlayerDistToTarget < 0;
-		bool targetReached = Vector3.Distance(PlayerCar.transform.position, PlayerTarget) < 5;
+		bool noTarget = PlayerDistToTarget == 0;
+		bool targetReached = Vector3.Distance(PlayerCar.transform.position, PlayerTarget) < 10;
 
 		// New target is required
 		if (noTarget || targetReached || ForceResetPlayerTarget)
@@ -116,12 +114,12 @@ public class GameManager : MonoBehaviour
 
 			// Generate a new accesible target if possible
 			PlayerTarget = RoadMang.GetRandomMarker().transform.position;
-			
+
 			// Set distance to target (potential score)
 			PlayerDistToTarget = Vector3.Distance(PlayerCar.transform.position, PlayerTarget);
 
 			// Place a mark on target
-			PlayerTargetMark.transform.position = PlayerTarget;
+			PlayerTargetMark.transform.position = PlayerTarget + Vector3.up * PlayerTargetMark.transform.lossyScale.y;
 		}
 	}
 
@@ -156,22 +154,23 @@ public class GameManager : MonoBehaviour
 	#region Auxiliar
 	public bool IsVisibleByPlayer(Vector3 pos)
 	{
-		Vector3 iniPos = new Vector3(pos.x, PlayerCar.MainCamera.transform.position.y, pos.z);
-		Vector3 dirToCamera = (PlayerCar.MainCamera.transform.position - iniPos);
-		return !Physics.Raycast(iniPos, dirToCamera.normalized, dirToCamera.magnitude, NavMeshLayerBite);
+		pos += Vector3.up; // Height offset for avoiding sidewalks
+		float distToPlayer = (pos - PlayerCar.transform.position).magnitude;    // Check if too close
+		Vector3 dirToCamera = (PlayerCar.MainCamera.transform.position - pos);
+		return distToPlayer < 10 || !Physics.Raycast(pos, dirToCamera.normalized, dirToCamera.magnitude, LayerMask.GetMask(new string[] { "Default", "Player" }));
 	}
 
 	/// <summary>
 	/// // Search available markers (not colliding with civilians, police or player) and not visible by the player
 	/// </summary>
-	public List<Marker> GetMarkersForSpawning()
+	public List<Marker> GetMarkersForSpawning(out List<GameObject> carsObjs, bool checkInPlayerView = true)
 	{
 		List<Marker> availableMarkers = new List<Marker>();
-		List<GameObject> carsObjs = PoliceMang.PoliceCars.Select((x) => x.gameObject).ToList();
-		carsObjs.Add(PlayerCar.gameObject); // Consider player for not spawning at its position
+		carsObjs = PoliceMang.PoliceCars.Select((x) => x.gameObject).ToList();
+		carsObjs.Add(PlayerCar.gameObject); // Consider player's position
 		foreach (Marker mkr in RoadMang.AllMarkers)
 		{
-			if (!IsVisibleByPlayer(mkr.transform.position) &&
+			if ((!checkInPlayerView || !IsVisibleByPlayer(mkr.Position)) &
 				RoadMang.IsMarkerAvailable(mkr, otherObjs: carsObjs))
 				availableMarkers.Add(mkr);
 		}

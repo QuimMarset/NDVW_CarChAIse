@@ -15,7 +15,8 @@ public class Police : CivilianController
 	[SerializeField] protected float SecondsForBlocked = 1f;
 	[SerializeField] protected float ReactionSeconds = 0.5f;
 	[SerializeField] protected float CurveSpeedFactor = 1000;
-	[SerializeField] protected GameObject Sirens;
+	[SerializeField] protected float MaxBlockedSpeed = 5;
+	[SerializeField] protected PoliceSirens Sirens;
 	[SerializeField] protected bool CustomDebugger = false;
 	[SerializeField] protected bool ShowGizmos = true;
 
@@ -38,7 +39,7 @@ public class Police : CivilianController
 	public Vector3 LastPlayerKnownPos { get; protected set; }
 	public Vector3 RealPlayerPos { get => PoliceMang.PlayerCar.transform.position; }
 	public bool IsBlocked { get => (Time.time - BlockCheckStartTime) > BackwardSeconds; }
-	public bool IsGoingBackwards { get => Time.time < BackwardEndTime; }
+	public bool HasToGoBackwards { get => Time.time < BackwardEndTime; }
 	public bool IsPatroling { get => LastPlayerPosKnownTime == Mathf.NegativeInfinity; }
 
 
@@ -88,7 +89,7 @@ public class Police : CivilianController
 
 	public void SetPoliceManager(PoliceManager policeMang)
 	{
-		PoliceMang = policeMang;			
+		PoliceMang = policeMang;
 	}
 
 	#endregion
@@ -151,7 +152,7 @@ public class Police : CivilianController
 
 	public override bool IsMovingBackwards()
 	{
-		return IsPatroling ? IsGoingBackwards : base.IsMovingBackwards();
+		return IsPatroling ? base.IsMovingBackwards() : HasToGoBackwards;
 	}
 
 	#endregion
@@ -178,10 +179,11 @@ public class Police : CivilianController
 				Vector3[] posToCheck = { transform.position, CarFront.position, carBack };
 
 				Vector3 direction;
+				int layerMask = LayerMask.GetMask(new string[] { "Default", "Player" });
 				foreach (Vector3 iniPos in posToCheck)
 				{
 					direction = (RealPlayerPos - iniPos).normalized;
-					if (Physics.Raycast(iniPos, direction, out RaycastHit hit, Mathf.Infinity, 0xFFFF) &&
+					if (Physics.Raycast(iniPos, direction, out RaycastHit hit, Mathf.Infinity, layerMask) &&
 						hit.transform.gameObject == PoliceMang.PlayerCar.gameObject)
 					{
 						//Debug.DrawRay(iniPos, direction * hit.distance, Color.yellow);
@@ -197,7 +199,7 @@ public class Police : CivilianController
 			else
 			{
 				// If at last player known position and player not located, inform to manager that player is lost
-				if ((LastPlayerKnownPos - transform.position).magnitude < 5f)
+				if ((LastPlayerKnownPos - transform.position).magnitude < 10f)
 					PoliceMang.InformPlayerPos(Vector3.zero, Mathf.NegativeInfinity);
 			}
 		}
@@ -206,7 +208,7 @@ public class Police : CivilianController
 	/// <summary>
 	/// Called by the PoliceManager. Time == -Infinity is a sentinel for start patrolling
 	/// </summary>
-	public void ReceivePlayerPos(Vector3 lastPlayerKnownPos, float lastPlayerPosTime)
+	public void SetPlayerPos(Vector3 lastPlayerKnownPos, float lastPlayerPosTime)
 	{
 		// If notification is more recent or time == -Infinity, update the parameters | >= For time is required for correct initialization by PoliceManager
 		if (lastPlayerPosTime >= LastPlayerPosKnownTime || lastPlayerPosTime == Mathf.NegativeInfinity)
@@ -234,7 +236,7 @@ public class Police : CivilianController
 		CivilianContr.enabled = false;
 		MaxSpeed = MaxChasingSpeed;
 		EnableMovement = !IsDead;   // Force movement if not dead
-		Sirens.SetActive(true);
+		Sirens.Enabled = true;
 
 		Debug.Log(name + " police car is now chasing");
 	}
@@ -242,9 +244,9 @@ public class Police : CivilianController
 	public virtual void ChangeToPatroling(bool resetMarker = true)
 	{
 		// Active civilian behaviour
-		Sirens.SetActive(false);
+		Sirens.Enabled = false;
 		CivilianContr.enabled = true;
-		MaxSpeed = MaxSpeedOriginal;		
+		MaxSpeed = MaxSpeedOriginal;
 		trafficLightBehavior.ResumeMovement();  // Resume movement if was at traffic light
 		if (resetMarker)
 			moveToWaypointBehavior.SetTargetMarker(PoliceMang.GetClosestMarker(CarFront.position)); // Reset current marker
@@ -363,12 +365,11 @@ public class Police : CivilianController
 			return base.GetSteeringAngle();
 		else
 		{
-			// Steer to PositionToFollow
 			Vector3 relativeVector = transform.InverseTransformPoint(PositionToFollow);
 			float steeringAngle = (relativeVector.x / relativeVector.magnitude) * MaxSteeringAngle;
 
 			// If going backwards, inverse steer
-			if (IsGoingBackwards)
+			if (HasToGoBackwards)
 				steeringAngle = -steeringAngle;
 
 			return steeringAngle;
@@ -388,7 +389,7 @@ public class Police : CivilianController
 			float movementDirection = 1;    // By default, accelerate
 
 			// If going backwards for avoiding blocking
-			if (IsGoingBackwards)
+			if (HasToGoBackwards)
 			{
 				movementDirection = -1;
 			}
@@ -396,7 +397,7 @@ public class Police : CivilianController
 			else
 			{
 				// If car don't move and target is far, start the blocked timer (consider the car blocked)
-				if (Mathf.Abs(CurrentForwardSpeed) < 1f &&
+				if (Mathf.Abs(CurrentForwardSpeed) < MaxBlockedSpeed &&
 					Vector3.Distance(CarFront.position, LastPlayerKnownPos) > PoliceMang.MinDistanceToCatch / 2)
 				{
 					// If first time blocked
@@ -409,34 +410,39 @@ public class Police : CivilianController
 				else
 					BlockCheckStartTime = Mathf.Infinity;
 
-				// Define the movement direction (accelerating or braking) depending on the curves
-				Vector3 prev, post, diff;
-				float curveAngle, requiredSpeed, brakeDistance, distanceToWaypoint;
-				// For each next waypoints in the path, get angle between them. End if already breaking
-				for (int i = CurrentWayPoint - 1; i < Waypoints.Count - 1 && movementDirection == 1; i++)
+				// If too close to desired position, stop
+				if (Vector3.Distance(transform.position, LastPlayerKnownPos) < 2)
+					movementDirection = Mathf.NegativeInfinity;
+				else
 				{
-					// First check is the trajectory to target
-					prev = (i < CurrentWayPoint) ? CarFront.position : Waypoints[i];
-					post = (i < CurrentWayPoint) ? PositionToFollow : Waypoints[i + 1];
-					diff = post - prev; // TODO: Consider the distance btw the waypoints and the distance to that path section
+					// Define the movement direction (accelerating or braking) depending on the curves
+					Vector3 prev, post, diff;
+					float curveAngle, requiredSpeed, brakeDistance, distanceToWaypoint;
+					// For each next waypoints in the path, get angle between them. End if already braking
+					for (int i = CurrentWayPoint - 1; i < Waypoints.Count - 1 && movementDirection == 1; i++)
+					{
+						// First check is the trajectory to target
+						prev = (i < CurrentWayPoint) ? CarFront.position : Waypoints[i];
+						post = (i < CurrentWayPoint) ? PositionToFollow : Waypoints[i + 1];
+						diff = post - prev;
 
-					// Get the angle of the curve
-					curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, diff);
+						// Get the angle of the curve
+						curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, diff);
 
-					// If last point
-					if (i >= Waypoints.Count - 2)
-						curveAngle = 25; // Force brake
+						// Get distance required to achieve the required speed
+						if (i >= Waypoints.Count - 2) // If last waypoint
+							requiredSpeed = Mathf.Abs(PoliceMang.PlayerCar.CurrentForwardSpeed);
+						else // Otherwise
+							requiredSpeed = CurveSpeedFactor / curveAngle;  // Example with 50 degrees: 1000/50 = 20 Km/h
 
-					// Get distance required to achieve the required speed				
-					requiredSpeed = CurveSpeedFactor / curveAngle;  // Example with 50 degrees: 1000/50 = 20 Km/h
-					brakeDistance = EstimateBrakeDistance(requiredSpeed);
-					distanceToWaypoint = Vector3.Distance(CarFront.position, post);
+						brakeDistance = EstimateBrakeDistance(requiredSpeed);
+						distanceToWaypoint = Vector3.Distance(CarFront.position, post);
 
-					// If distance is close or lower to the brake distance
-					if ((distanceToWaypoint - brakeDistance) < 5)
-						movementDirection = -1;
+						// If distance is lower or equal to the brake distance
+						if ((distanceToWaypoint - brakeDistance) <= 2)
+							movementDirection = -1;
+					}
 				}
-
 			}
 
 			return movementDirection;

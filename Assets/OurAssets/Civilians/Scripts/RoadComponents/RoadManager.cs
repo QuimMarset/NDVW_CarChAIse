@@ -31,11 +31,11 @@ public class RoadManager : MonoBehaviour
         currentlySpawned = 0;
         usedToSpawn = new List<Marker>();
         Civilians = new List<CivilianController>();
+        AllMarkers = new List<Marker>();
         roadsGenerator.GenerateRoads();
         cityRoads = roadsGenerator.GetRoads();
         ConnectRoads();
         SpawnCivilianCars();
-        // GetAllMarkers();
     }
 
     private void ConnectRoads()
@@ -73,6 +73,7 @@ public class RoadManager : MonoBehaviour
             MoveToWaypointBehavior moveToWaypointBehavior = civilianCar.GetComponent<MoveToWaypointBehavior>();
             moveToWaypointBehavior.SetTargetMarker(spawnMarker.GetNextAdjacentMarker());
             civilianCar.name = "Civilian_" + currentlySpawned;
+            Civilians.Add(civilianCar.GetComponent<CivilianController>());
             
             currentlySpawned++;
             
@@ -85,9 +86,14 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-    private void GetAllMarkers()
+	private void Update()
+	{
+        if(AllMarkers.Count == 0)
+            GetAllMarkers();
+    }
+
+	private void GetAllMarkers()
     {
-        AllMarkers = new List<Marker>();
         foreach (Road road in cityRoads)
             AllMarkers.AddRange(road.allMarkers);
     }

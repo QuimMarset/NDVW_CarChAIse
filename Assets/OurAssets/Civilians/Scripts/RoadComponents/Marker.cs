@@ -118,5 +118,11 @@ public class Marker : MonoBehaviour, IEquatable<Marker>
             Gizmos.color = Color.white;
         }
     }
+
+    protected virtual void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(Position, 1f);
+    }
 }
 

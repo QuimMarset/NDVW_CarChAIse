@@ -11,13 +11,16 @@ public class Player : CarController
 
 	[Header("Camera")]
 	public Camera MainCamera;
-	[SerializeField] protected float CameraSecondsToRotate = 0.5f;
+	[SerializeField] protected float CameraSecsToRotate = 0.5f;
+	[SerializeField] [Range(0f, 1f)] protected float CameraSmoother = 0.9f;
+
 
 	// Auxiliar variables
 	protected GameManager GameMang;
 	protected PlayerHUD PlayerCanv;
 	protected float BackWheelsOriginalStiffness;
 	protected WheelFrictionCurve BackWheelsFrictionCurve;
+	protected float CameraAngleToRotate = 0.9f;
 
 	#region Initialization
 
@@ -132,13 +135,18 @@ public class Player : CarController
 		// Move camera according to car's velocity
 		if (MainCamera && CarRigidBody.velocity.magnitude > 1f)
 		{
-			float angleDiff = Vector3.SignedAngle(MainCamera.transform.forward, CarRigidBody.velocity.normalized, axis: Vector3.up);
+			Vector3 cameraForward = MainCamera.transform.forward;
+
+			// Button for inverting camera
+			if (Input.GetAxisRaw("Fire2") != 0)   //	Fire2 = Right click or left Alt
+				cameraForward = -cameraForward;
+
+			float angleDiff = Vector3.SignedAngle(cameraForward, CarRigidBody.velocity.normalized, axis: Vector3.up);
+			CameraAngleToRotate = CameraSmoother * CameraAngleToRotate + (1 - CameraSmoother) * angleDiff;   // Accumulate for smoothing
 
 			// If angle difference is not too low
-			if (Mathf.Abs(angleDiff) > 1f)
-			{
-				MainCamera.transform.RotateAround(transform.position, Vector3.up, angleDiff * Time.deltaTime / CameraSecondsToRotate);
-			}
+			if (Mathf.Abs(CameraAngleToRotate) > 1f)
+				MainCamera.transform.RotateAround(transform.position, Vector3.up, CameraAngleToRotate * Time.deltaTime / CameraSecsToRotate);
 		}
 	}
 

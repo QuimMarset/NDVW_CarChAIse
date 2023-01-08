@@ -45,6 +45,7 @@ public abstract class CarController : MonoBehaviour
 	public bool IsDead { get; protected set; }
 	public float CurrentWheelsSpeed { get; protected set; }
 	public float CurrentForwardSpeed { get; protected set; }
+	public bool IsGoingBackwards { get; protected set; }
 
 
 	#region Intialization
@@ -58,6 +59,7 @@ public abstract class CarController : MonoBehaviour
 		// Get wheels colliders and transforms
 		WheelColliders = WheelCollidersContainer.GetComponentsInChildren<WheelCollider>();
 		WheelTransforms = WheelTransformsContainer.gameObject.GetComponentsInDirectChildren<Transform>();
+		IsGoingBackwards = false;
 
 		// Health
 		CurrentHealth = MaxHealth;
@@ -242,6 +244,7 @@ public abstract class CarController : MonoBehaviour
 
 			// Get movement magnitude
 			float movementDirection = GetMovementDirection();
+			IsGoingBackwards = movementDirection < 0;
 
 			// If movement direction is different from wheels speed or it's -Inf, brake
 			if ((movementDirection > 0 && CurrentWheelsSpeed < -0.1f) || (movementDirection < 0 && CurrentWheelsSpeed > 0.1f) ||
