@@ -623,13 +623,13 @@ MonoBehaviour:
   EnableABS: 1
   ABSThld: 0.9
   MaxSteeringAngle: 60
-  MaxSpeed: 200
+  MaxSpeed: 100
   BrakeTorque: 25000
   MovementTorque: 2000
   DragCoefficient: 0.47
   CarFront: {fileID: 4143642016177481718}
   MaxHealth: 100
-  DamagePerKph: 0.1
+  DamagePerKph: 0.05
   MinPitch: 0.5
   MaxPitch: 5
   EnableHandBrake: 1
@@ -664,7 +664,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2.6290195, y: 1.6153271, z: 5.6209846}
+  m_Size: {x: 2.3, y: 1.6153271, z: 5.6209846}
   m_Center: {x: 0, y: 0.14233649, z: 0}
 --- !u!54 &5993828292672005693
 Rigidbody:
@@ -694,7 +694,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: bd405e3e6269d6a42abe0d32558944bf, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.75
   m_Pitch: 1
   Loop: 1
   Mute: 0

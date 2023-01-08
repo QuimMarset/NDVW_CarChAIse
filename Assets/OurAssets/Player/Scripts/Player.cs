@@ -138,15 +138,20 @@ public class Player : CarController
 			Vector3 cameraForward = MainCamera.transform.forward;
 
 			// Button for inverting camera
-			if (Input.GetAxisRaw("Fire2") != 0)   //	Fire2 = Right click or left Alt
+			float secsToRot = CameraSecsToRotate;
+			bool invertingCamera = Input.GetAxisRaw("Fire2") != 0;    //	Fire2 = Right click or left Alt
+			if (invertingCamera)
+			{
 				cameraForward = -cameraForward;
+				secsToRot /= 2;
+			}
 
 			float angleDiff = Vector3.SignedAngle(cameraForward, CarRigidBody.velocity.normalized, axis: Vector3.up);
 			CameraAngleToRotate = CameraSmoother * CameraAngleToRotate + (1 - CameraSmoother) * angleDiff;   // Accumulate for smoothing
 
 			// If angle difference is not too low
 			if (Mathf.Abs(CameraAngleToRotate) > 1f)
-				MainCamera.transform.RotateAround(transform.position, Vector3.up, CameraAngleToRotate * Time.deltaTime / CameraSecsToRotate);
+				MainCamera.transform.RotateAround(transform.position, Vector3.up, CameraAngleToRotate * Time.deltaTime / secsToRot);
 		}
 	}
 

@@ -224,7 +224,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: CheckInPlayerView
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: ForceIgnorePlayer
@@ -232,11 +232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
       propertyPath: PoliceCarsToSpawn
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
-      propertyPath: TimeForRelocatePolice
-      value: 100
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
@@ -252,7 +248,7 @@ GameObject:
   - component: {fileID: 424144521}
   - component: {fileID: 424144520}
   - component: {fileID: 424144519}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -451,7 +447,6 @@ MonoBehaviour:
   numberToSpawn: 150
   currentlySpawned: 0
   carSpawner: {fileID: 7265954067723387870, guid: 95d446d1b1893144ab8d672b19907c5a, type: 3}
-  cityGenerator: {fileID: 1771641360}
 --- !u!114 &730492665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,7 +492,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b4945fb674e58642bb4a8dc5df2c1c6, type: 2}
   initialSentence: '[F]--F'
   iterationLimit: 3
-  probabilityToIgnoreARule: 0.5
+  probabilityToIgnoreARule: 0.6
   finalSentence: 
 --- !u!4 &730492668
 Transform:

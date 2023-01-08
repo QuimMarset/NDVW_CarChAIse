@@ -15,7 +15,7 @@ public class Police : CivilianController
 	[SerializeField] protected float SecondsForBlocked = 1f;
 	[SerializeField] protected float ReactionSeconds = 0.5f;
 	[SerializeField] protected float CurveSpeedFactor = 1000;
-	[SerializeField] protected float MaxBlockedSpeed = 5;
+	[SerializeField] protected float MaxBlockedSpeed = 2;
 	[SerializeField] protected PoliceSirens Sirens;
 	[SerializeField] protected bool CustomDebugger = false;
 	[SerializeField] protected bool ShowGizmos = true;
@@ -163,7 +163,6 @@ public class Police : CivilianController
 	{
 		base.Update();  // This comes from CarController (CivilianController does not override it)
 		CheckPlayerVisual();
-		ProgessPath();
 	}
 
 	protected virtual void CheckPlayerVisual()
@@ -258,7 +257,7 @@ public class Police : CivilianController
 	protected override void FixedUpdate()
 	{
 		base.FixedUpdate(); // This comes from CarController (CivilianController does not override it)
-		//ProgessPath();
+		ProgessPath();
 	}
 
 	#region Path
