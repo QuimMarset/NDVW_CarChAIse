@@ -27,6 +27,12 @@ public class GameManager : MonoBehaviour
 	public float PlayerDistToTarget { get; private set; }
 	public float PlayerScore { get; private set; }
 
+	[Header("Difficulty Settings")]
+	[SerializeField] private int DifficultyMaxLevel = 3;
+	[SerializeField] private int BaseScoreForIncreasingDifficulty = 500;
+	[SerializeField] private int DifficultyPowerMultiplier = 2;
+	private int DifficultyLevel = 0;
+
 
 	#region Initialization
 
@@ -120,16 +126,32 @@ public class GameManager : MonoBehaviour
 
 			// Place a mark on target
 			PlayerTargetMark.transform.position = PlayerTarget + Vector3.up * PlayerTargetMark.transform.lossyScale.y;
+
+			if (targetReached && DifficultyLevel != DifficultyMaxLevel) UpdatePoliceCount();
 		}
 	}
 
-	#endregion
+    #endregion
 
-	#endregion
+    #region Police Counts
 
-	#region Game over
+	private void UpdatePoliceCount()
+	{
+		if (PlayerScore > BaseScoreForIncreasingDifficulty * System.Math.Pow(DifficultyPowerMultiplier, DifficultyLevel))
+		{
+            DifficultyLevel += 1;
+            PoliceMang.IncreasePoliceNumber();
+        }
+	}
 
-	private void GameOver()
+	
+    #endregion
+
+    #endregion
+
+    #region Game over
+
+    private void GameOver()
 	{
 		// Disable player car and canvas
 		PlayerCar.Death();

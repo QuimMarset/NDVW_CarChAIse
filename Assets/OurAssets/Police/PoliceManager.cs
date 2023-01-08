@@ -215,6 +215,11 @@ public class PoliceManager : MonoBehaviour
 		return RoadMang.GetClosestMarker(pos);
 	}
 
+	public void IncreasePoliceNumber()
+	{
+        PoliceCarsToSpawn += 1;
+    }
+
 	#endregion
 
 	#region Player visual
