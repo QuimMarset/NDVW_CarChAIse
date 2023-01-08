@@ -26,7 +26,7 @@ public class RoadManager : MonoBehaviour
     private void Awake()
     {
         roadsGenerator = GetComponent<RoadsGenerator>();
-        cityGenerator = GetComponent<CityGenerator>();
+        cityGenerator = FindObjectOfType<CityGenerator>();
     }
 
 

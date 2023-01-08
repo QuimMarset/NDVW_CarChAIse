@@ -163,6 +163,7 @@ public class Police : CivilianController
 	{
 		base.Update();  // This comes from CarController (CivilianController does not override it)
 		CheckPlayerVisual();
+		ProgessPath();
 	}
 
 	protected virtual void CheckPlayerVisual()
@@ -257,7 +258,7 @@ public class Police : CivilianController
 	protected override void FixedUpdate()
 	{
 		base.FixedUpdate(); // This comes from CarController (CivilianController does not override it)
-		ProgessPath();
+		//ProgessPath();
 	}
 
 	#region Path
