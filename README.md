@@ -9,4 +9,4 @@ Authors:
 * Joaquim Marset Alsina
 
 ## How to install
-Create a default 3D Unity project (only tested with Unity 2021.3) and copy the files contained in this repository. The MainMenu scene in 'Assets/Scenes'' allows to start the game.
+Create a default 3D Unity project (only tested with Unity 2021.3) and copy the files contained in this repository. The MainMenu scene in 'Assets/Scenes' allows to start the game.
