@@ -138,12 +138,12 @@ public class CivilianAI : MonoBehaviour
                     wasFacingACar = true;
                     civilianController.SetBackwardMovement();
                 }
-
+                /*
                 if (carCollisionBehavior.IsThereSomeNonCarObstacleBlocking())
                 {
                     civilianController.SetBackwardMovement();
                     wasFacingANonCarObstacle = true;
-                }
+                }*/
             }
 
             wasAvoidingPolice = false;

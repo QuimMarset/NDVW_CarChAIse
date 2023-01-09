@@ -65,30 +65,31 @@ public class RoadManager : MonoBehaviour
 
     private void SpawnCivilianCars()
     {
-        foreach (Road cityRoad in cityRoads)
-        {
-            Marker spawnMarker = cityRoad.GetPositionForCarToSpawn();
-
-            if (spawnMarker == null || CheckIfMarkerAlreadyUsed(spawnMarker))
+        if(numberToSpawn > 0)
+            foreach (Road cityRoad in cityRoads)
             {
-                continue;
+                Marker spawnMarker = cityRoad.GetPositionForCarToSpawn();
+
+                if (spawnMarker == null || CheckIfMarkerAlreadyUsed(spawnMarker))
+                {
+                    continue;
+                }
+
+                GameObject civilianCar = carSpawner.InstantiateCarPrefab(spawnMarker.transform.position, spawnMarker.transform.rotation);
+                MoveToWaypointBehavior moveToWaypointBehavior = civilianCar.GetComponent<MoveToWaypointBehavior>();
+                moveToWaypointBehavior.SetTargetMarker(spawnMarker.GetNextAdjacentMarker());
+                civilianCar.name = "Civilian_" + currentlySpawned;
+                Civilians.Add(civilianCar.GetComponent<CivilianController>());
+
+                currentlySpawned++;
+
+                usedToSpawn.Add(spawnMarker);
+
+                if (currentlySpawned >= numberToSpawn)
+                {
+                    return;
+                }
             }
-
-            GameObject civilianCar = carSpawner.InstantiateCarPrefab(spawnMarker.transform.position, spawnMarker.transform.rotation);
-            MoveToWaypointBehavior moveToWaypointBehavior = civilianCar.GetComponent<MoveToWaypointBehavior>();
-            moveToWaypointBehavior.SetTargetMarker(spawnMarker.GetNextAdjacentMarker());
-            civilianCar.name = "Civilian_" + currentlySpawned;
-            Civilians.Add(civilianCar.GetComponent<CivilianController>());
-
-            currentlySpawned++;
-
-            usedToSpawn.Add(spawnMarker);
-
-            if (currentlySpawned >= numberToSpawn)
-            {
-                return;
-            }
-        }
     }
 
     private void Update()

@@ -425,12 +425,13 @@ public class Police : CivilianController
 						// Get the angle of the curve
 						curveAngle = Vector3.Angle(CarRigidBody.velocity.normalized, diff);
 
-						// Get distance required to achieve the required speed
+						// Get required speed for the curve
 						if (i >= Waypoints.Count - 2) // If last waypoint
-							requiredSpeed = Mathf.Abs(PoliceMang.PlayerCar.CurrentForwardSpeed);
+							requiredSpeed = 0;
 						else // Otherwise
 							requiredSpeed = CurveSpeedFactor / curveAngle;  // Example with 50 degrees: 1000/50 = 20 Km/h
 
+						// Estimate brake distance
 						brakeDistance = EstimateBrakeDistance(requiredSpeed);
 						distanceToWaypoint = Vector3.Distance(CarFront.position, post);
 

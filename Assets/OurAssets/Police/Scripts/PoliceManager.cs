@@ -82,7 +82,8 @@ public class PoliceManager : MonoBehaviour
 		if (PoliceCars.Count < PoliceCarsToSpawn)
 		{
 			// Spawn remaining police cars			
-			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning(out List<GameObject> carsObjs, checkInPlayerView: CheckInPlayerView);
+			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning(out List<GameObject> carsObjs,
+				checkInPlayerView: CheckInPlayerView, defaultCar: PolicePrefab);
 			GameObject policeObj;
 			for (int i = PoliceCars.Count; i < PoliceCarsToSpawn; i++)
 			{
@@ -104,6 +105,11 @@ public class PoliceManager : MonoBehaviour
 		}
 	}
 
+	public void IncreasePoliceNumber()
+	{
+		PoliceCarsToSpawn += 1;
+	}
+
 	private GameObject PlacePolice(Marker mkr = null, GameObject policeObj = null,
 		List<Marker> availableMarkers = null, List<GameObject> carsObjs = null)
 	{
@@ -118,6 +124,8 @@ public class PoliceManager : MonoBehaviour
 				while (tries < 100)
 				{
 					mkr = availableMarkers[UnityEngine.Random.Range(0, availableMarkers.Count)];
+
+					// Check the case that the position is occupied by a car spawned this frame
 					mkrFound = RoadMang.IsMarkerAvailable(mkr, otherObjs: carsObjs);
 					tries++;
 				}
@@ -168,36 +176,40 @@ public class PoliceManager : MonoBehaviour
 			(Time.time - LastRelocateTime) > TimeForRelocatePolice)
 		{
 			// Search available markers
-			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning(out List<GameObject> carsObjs, checkInPlayerView: CheckInPlayerView);
+			List<Marker> availableMarkers = GameMang.GetMarkersForSpawning(out List<GameObject> carsObjs,
+				checkInPlayerView: CheckInPlayerView, defaultCar: PolicePrefab);
 
 			// Sort by distance to target
 			availableMarkers = availableMarkers.OrderBy(mkr => (mkr.transform.position - GameMang.PlayerTarget).magnitude).ToList();
 
 			// Remove first 5% of positions in order not to spawn too close to player
 			availableMarkers.RemoveRange(0, availableMarkers.Count / 5);
-           
-		    // Randomize the order of positions
-            System.Random rnd = new System.Random();
-            for (int i = 0; i < availableMarkers.Count && i < PoliceCars.Count * 4; i++)
+
+			// Randomize the order of positions
+			System.Random rnd = new System.Random();
+			for (int i = 0; i < availableMarkers.Count && i < PoliceCars.Count * 4; i++)
 			{
-                int j = rnd.Next(i, availableMarkers.Count < PoliceCars.Count * 4 ? availableMarkers.Count : PoliceCars.Count * 4);
-                Marker temp = availableMarkers[i];
-                availableMarkers[i] = availableMarkers[j];
-                availableMarkers[j] = temp;
-            }
-        
+				int j = rnd.Next(i, availableMarkers.Count < PoliceCars.Count * 4 ? availableMarkers.Count : PoliceCars.Count * 4);
+				Marker temp = availableMarkers[i];
+				availableMarkers[i] = availableMarkers[j];
+				availableMarkers[j] = temp;
+			}
+
 
 			// Move police cars to available markers. Maybe not all can be relocated
 			int policeIdx = 0;
+			Marker marker;
 			for (int mkrIdx = 0; mkrIdx < availableMarkers.Count && policeIdx < PoliceCars.Count; mkrIdx++)
 			{
+				marker = availableMarkers[mkrIdx];
+
 				// If police car is visible by player
-				if (CheckInPlayerView && GameMang.IsVisibleByPlayer(PoliceCars[policeIdx].transform.position))
+				if (CheckInPlayerView && GameMang.IsCarVisibleByPlayer(PoliceCars[policeIdx].transform.position, PoliceCars[policeIdx]))
 					policeIdx++;
 				// If marker NOT occupied by a previously relocated car
-				else if (RoadMang.IsMarkerAvailable(availableMarkers[mkrIdx], otherObjs: carsObjs))
+				else if (RoadMang.IsMarkerAvailable(marker, otherObjs: carsObjs))
 				{
-					PlacePolice(availableMarkers[mkrIdx], PoliceCars[policeIdx].gameObject);
+					PlacePolice(marker, PoliceCars[policeIdx].gameObject);
 					policeIdx++;
 				}
 			}
@@ -214,11 +226,6 @@ public class PoliceManager : MonoBehaviour
 	{
 		return RoadMang.GetClosestMarker(pos);
 	}
-
-	public void IncreasePoliceNumber()
-	{
-        PoliceCarsToSpawn += 1;
-    }
 
 	#endregion
 
@@ -243,8 +250,8 @@ public class PoliceManager : MonoBehaviour
 			LastPlayerPosTime = Mathf.NegativeInfinity;
 
 		// Set multiple targets at different sides of the player
-		Vector3[] targets = { LastPlayerKnownPos + 6 * PlayerCar.transform.forward,	// Extra offset for forward, trying to predict movement
-			LastPlayerKnownPos + 2 * -PlayerCar.transform.forward,
+		Vector3[] targets = { LastPlayerKnownPos + 8 * PlayerCar.transform.forward,	// Extra offset for forward, trying to predict movement
+			LastPlayerKnownPos + 4 * -PlayerCar.transform.forward,
 			LastPlayerKnownPos + 2 * PlayerCar.transform.right,
 			LastPlayerKnownPos + 2 * -PlayerCar.transform.right };
 

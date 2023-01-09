@@ -24,7 +24,7 @@ public class RoadsGenerator : MonoBehaviour
     [SerializeField]
     private float roadLength;
     [SerializeField]
-    private float scaleFactor;
+    public float scaleFactor;
     private float angle = 90;
 
     private Stack<AgentParameters> savedPoints = new();

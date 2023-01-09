@@ -55,13 +55,6 @@ public class BuildingGeneratorNoiseInput : MonoBehaviour
         Bounds baseBounds = cloneMesh.bounds;
         float heightOffset = baseBounds.size.y * scaleFactor;
 
-        BoxCollider collider = piece.AddComponent<BoxCollider>();
-        collider.center = baseBounds.center;
-
-        NavMeshObstacle obstacle = piece.AddComponent<NavMeshObstacle>();
-        obstacle.center = baseBounds.center;
-        obstacle.carving = true;
-
         piece.transform.SetParent(this.transform);
 
         // GeneratedObjectControl.instance.AddObject(piece);

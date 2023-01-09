@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8965562486638092928
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8965562486638092937}
+  - component: {fileID: 8965562486638092942}
+  - component: {fileID: 8965562486638092943}
+  - component: {fileID: 8965562486638092940}
+  - component: {fileID: 8965562486638092931}
+  - component: {fileID: 8965562486638092941}
+  m_Layer: 0
+  m_Name: RoadGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8965562486638092937
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8965562486638092928}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8965562486638092942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8965562486638092928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35013ed68fb73934f99e1fa53aff39f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rules:
+  - {fileID: 11400000, guid: 8b4945fb674e58642bb4a8dc5df2c1c6, type: 2}
+  initialSentence: '[F]--F'
+  iterationLimit: 3
+  probabilityToIgnoreARule: 0.5
+  finalSentence: 
+--- !u!114 &8965562486638092943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8965562486638092928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8f81fceb417da4e910ecc55610098e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  straightRoadPrefab: {fileID: 2446802754480131656, guid: 96f292515a0cc1f42905f607f1e914cb, type: 3}
+  curveRoadPrefab: {fileID: 2031781199474559364, guid: 877e20f8b8960c84a842a3b18fc5d03b, type: 3}
+  threeWayRoadPrefab: {fileID: 9043180354155577560, guid: dee55f2b01fff754289ae506af073ee6, type: 3}
+  fourWayRoadPrefab: {fileID: 1474068683369452745, guid: d6960c1f25f60ad4b8201faf292d2437, type: 3}
+  deadEndRoadPrefab: {fileID: 5108395760350436065, guid: 41ee5e126369bb1488e0824f493fba29, type: 3}
+--- !u!114 &8965562486638092940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8965562486638092928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fca4fea80a91aa43b21d2360bf73b0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8965562486638092931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8965562486638092928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7297cf1fb0353364c9b63ab34ed69cda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numOfRoadsInBetween: 1
+  roadLength: 3
+  scaleFactor: 8
+--- !u!114 &8965562486638092941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8965562486638092928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f18956e6b7de80439fa32204876846f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numberToSpawn: 25
+  currentlySpawned: 0
+  carSpawner: {fileID: 7265954067723387870, guid: 95d446d1b1893144ab8d672b19907c5a, type: 3}
