@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3129e21f06553dd42b762d94e2c9c599, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PoliceCarsToSpawn: 1
+  PoliceCarsToSpawn: 3
   PolicePrefab: {fileID: 7345431163290133205, guid: 54d61551768befe42bda4574d3791071, type: 3}
   StartChasing: 0
   CheckInPlayerView: 1

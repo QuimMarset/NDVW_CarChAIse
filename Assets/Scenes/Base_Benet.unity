@@ -218,10 +218,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6673527038755882817, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
-      propertyPath: PoliceCarsToSpawn
-      value: 3
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fe8588753ce2e946b193ffb554601ff, type: 3}
 --- !u!850595691 &500152157
